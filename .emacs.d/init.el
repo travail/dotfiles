@@ -20,7 +20,7 @@
 			(normal-top-level-add-subdirs-to-load-path))))))
 
 ;;
-(add-to-load-path "elisp" "conf" "public_repos")
+(add-to-load-path "conf")
 (load "init-perl")
 (load "init-c")
 
