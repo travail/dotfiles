@@ -18,3 +18,5 @@
     status = auto
     banch  = auto
 [remote "origin"]
+[include]
+	path = ~/.gitconfig.local
