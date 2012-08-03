@@ -94,10 +94,13 @@
 
 (put 'set-goal-column 'disabled nil)
 
-;;
+;; key mapping
 (define-key global-map (kbd "C-h")  'delete-backward-char)
 (define-key global-map (kbd "C-m")  'newline-and-indent)
 (define-key global-map (kbd "C-c C-c") 'comment-or-uncomment-region)
+
+;; indicate the number of column
+(column-number-mode t)
 
 ;;; This was installed by package-install.el.
 ;;; This provides support for the package system and
