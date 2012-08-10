@@ -3,6 +3,7 @@
 (autoload 'cperl-mode
   "cperl-mode"
   "alternate mode for editing Perl programs" t)
+
 (setq cperl-auto-newline nil)
 (setq cperl-indent-parens-as-block t)
 (setq cperl-close-paren-offset -4)
@@ -16,15 +17,9 @@
 (add-hook 'cperl-mode-hook
 		  '(lambda ()
 			 (define-key cperl-mode-map (kbd "M-.")  'cperl-find-module)
-			 (define-key cperl-mode-map (kbd "C-ct") 'perltidy-region)
-			 (setq cperl-close-paren-offset -4)
-			 (setq cperl-indent-level 4)
-			 (setq cperl-label-offset -4)
-			 (setq cperl-continued-statement-offset 4)
-			 (setq cperl-indent-parens-as-block t)
-			 (setq indent-tabs-mode nil)
+			 (define-key cperl-mode-map (kbd "C-c t") 'perltidy-region)
 			 (abbrev-mode 1)
-			 (set-face-foreground 'font-lock-variable-name-face "blue")
+			 (set-face-foreground 'font-lock-variable-name-face "yellow")
 			 ))
 
 ;; source reindent by perltidy
