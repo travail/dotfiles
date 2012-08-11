@@ -47,13 +47,15 @@
 ;; enable visual feedback on selections
 (setq transient-mark-mode t)
 
-;; highlight brackets, braces
-(show-paren-mode t)
-
 ;; highlight current line
 ;;(global-hl-line-mode 1)
-
-;; UTF8
+;; highlight brackets, braces
+(show-paren-mode t)
+;; highlight whitespace
+(require 'jaspace)
+(setq jaspace-alternate-jaspace-string "□")
+;;(setq jaspace-alternate-eol-string "↓\n")
+(setq jaspace-highlight-tags t)
 
 ;; for Japanese
 (set-language-environment "Japanese")
