@@ -71,7 +71,8 @@ export PERL_BADLANG=0
 export GREP_OPTIONS="--color=auto"
 
 # rbenv
-export PATH="$HOME/.rbenv/bin:$PATH"
+export RBENV_ROOT=/usr/local/rbenv
+export PATH="$RBENV_ROOT/bin:$PATH"
 eval "$(rbenv init -)"
 
 # cpanm
