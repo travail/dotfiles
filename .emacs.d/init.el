@@ -26,6 +26,7 @@
 (load "init-javascript")
 (load "init-perl")
 (load "init-php")
+(load "init-ruby")
 (load "init-yaml")
 
 ;; auto-install
