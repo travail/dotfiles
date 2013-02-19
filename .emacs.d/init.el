@@ -68,10 +68,6 @@
 (prefer-coding-system 'utf-8)
 (setq file-name-coding-system 'utf-8)
 
-(when (eq system-type 'gnu/linux)
-  (load-library "anthy")
-  (set-input-method "japanese-anthy"))
-
 ;; trancate lines
 (setq truncate-lines nil)
 (setq truncate-partial-width-windows nil)
