@@ -26,6 +26,7 @@
 (load "init-javascript")
 (load "init-perl")
 (load "init-php")
+(load "init-ruby")
 (load "init-yaml")
 
 ;; auto-install
@@ -66,10 +67,6 @@
 (setq default-buffer-file-coding-system 'utf-8)
 (prefer-coding-system 'utf-8)
 (setq file-name-coding-system 'utf-8)
-
-(when (eq system-type 'gnu/linux)
-  (load-library "anthy")
-  (set-input-method "japanese-anthy"))
 
 ;; trancate lines
 (setq truncate-lines nil)
