@@ -76,6 +76,12 @@
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
 
+;; auto complete corresponding character below
+(global-set-key (kbd "(") 'skeleton-pair-insert-maybe)
+(global-set-key (kbd "{") 'skeleton-pair-insert-maybe)
+(global-set-key (kbd "[") 'skeleton-pair-insert-maybe)
+(global-set-key (kbd "\"") 'skeleton-pair-insert-maybe)
+(setq skeleton-pair 1)
 
 ;; do not make backup file '***~'
 (setq make-backup-files nil)
