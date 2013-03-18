@@ -20,3 +20,5 @@
 [remote "origin"]
 [include]
 	path = ~/.gitconfig.local
+[merge]
+	ff = false
