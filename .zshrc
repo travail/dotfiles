@@ -65,6 +65,9 @@ setopt NO_BEEP
 export PERL_BADLANG=0
 export GREP_OPTIONS="--color=auto"
 
+# java
+export JAVA_HOME=/usr/java/default
+
 # rbenv
 export RBENV_ROOT=/usr/local/rbenv
 export PATH="$RBENV_ROOT/bin:$PATH"
