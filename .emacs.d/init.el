@@ -19,7 +19,7 @@
 		(if (fboundp 'normal-top-level-add-subdirs-to-load-path)
 			(normal-top-level-add-subdirs-to-load-path))))))
 
-;;
+;; load configuration files
 (add-to-load-path "conf" "elpa")
 (load "init-c")
 (load "init-html")
@@ -28,6 +28,7 @@
 (load "init-php")
 (load "init-ruby")
 (load "init-yaml")
+(load "init-japanese")
 
 ;; auto-install
 (require 'auto-install)
@@ -43,6 +44,10 @@
 ;; anything
 (require 'anything-startup)
 
+;; yasnippet
+(require 'yasnippet)
+(yas-global-mode 1)
+
 ;; turn on font-lock mode
 (global-font-lock-mode t)
 
@@ -55,18 +60,7 @@
 (show-paren-mode t)
 ;; highlight whitespace
 (require 'jaspace)
-(setq jaspace-alternate-jaspace-string "□")
-;;(setq jaspace-alternate-eol-string "↓\n")
 (setq jaspace-highlight-tags t)
-
-;; for Japanese
-(set-language-environment "Japanese")
-(set-default-coding-systems 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-buffer-file-coding-system 'utf-8)
-(setq default-buffer-file-coding-system 'utf-8)
-(prefer-coding-system 'utf-8)
-(setq file-name-coding-system 'utf-8)
 
 ;; trancate lines
 (setq truncate-lines nil)
@@ -76,7 +70,7 @@
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
 
-;; auto complete corresponding character below
+;; auto complete corresponding characters below
 (global-set-key (kbd "(") 'skeleton-pair-insert-maybe)
 (global-set-key (kbd "{") 'skeleton-pair-insert-maybe)
 (global-set-key (kbd "[") 'skeleton-pair-insert-maybe)
