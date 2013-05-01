@@ -74,7 +74,14 @@ export PATH="$RBENV_ROOT/bin:$PATH"
 eval "$(rbenv init -)"
 
 # set aliases
-alias ls='ls -F --color=auto'
+case ${OSTYPE} in
+    darwin*)
+        alias ls='ls -G'
+        ;;
+    linux*)
+        alias ls='ls -F --color=auto'
+        ;;
+esac
 alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
@@ -84,4 +91,6 @@ alias eng='LANG=C LANGUAGE=C LC_ALL=C'
 umask 002
 
 # perlbrew
-source /usr/local/perlbrew/bashrc
+if [ -f /usr/local/perlbrew/bashrc ]; then
+    source /usr/local/perlbrew/bashrc
+fi
