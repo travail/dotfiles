@@ -71,7 +71,9 @@ export JAVA_HOME=/usr/java/default
 # rbenv
 export RBENV_ROOT=/usr/local/rbenv
 export PATH="$RBENV_ROOT/bin:$PATH"
-eval "$(rbenv init -)"
+if [ -x `which rbenv` ]; then
+    eval "$(rbenv init -)"
+fi
 
 # set aliases
 case ${OSTYPE} in
