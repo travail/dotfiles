@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# key: sub
+# name: sub
+# binding: C-c C-c C-s
+# --
+sub ${1:function_name} {
+    my ($2) = @_;
+    $0
+}
