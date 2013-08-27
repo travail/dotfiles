@@ -33,3 +33,11 @@
 (setq auto-mode-alist (append '(("\\.cgi$" . cperl-mode)) auto-mode-alist))
 (setq auto-mode-alist (append '(("\\.PL$" . cperl-mode)) auto-mode-alist))
 (setq auto-mode-alist (append '(("\\.psgi$" . cperl-mode)) auto-mode-alist))
+
+;; yasnippet
+(defun yas/perl-package-name ()
+  (let ((file-path (file-name-sans-extension (buffer-file-name))))
+    (if (string-match "lib/" file-path)
+        (replace-regexp-in-string "/" "::"
+                                  (car (last (split-string file-path "/lib/"))))
+      (file-name-nondirectory file-path))))

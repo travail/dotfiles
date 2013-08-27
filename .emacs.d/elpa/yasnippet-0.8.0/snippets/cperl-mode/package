@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# key: package
+# name: package
+# binding: C-c C-c C-p
+# --
+package ${1:`(yas/perl-package-name)`};
+
+use strict;
+use warnings;
+
+$0
+
+1;
