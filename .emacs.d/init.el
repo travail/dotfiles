@@ -29,6 +29,7 @@
 (load "init-ruby")
 (load "init-yaml")
 (load "init-japanese")
+(load "flymake")
 
 ;; auto-install
 (require 'auto-install)
