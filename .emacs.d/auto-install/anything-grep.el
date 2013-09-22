@@ -157,7 +157,7 @@
 ;;; Code:
 
 (defvar anything-grep-version "$Id: anything-grep.el,v 1.27 2010-03-21 11:31:04 rubikitch Exp $")
-(require 'anything)
+(require 'anything-config)
 (require 'grep)
 
 (defvar anything-grep-save-buffers-before-grep nil
@@ -176,6 +176,10 @@ Use anything.el v1.147 or newer.")
 
 (defvar anything-grep-fontify-file-name t
   "If non-nil, fontify file name and line number of matches.")
+
+(defvar anything-grep-sh-program
+  (or (executable-find "zsh")
+      (executable-find "sh")))
 
 (defvar anything-grep-alist
   '(("buffers" ("egrep -Hin %s $buffers" "/"))
@@ -214,6 +218,12 @@ For example, normalizing many Japanese encodings to EUC-JP,
 set this variable to \"ruby -rkconv -pe '$_.replace $_.toeuc'\".
 The command is converting standard input to EUC-JP line by line. ")
 
+(defvar anything-grep-repository-root-function (if (require 'repository-root nil t)
+                                                     'repository-root
+                                                   nil)
+  "*If non-nil, a function that returns the current file's repository root directory.
+The function is called with a single string argument (a file name) and should
+return either nil, or a string, which is the root directory of that file's repository.")
 
 ;; (@* "core")
 (defvar anything-grep-sources nil
@@ -268,10 +278,13 @@ The command is converting standard input to EUC-JP line by line. ")
 (defvar agrep-source-local nil)
 (defvar agrep-waiting-source nil
   "`anything' sources to get together in `agrep-sentinel'.")
+(defvar agrep-proc-tmpfile-alist nil)
 (defun agrep-do-grep (command pwd)
   "Insert result of COMMAND. The current directory is PWD.
 GNU grep is expected for COMMAND. The grep result is colorized."
-  (let ((process-environment process-environment))
+  (let ((process-environment process-environment)
+        proc
+        (tmpfile (make-temp-file "agrep-")))
     (when (eq grep-highlight-matches t)
       ;; Modify `process-environment' locally bound in `call-process-shell-command'.
       (setenv "GREP_OPTIONS" (concat (getenv "GREP_OPTIONS") " --color=always"))
@@ -281,10 +294,11 @@ GNU grep is expected for COMMAND. The grep result is colorized."
       (setenv "GREP_COLORS" "mt=01;31:fn=:ln=:bn=:se=:ml=:cx=:ne"))
     (set (make-local-variable 'agrep-source-local) (anything-get-current-source))
     (add-to-list 'agrep-waiting-source agrep-source-local)
-    (set-process-sentinel
-     (start-process-shell-command "anything-grep" (current-buffer)
-                                  (format "cd %s; %s" pwd command))
-     'agrep-sentinel)))
+    (setq proc (start-process "anything-grep" (current-buffer)
+                              anything-grep-sh-program "-c"
+                              (format "cd %s; %s > %s" pwd command tmpfile)))
+    (push (cons proc tmpfile) agrep-proc-tmpfile-alist)
+    (set-process-sentinel proc 'agrep-sentinel)))
 
 (defvar agrep-do-after-minibuffer-exit nil)
 (defun agrep-minibuffer-exit-hook ()
@@ -292,6 +306,11 @@ GNU grep is expected for COMMAND. The grep result is colorized."
     (run-at-time 1 nil agrep-do-after-minibuffer-exit)
     (setq agrep-do-after-minibuffer-exit nil)))
 (add-hook 'minibuffer-exit-hook 'agrep-minibuffer-exit-hook)
+
+(defun agrep-highlight-line-after-persistent-action ()
+  (when anything-in-persistent-action
+    (anything-persistent-highlight-point (point-at-bol) (point-at-eol))))
+(add-hook 'anything-grep-goto-hook 'agrep-highlight-line-after-persistent-action)
 
 (defun agrep-show (func)
   (if (active-minibuffer-window)
@@ -302,9 +321,14 @@ GNU grep is expected for COMMAND. The grep result is colorized."
 (defun agrep-sentinel (proc stat)
   (with-current-buffer (process-buffer proc)
     (setq agrep-waiting-source (delete agrep-source-local agrep-waiting-source))
+    (let ((tmpfile (assoc-default proc agrep-proc-tmpfile-alist)))
+      (insert-file-contents tmpfile)
+      (goto-char 1)
+      (delete-file tmpfile))
     (agrep-fontify))
   (unless agrep-waiting-source
     ;; call anything
+    (setq agrep-proc-tmpfile-alist nil)
     (agrep-show
      (lambda ()
        (let ((anything-quit-if-no-candidate (lambda () (message "No matches"))))
@@ -342,13 +366,16 @@ Its contents is fontified grep result."
 
 (defun agrep-goto  (file-line-content)
   "Visit the source for the grep result at point."
-  (string-match ":\\([0-9]+\\):" file-line-content)
-  (save-match-data
-    (funcall anything-grep-find-file-function
-             (expand-file-name (substring file-line-content
-                                          0 (match-beginning 0))
-                               (anything-attr 'pwd))))
-  (goto-line (string-to-number (match-string 1 file-line-content)))
+  (if (not (string-match ":\\([0-9]+\\):" file-line-content))
+      ;; If lineno is unavailable, just open file
+      (funcall anything-grep-find-file-function
+               (expand-file-name file-line-content (anything-attr 'pwd)))
+    (save-match-data
+      (funcall anything-grep-find-file-function
+               (expand-file-name (substring file-line-content
+                                            0 (match-beginning 0))
+                                 (anything-attr 'pwd))))
+    (anything-goto-line (string-to-number (match-string 1 file-line-content))))
   (run-hooks 'anything-grep-goto-hook))
 
 ;; (@* "simple grep interface")
@@ -429,6 +456,46 @@ Difference with `anything-grep-by-name' is prompt order."
   (interactive (agrep-by-name-read-info (quote name) (quote query)))
   (anything-grep-by-name query name))
 
+;;; repository root
+(defun agrep-repository-root (filename)
+  "Attempt to deduce the current file's repository root directory.
+You should customize `anything-grep-repository-root-function' and provide a function that
+does the actual work, based of the type of SCM tool that you're using."
+  (if (null filename)
+      nil
+    (let* ((directory (file-name-directory filename))
+           (repository-root (if (and anything-grep-repository-root-function
+                                     (functionp anything-grep-repository-root-function))
+                                (apply anything-grep-repository-root-function (list filename))
+                              nil)))
+      (or repository-root directory))))
+
+(defun anything-grep-repository-1 (command)
+  "Run `anything-grep' in repository."
+  (interactive
+   (progn
+     (grep-compute-defaults)
+     (let ((default (grep-default-command)))
+       (list (read-from-minibuffer
+              (format "Run grep in %s (like this): "
+                      (agrep-repository-root
+                       (or buffer-file-name default-directory)))
+              (if current-prefix-arg
+                  default grep-command)
+              nil nil 'grep-history
+              (if current-prefix-arg nil default))))))
+  (anything-grep command (agrep-repository-root (or buffer-file-name default-directory))))
+
+(defun anything-grep-repository (&optional query)
+  "Do `anything-grep' from predefined location.
+It asks NAME for location name and QUERY."
+  (interactive (list (agrep-by-name-read-info 'query)))
+  (grep-compute-defaults)
+  (anything-grep-repository-1
+   (format (concat grep-command " %s")
+           (shell-quote-argument query))))
+
+;;; visited file
 ;;;; unit test
 ;; (install-elisp "http://www.emacswiki.org/cgi-bin/wiki/download/el-expectations.el")
 ;; (install-elisp "http://www.emacswiki.org/cgi-bin/wiki/download/el-mock.el")

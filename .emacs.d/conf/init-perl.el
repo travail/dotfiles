@@ -41,3 +41,23 @@
         (replace-regexp-in-string "/" "::"
                                   (car (last (split-string file-path "/lib/"))))
       (file-name-nondirectory file-path))))
+
+;; ;; perl-completion
+;; (add-hook 'cperl-mode-hook
+;;           '(lambda()
+;;              (require 'perl-completion)
+;;              (perl-completion-mode t)))
+
+;; (add-hook  'cperl-mode-hook
+;;            (lambda ()
+;;              (when (require 'auto-complete nil t) ; no error whatever auto-complete.el is not installed.
+;;                (auto-complete-mode t)
+;;                (make-variable-buffer-local 'ac-sources)
+;;                (setq ac-sources
+;;                      '(ac-source-perl-completion)))))
+
+;; (require 'set-perl5lib)
+(setq cperl-electric-keywords t)
+(setq cperl-electric-lbrace-space t)
+(setq cperl-font-lock t)
+(setq cperl-electric-parens t)
