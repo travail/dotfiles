@@ -30,6 +30,7 @@
 	(shell-command-on-region (point) (mark) "perltidy -q" nil t)))
 (add-to-list 'auto-mode-alist '("\\.pl$" . perl-mode))
 (add-to-list 'auto-mode-alist '("\\.pm$" . perl-mode))
+(add-to-list 'auto-mode-alist '("\\.fcgi$" . perl-mode))
 (add-to-list 'auto-mode-alist '("\\.cgi$" . perl-mode))
 (add-to-list 'auto-mode-alist '("\\.PL$" . perl-mode))
 (add-to-list 'auto-mode-alist '("\\.psgi$" . perl-mode))
