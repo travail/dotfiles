@@ -45,10 +45,10 @@
       (file-name-nondirectory file-path))))
 
 ;; perl-completion
-(add-hook 'cperl-mode-hook
-          '(lambda()
-             (require 'perl-completion)
-             (perl-completion-mode t)))
+;; (add-hook 'cperl-mode-hook
+;;           '(lambda()
+;;              (require 'perl-completion)
+;;              (perl-completion-mode t)))
 
 ;; (add-hook  'cperl-mode-hook
 ;;            (lambda ()
