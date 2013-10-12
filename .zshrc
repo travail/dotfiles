@@ -64,6 +64,7 @@ setopt NO_BEEP
 
 export PERL_BADLANG=0
 export GREP_OPTIONS="--color=auto"
+export LC_CTYPE="en_US.UTF-8"
 
 # java
 export JAVA_HOME=/usr/java/default
