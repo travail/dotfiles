@@ -24,3 +24,5 @@
 	ff = false
 [core]
 	editor = emacs
+[push]
+	default = simple
