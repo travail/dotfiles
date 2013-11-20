@@ -98,7 +98,8 @@ if [ -f /usr/local/perlbrew/bashrc ]; then
 fi
 
 # plenv
-if [ -f /usr/local/plenv ]; then
-    export PATH="$HOME/.plenv/bin:$PATH"
+export PLENV_ROOT=/usr/local/plenv
+export PATH="$PLENV_ROOT/bin:$PATH"
+if [ -x `which plenv` ]; then
     eval "$(plenv init -)"
 fi
