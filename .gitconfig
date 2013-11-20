@@ -21,7 +21,7 @@
 [include]
 	path = ~/.gitconfig.local
 [merge]
-	ff = false
+	# ff = false
 [core]
 	editor = emacs
 [push]
