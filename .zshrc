@@ -96,3 +96,9 @@ umask 002
 if [ -f /usr/local/perlbrew/bashrc ]; then
     source /usr/local/perlbrew/bashrc
 fi
+
+# plenv
+if [ -f /usr/local/plenv ]; then
+    export PATH="$HOME/.plenv/bin:$PATH"
+    eval "$(plenv init -)"
+fi
