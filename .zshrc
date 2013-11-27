@@ -93,9 +93,9 @@ alias eng='LANG=C LANGUAGE=C LC_ALL=C'
 umask 002
 
 # perlbrew
-if [ -f /usr/local/perlbrew/bashrc ]; then
-    source /usr/local/perlbrew/bashrc
-fi
+# if [ -f /usr/local/perlbrew/bashrc ]; then
+#     source /usr/local/perlbrew/bashrc
+# fi
 
 # plenv
 export PLENV_ROOT=/usr/local/plenv
