@@ -29,7 +29,7 @@
 (load "init-ruby")
 (load "init-yaml")
 (load "init-japanese")
-(load "flymake")
+;; (load "flymake")
 
 ;; auto-install
 (require 'auto-install)
@@ -46,8 +46,8 @@
 (require 'anything-startup)
 
 ;; yasnippet
-(require 'yasnippet)
-(yas-global-mode 1)
+;; (require 'yasnippet)
+;; (yas-global-mode 1)
 
 ;; ;; import PATH from shell
 ;; (defun set-exec-path-from-shell-PATH ()
