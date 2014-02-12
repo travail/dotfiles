@@ -25,4 +25,4 @@
 [core]
 	editor = emacs
 [push]
-	default = simple
+#	default = simple
