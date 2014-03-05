@@ -71,7 +71,8 @@ export JAVA_HOME=/usr/java/default
 # rbenv
 export RBENV_ROOT=/usr/local/rbenv
 export PATH="$RBENV_ROOT/bin:$RBENV_ROOT/shims:$PATH"
-if [ -x `which rbenv` ]; then
+if [ `which rbenv 2> /dev/null` ]; then
+    echo "rbenv init"
     eval "$(rbenv init -)"
 fi
 
@@ -100,6 +101,6 @@ umask 002
 # plenv
 export PLENV_ROOT=/usr/local/plenv
 export PATH="$PLENV_ROOT/bin:$PLENV_ROOT/shims:$PATH"
-if [ -x `which plenv` ]; then
+if [ `which plenv 2> /dev/null` ]; then
     eval "$(plenv init -)"
 fi
