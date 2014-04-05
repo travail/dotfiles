@@ -20,11 +20,6 @@ autoload -U compinit
 compinit
 setopt auto_pushd
 
-## run screen
-#if [ $SHLVL = 1 ]; then
-#    screen -r -D
-#fi
-
 #allow tab completion in the middle of a word
 setopt COMPLETE_IN_WORD
 
@@ -72,7 +67,6 @@ export JAVA_HOME=/usr/java/default
 export RBENV_ROOT=/usr/local/rbenv
 export PATH="$RBENV_ROOT/bin:$RBENV_ROOT/shims:$PATH"
 if [ `which rbenv 2> /dev/null` ]; then
-    echo "rbenv init"
     eval "$(rbenv init -)"
 fi
 
@@ -92,11 +86,6 @@ alias eng='LANG=C LANGUAGE=C LC_ALL=C'
 
 # set umask
 umask 002
-
-# perlbrew
-# if [ -f /usr/local/perlbrew/bashrc ]; then
-#     source /usr/local/perlbrew/bashrc
-# fi
 
 # plenv
 export PLENV_ROOT=/usr/local/plenv
