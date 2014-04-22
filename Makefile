@@ -1,5 +1,5 @@
 PWD=$(shell pwd)
-all: emacs git mysql perltidyrc tmux zshrc
+all: emacs git mysql perltidyrc tmux zshrc gemrc
 
 emacs: .emacs.d
 	ln -s $(PWD)/.emacs.d ~/.emacs.d
@@ -20,6 +20,9 @@ tmux: .tmux.conf
 zshrc: .zshrc
 	ln -s $(PWD)/.zshrc ~/.zshrc
 
+gemrc: .gemrc
+	ln -s $(PWD)/.gemrc ~/.gemrc
+
 clean:
 	rm -f ~/.emacs.d
 	rm -f ~/.git
@@ -29,3 +32,4 @@ clean:
 	rm -f ~/.perltidyrc
 	rm -f ~/.tmux.conf
 	rm -f ~/.zshrc
+	rm -f ~/.gemrc
