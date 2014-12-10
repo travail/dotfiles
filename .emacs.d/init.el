@@ -48,6 +48,12 @@
 ;; anything
 (require 'anything-startup)
 
+;; anything-exuberant-ctags
+(when (require 'anything nil t)
+  (require 'anything-exuberant-ctags)
+  )
+(define-key global-map (kbd "C-c j")  'anything-exuberant-ctags-select-from-here)
+
 ;; yasnippet
 ;; (require 'yasnippet)
 ;; (yas-global-mode 1)
