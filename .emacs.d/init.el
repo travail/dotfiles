@@ -41,6 +41,9 @@
 ;; auto-complete
 (require 'auto-complete-config)
 (global-auto-complete-mode 1)
+(setq ac-ignore-case t)
+(setq ac-delay 0.2)
+(setq ac-auto-show-menu 0.2)
 
 ;; anything
 (require 'anything-startup)
