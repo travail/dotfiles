@@ -19,6 +19,7 @@ tmux: .tmux.conf
 
 zshrc: .zshrc
 	ln -s $(PWD)/.zshrc ~/.zshrc
+	ln -s $(PWD)/.zsh ~/.zsh
 
 gemrc: .gemrc
 	ln -s $(PWD)/.gemrc ~/.gemrc
@@ -32,4 +33,5 @@ clean:
 	rm -f ~/.perltidyrc
 	rm -f ~/.tmux.conf
 	rm -f ~/.zshrc
+	rm -rf ~/.zsh
 	rm -f ~/.gemrc

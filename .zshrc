@@ -16,9 +16,7 @@ fi
 
 printf "\033P\033]0;$USER@$HOSTNAME\007\033\\"
 
-autoload -U compinit
-compinit
-setopt auto_pushd
+autoload -Uz compinit
 
 #allow tab completion in the middle of a word
 setopt COMPLETE_IN_WORD
@@ -63,33 +61,11 @@ export GREP_OPTIONS="--color=auto"
 # java
 export JAVA_HOME=/usr/java/default
 
-# rbenv
-export RBENV_ROOT=/usr/local/rbenv
-export PATH="$RBENV_ROOT/bin:$RBENV_ROOT/shims:$PATH"
-if [ `which rbenv 2> /dev/null` ]; then
-    eval "$(rbenv init -)"
-fi
-
-# set aliases
-case ${OSTYPE} in
-    darwin*)
-        alias ls='ls -G'
-        ;;
-    linux*)
-        alias ls='ls -F --color=auto'
-        ;;
-esac
-alias rm='rm -i'
-alias cp='cp -i'
-alias mv='mv -i'
-alias eng='LANG=C LANGUAGE=C LC_ALL=C'
-
 # set umask
 umask 002
 
-# plenv
-export PLENV_ROOT=/usr/local/plenv
-export PATH="$PLENV_ROOT/bin:$PLENV_ROOT/shims:$PATH"
-if [ `which plenv 2> /dev/null` ]; then
-    eval "$(plenv init -)"
-fi
+for file (`find ~/.zsh/ -type f -name '*.sh'`) do
+    if [ -f $file ]; then
+        source $file
+    fi
+done
