@@ -1,6 +1,9 @@
 # plenv
 export PLENV_ROOT=/usr/local/plenv
 export PATH="$PLENV_ROOT/bin:$PLENV_ROOT/shims:$PATH"
-if [ `which plenv 2> /dev/null` ]; then
+EXECUTABLE_PATH="$PLENV_ROOT/bin/plenv"
+if [ -x "$EXECUTABLE_PATH" ]; then
     eval "$(plenv init -)"
+else
+    echo "Executable $EXECUTABLE_PATH not found"
 fi
