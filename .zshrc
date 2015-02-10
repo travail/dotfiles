@@ -70,3 +70,12 @@ for file (`find ~/.zsh/ -type f -name '*.sh'`) do
         source $file
     fi
 done
+
+# Override by local setting
+if [ -d ~/.zsh.local ]; then
+    for file (`find ~/.zsh.local -type f -name '*.sh'`) do
+        if [ -f $file ]; then
+            source $file
+        fi
+    done
+fi
