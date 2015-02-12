@@ -2,8 +2,8 @@
 ;; (setq inhibit-default-init t)
 
 ;;
-(add-to-list 'load-path "~/.emacs.d/")
-(add-to-list 'load-path "~/.emacs.d/auto-install")
+(add-to-list 'load-path "~/.emacs.d/lisp")
+(add-to-list 'load-path "~/.emacs.d/lisp/auto-install")
 
 ;;
 (when (< emacs-major-version 23)
@@ -20,7 +20,7 @@
 			(normal-top-level-add-subdirs-to-load-path))))))
 
 ;; load configuration files
-(add-to-load-path "conf" "elpa")
+(add-to-load-path "lisp/conf" "lisp/elpa")
 (load "init-c")
 (load "init-html")
 (load "init-javascript")
