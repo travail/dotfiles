@@ -81,9 +81,6 @@
 ;;(global-hl-line-mode 1)
 ;; highlight brackets, braces
 (show-paren-mode t)
-;; highlight whitespace
-(require 'jaspace)
-(setq jaspace-highlight-tags t)
 
 ;; trancate lines
 (setq truncate-lines nil)
