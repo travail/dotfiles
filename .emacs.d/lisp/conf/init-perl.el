@@ -61,6 +61,6 @@
 
 ;; (require 'set-perl5lib)
 (setq cperl-electric-keywords t)
-(setq cperl-electric-lbrace-space t)
+(setq cperl-electric-lbrace-space nil)
 (setq cperl-font-lock t)
-(setq cperl-electric-parens t)
+(setq cperl-electric-parens nil)
