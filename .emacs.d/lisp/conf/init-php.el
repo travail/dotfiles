@@ -36,10 +36,13 @@
 (require 'flymake-php)
 (eval-after-load 'flymake
   '(progn
-     (set-face-background 'flymake-errline "red")
+     (set-face-background 'flymake-errline "yellow")
      (set-face-background 'flymake-warnline "blue")
      ))
 (add-hook 'php-mode-hook 'flymake-php-load)
+(defadvice flymake-post-syntax-check (before flymake-force-check-was-interrupted)
+  (setq flymake-check-was-interrupted t))
+(ad-activate 'flymake-post-syntax-check)
 
 ;; collecting all functions for compaletion
 (defun my-fetch-php-completions ()
