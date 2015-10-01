@@ -40,6 +40,7 @@
   (setq user-emacs-directory (file-name-directory load-file-name)))
 (setq el-get-dir (locate-user-emacs-file "site-lisp"))
 (require 'el-get)
+(el-get-bundle init-loader)
 (el-get-bundle flymake)
 (el-get-bundle flymake-easy)
 (el-get-bundle auto-complete)
@@ -58,15 +59,9 @@
 (el-get-bundle purcell/flymake-php)
 (el-get-bundle yaml-mode)
 
-(load "init-c")
-(load "init-html")
-(load "init-javascript")
-(load "init-perl")
-(load "init-php")
-(load "init-ruby")
-(load "init-yaml")
-(load "init-japanese")
-(load "flymake")
+;; init-loader
+(setq init-loader-default-regexp "\\(?:^[[:digit:]]\\{2\\}\\).*\\.el\$")
+(init-loader-load "~/.emacs.d/lisp/conf")
 
 ;; auto-complete
 (require 'auto-complete-config)
