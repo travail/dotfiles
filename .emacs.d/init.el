@@ -22,7 +22,7 @@
 (package-initialize)
 
 ;; configuration directories
-(add-to-load-path "lisp/conf" "lisp/el-get" "site-lisp")
+(add-to-load-path "lisp/conf" "site-lisp")
 
 ;; install el-get if not exist
 (setq el-get-dir (locate-user-emacs-file "site-lisp"))
