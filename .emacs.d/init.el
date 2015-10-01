@@ -146,18 +146,3 @@
 
 ;; indicate the number of column
 (column-number-mode t)
-
-;;; This was installed by package-install.el.
-;;; This provides support for the package system and
-;;; interfacing with ELPA, the package archive.
-;;; Move this code earlier if you want to reference
-;;; packages in your .emacs.
-;; (when
-;; 	(load
-;; 	 (expand-file-name "~/.emacs.d/elpa/package.el"))
-;;  (package-initialize))
-(when (require 'package nil t)
-  (add-to-list 'package-archives
-			   '("marmalade" . "http://marmalade-repo.org/packages/"))
-  (add-to-list 'package-archives '("ELPA" . "http://tromey.com/elpa/"))
-  (package-initialize))
