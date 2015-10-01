@@ -3,6 +3,7 @@ all: emacs git mysql perltidyrc tmux zshrc gemrc
 
 emacs: .emacs.d
 	ln -s $(PWD)/.emacs.d ~/.emacs.d
+	mkdir -p $(PWD)/.emacs.d/site-lisp
 
 git: .gitignore .gitconfig
 	ln -s $(PWD)/.gitconfig ~/.gitconfig
