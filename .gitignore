@@ -3,3 +3,5 @@
 .emacs.d/lisp/elpa/archives
 .emacs.d/lisp/el-get
 .emacs.d/elpa
+.emacs.d/url
+.emacs.d/site-lisp
