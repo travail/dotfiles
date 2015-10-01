@@ -1,3 +1,9 @@
+;;; package --- init.el
+
+;;; Commentary:
+
+;;; Code:
+
 ;;; uncomment this line to disable loading of "default.el" at startup
 ;; (setq inhibit-default-init t)
 
@@ -14,12 +20,6 @@
         (add-to-list 'load-path default-directory)
         (if (fboundp 'normal-top-level-add-subdirs-to-load-path)
             (normal-top-level-add-subdirs-to-load-path))))))
-
-;; setup package
-(require 'package)
-(add-to-list 'package-archives '("melpa"     . "http://melpa.milkbox.net/packages/"))
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-(package-initialize)
 
 ;; add path to packages
 (add-to-load-path "lisp/conf" "site-lisp")
@@ -41,8 +41,7 @@
 (setq el-get-dir (locate-user-emacs-file "site-lisp"))
 (require 'el-get)
 (el-get-bundle init-loader)
-(el-get-bundle flymake)
-(el-get-bundle flymake-easy)
+(el-get-bundle pos-tip)
 (el-get-bundle auto-complete)
 (el-get-bundle migemo)
 (el-get-bundle helm)
@@ -56,8 +55,17 @@
 (el-get-bundle js2-mode)
 (el-get-bundle js2-highlight-vars)
 (el-get-bundle php-completion)
-(el-get-bundle purcell/flymake-php)
 (el-get-bundle yaml-mode)
+
+;; setup package
+(require 'package)
+(add-to-list 'package-archives '("melpa"     . "http://melpa.milkbox.net/packages/"))
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(package-initialize)
+(unless (package-installed-p 'flycheck)
+  (package-refresh-contents) (package-install 'flycheck))
+(unless (package-installed-p 'flycheck-pos-tip)
+  (package-refresh-contents) (package-install 'flycheck-pos-tip))
 
 ;; init-loader
 (setq init-loader-default-regexp "\\(?:^[[:digit:]]\\{2\\}\\).*\\.el\$")
@@ -133,11 +141,7 @@
 
 (put 'set-goal-column 'disabled nil)
 
-;; key mapping
-(define-key global-map (kbd "C-h")  'delete-backward-char)
-(define-key global-map (kbd "C-m")  'newline-and-indent)
-(define-key global-map (kbd "C-c c") 'comment-or-uncomment-region)
-(define-key global-map (kbd "C-c g") 'goto-line)
-
 ;; indicate the number of column
 (column-number-mode t)
+
+;;; init.el ends here
