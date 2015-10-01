@@ -15,31 +15,47 @@
         (if (fboundp 'normal-top-level-add-subdirs-to-load-path)
             (normal-top-level-add-subdirs-to-load-path))))))
 
+;; setup package
+(require 'package)
+(add-to-list 'package-archives '("melpa" .     "http://melpa.milkbox.net/packages/"))
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(package-initialize)
+
 ;; configuration directories
-(add-to-load-path "lisp/conf" "lisp/el-get" "lisp/github")
+(add-to-load-path "lisp/conf" "lisp/el-get" "site-lisp")
+
+;; install el-get if not exist
+(setq el-get-dir (locate-user-emacs-file "site-lisp"))
+(unless (require 'el-get nil 'noerror)
+  (with-current-buffer
+      (url-retrieve-synchronously
+       "https://raw.github.com/dimitri/el-get/master/el-get-install.el")
+    (goto-char (point-max))
+    (eval-print-last-sexp)))
+(el-get 'sync)
+(unless (file-exists-p (locate-user-emacs-file "elpa")) (el-get-elpa-build-local-recipes))
 
 ;; el-get
 (when load-file-name
   (setq user-emacs-directory (file-name-directory load-file-name)))
-(add-to-list 'load-path (locate-user-emacs-file "lisp/el-get"))
-(setq el-get-dir (locate-user-emacs-file "lisp/el-get"))
+(setq el-get-dir (locate-user-emacs-file "site-lisp"))
 (require 'el-get)
+(el-get-bundle flymake)
+(el-get-bundle flymake-easy)
 (el-get-bundle auto-complete)
 (el-get-bundle migemo)
 (el-get-bundle helm)
 (el-get-bundle helm-swoop)
 (el-get-bundle smartparens)
-(el-get-bundle flymake)
-(el-get-bundle flymake-php)
-(el-get-bundle flymake-easy)
 (el-get-bundle cperl-mode)
 (el-get-bundle perl-completion)
 (el-get-bundle ruby-mode)
 (el-get-bundle ruby-end)
 (el-get-bundle php-mode)
-(el-get-bundle css-mode)
-(el-get-bundle javascript)
+(el-get-bundle js2-mode)
+(el-get-bundle js2-highlight-vars)
 (el-get-bundle php-completion)
+(el-get-bundle flymake-php)
 (el-get-bundle yaml-mode)
 
 (load "init-c")
@@ -73,7 +89,7 @@
 
 ;; helm
 (require 'helm-config)
-(helm-mode +1)
+(helm-mode 1)
 (define-key global-map (kbd "C-s") 'helm-swoop)
 (define-key global-map (kbd "C-c C-h") 'execute-extended-command)
 (define-key helm-map (kbd "C-h") 'delete-backward-char)
@@ -140,8 +156,8 @@
 ;; 	(load
 ;; 	 (expand-file-name "~/.emacs.d/elpa/package.el"))
 ;;  (package-initialize))
-;; (when (require 'package nil t)
-;;   (add-to-list 'package-archives
-;; 			   '("marmalade" . "http://marmalade-repo.org/packages/"))
-;;   (add-to-list 'package-archives '("ELPA" . "http://tromey.com/elpa/"))
-;;   (package-initialize))
+(when (require 'package nil t)
+  (add-to-list 'package-archives
+			   '("marmalade" . "http://marmalade-repo.org/packages/"))
+  (add-to-list 'package-archives '("ELPA" . "http://tromey.com/elpa/"))
+  (package-initialize))
