@@ -69,7 +69,7 @@
 
 ;; init-loader
 (setq init-loader-default-regexp "\\(?:^[[:digit:]]\\{2\\}\\).*\\.el\$")
-(init-loader-load "~/.emacs.d/lisp/conf")
+(init-loader-load (locate-user-emacs-file "lisp/conf"))
 
 ;; auto-complete
 (require 'auto-complete-config)
