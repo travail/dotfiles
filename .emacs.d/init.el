@@ -69,7 +69,7 @@
 
 ;; init-loader
 (setq init-loader-show-log-after-init nil)
-(setq init-loader-byte-compile t)
+(setq init-loader-byte-compile nil)
 (setq init-loader-default-regexp "\\(?:^[[:digit:]]\\{2\\}\\).*\\.el\$")
 (init-loader-load (locate-user-emacs-file "lisp/conf"))
 
