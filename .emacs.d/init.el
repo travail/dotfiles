@@ -55,7 +55,7 @@
 (el-get-bundle js2-mode)
 (el-get-bundle js2-highlight-vars)
 (el-get-bundle php-completion)
-(el-get-bundle flymake-php)
+(el-get-bundle purcell/flymake-php)
 (el-get-bundle yaml-mode)
 
 (load "init-c")
