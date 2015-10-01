@@ -17,11 +17,11 @@
 
 ;; setup package
 (require 'package)
-(add-to-list 'package-archives '("melpa" .     "http://melpa.milkbox.net/packages/"))
+(add-to-list 'package-archives '("melpa"     . "http://melpa.milkbox.net/packages/"))
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 (package-initialize)
 
-;; configuration directories
+;; add path to packages
 (add-to-load-path "lisp/conf" "site-lisp")
 
 ;; install el-get if not exist

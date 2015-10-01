@@ -1,29 +1,33 @@
 PWD=$(shell pwd)
 all: emacs git mysql perltidyrc tmux zshrc gemrc
 
-emacs: .emacs.d
+emacs:
 	ln -s $(PWD)/.emacs.d ~/.emacs.d
 	mkdir -p $(PWD)/.emacs.d/site-lisp
 
-git: .gitignore .gitconfig
+git:
 	ln -s $(PWD)/.gitconfig ~/.gitconfig
 	ln -s $(PWD)/.gitignore ~/.gitignore
 
-mysql: .my.cnf
+mysql:
 	ln -s $(PWD)/.my.cnf ~/.my.cnf
 
-perltidyrc: .perltidyrc
+perltidyrc:
 	ln -s $(PWD)/.perltidyrc ~/.perltidyrc
 
-tmux: .tmux.conf
+tmux:
 	ln -s $(PWD)/.tmux.conf ~/.tmux.conf
 
-zshrc: .zshrc
+zshrc:
 	ln -s $(PWD)/.zshrc ~/.zshrc
 	ln -s $(PWD)/.zsh ~/.zsh
 
-gemrc: .gemrc
+gemrc:
 	ln -s $(PWD)/.gemrc ~/.gemrc
+
+clean_emacs:
+	rm -rf $(PWD)/.emacs.d/elpa
+	rm -rf $(PWD)/.emacs.d/site-lisp
 
 clean:
 	rm -f ~/.emacs.d
@@ -36,3 +40,5 @@ clean:
 	rm -f ~/.zshrc
 	rm -rf ~/.zsh
 	rm -f ~/.gemrc
+
+cleanall: clean clean_emacs
