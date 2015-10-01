@@ -1,3 +1,7 @@
 .emacs.d/*.dat
 .emacs.d/auto-save-list
+.emacs.d/elpa
 .emacs.d/lisp/elpa/archives
+.emacs.d/lisp/el-get
+.emacs.d/url
+.emacs.d/site-lisp
