@@ -62,6 +62,9 @@
 (add-to-list 'package-archives '("melpa"     . "http://melpa.milkbox.net/packages/"))
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 (package-initialize)
+
+;; install flycheck by package,
+;; since installing by el-get depends on the version of texinfo
 (unless (package-installed-p 'flycheck)
   (package-refresh-contents) (package-install 'flycheck))
 (unless (package-installed-p 'flycheck-pos-tip)
@@ -72,36 +75,6 @@
 (setq init-loader-byte-compile nil)
 (setq init-loader-default-regexp "\\(?:^[[:digit:]]\\{2\\}\\).*\\.el\$")
 (init-loader-load (locate-user-emacs-file "lisp/conf"))
-
-;; auto-complete
-(require 'auto-complete-config)
-(global-auto-complete-mode 1)
-(setq ac-ignore-case t)
-(setq ac-auto-start 2)
-(setq ac-delay 0.05)
-(setq ac-auto-show-menu 0.05)
-
-;; migemo
-;; (require 'migemo)
-;; (setq migemo-command "cmigemo")
-;; (setq migemo-options '("-q" "--emacs"))
-;; (setq migemo-dictionary "/usr/local/share/migemo/utf-8/migemo-dict")
-;; (setq migemo-user-dictionary nil)
-;; (setq migemo-regex-dictionary nil)
-;; (setq migemo-coding-system 'utf-8-unix)
-;; (load-library "migemo")
-;; (migemo-init)
-
-;; helm
-(require 'helm-config)
-(helm-mode 1)
-(define-key global-map (kbd "C-s") 'helm-swoop)
-(define-key global-map (kbd "C-c C-h") 'execute-extended-command)
-(define-key helm-map (kbd "C-h") 'delete-backward-char)
-(define-key helm-read-file-map (kbd "C-h") 'delete-backward-char)
-(define-key helm-find-files-map (kbd "C-h") 'delete-backward-char)
-(define-key helm-find-files-map (kbd "TAB") 'helm-execute-persistent-action)
-(define-key helm-read-file-map (kbd "TAB") 'helm-execute-persistent-action)
 
 ;; turn on font-lock mode
 (global-font-lock-mode t)
@@ -117,10 +90,6 @@
 ;; width tab key
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
-
-;; smartparents
-(require 'smartparens-config)
-(smartparens-global-mode t)
 
 ;; do not make backup file '***~'
 (setq make-backup-files nil)
