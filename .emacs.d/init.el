@@ -82,11 +82,6 @@
 ;; enable visual feedback on selections
 (setq transient-mark-mode t)
 
-;; highlight current line
-;;(global-hl-line-mode 1)
-;; highlight brackets, braces
-(show-paren-mode t)
-
 ;; width tab key
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
@@ -94,21 +89,8 @@
 ;; do not make backup file '***~'
 (setq make-backup-files nil)
 
-;; don't linebreak on scrolling
-(setq next-line-add-newlines nil)
-
-;; smooth srcolling
-(progn
-  (setq scroll-step 1)
-  (setq scroll-conservatively 4))
-
 ;; file name completion
 (setq read-file-name-completion-ignore-case t)
-;;(setq completion-ignore-case t)
-
-;; identifying the same name files
-(require 'uniquify)
-(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
 (put 'set-goal-column 'disabled nil)
 
