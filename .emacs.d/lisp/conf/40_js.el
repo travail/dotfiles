@@ -1,4 +1,11 @@
-;; javascript-mode
-(autoload 'javascript-mode "javascript.el" "JavaScript mode" t)
-(add-to-list 'auto-mode-alist '("\\.js$" . javascript-mode))
-(add-to-list 'auto-mode-alist '("\\.json$" . javascript-mode))
+;;; package --- 40_js.el
+
+;;; Commentary:
+
+;;; Code:
+
+(require 'js2-mode)
+(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.json$" . json-mode))
+
+;;; 40_js.el ends here

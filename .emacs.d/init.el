@@ -53,6 +53,7 @@
 (el-get-bundle ruby-end)
 (el-get-bundle php-mode)
 (el-get-bundle js2-mode)
+(el-get-bundle json-mode)
 (el-get-bundle js2-highlight-vars)
 (el-get-bundle php-completion)
 (el-get-bundle yaml-mode)
