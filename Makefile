@@ -1,28 +1,26 @@
 PWD=$(shell pwd)
-all: emacs git mysql perltidyrc tmux zshrc gemrc
+all: link_emacs link_git link_mysql link_perltidyrc link_tmux link_zshrc link_gemrc
 
-emacs:
+link_emacs:
 	ln -s $(PWD)/emacs.d ~/.emacs.d
 	mkdir -p $(PWD)/emacs.d/site-lisp
 
-git:
-	ln -s $(PWD)/gitconfig ~/.gitconfig
-	ln -s $(PWD)/gitignore ~/.gitignore
+link_git: gitconfig gitignore
+	ln -s $(PWD)/gitconfig ~/.gitconfig && ln -s $(PWD)/gitignore ~/.gitignore
 
-mysql:
+link_mysql: my.cnf
 	ln -s $(PWD)/my.cnf ~/.my.cnf
 
-perltidyrc:
+link_perltidyrc: perltidyrc
 	ln -s $(PWD)/perltidyrc ~/.perltidyrc
 
-tmux:
+link_tmux: tmux.conf
 	ln -s $(PWD)/tmux.conf ~/.tmux.conf
 
-zshrc:
-	ln -s $(PWD)/zshrc ~/.zshrc
-	ln -s $(PWD)/zsh ~/.zsh
+link_zshrc: zshrc
+	ln -s $(PWD)/zshrc ~/.zshrc && ln -s $(PWD)/zsh ~/.zsh
 
-gemrc:
+link_gemrc: gemrc
 	ln -s $(PWD)/gemrc ~/.gemrc
 
 clean_emacs:

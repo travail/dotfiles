@@ -1,4 +1,4 @@
--*- mode: Shell-script -*-
+# -*- mode: Shell-script -*-
 
 #
 # .zshrc is sourced in interactive shells.
