@@ -1,0 +1,22 @@
+[user]
+	name  = travail
+	email = sawa.tomoyuki@gmail.com
+[alias]
+	ci  = commit -a
+	co  = checkout
+	st  = status
+	url = config --get remote.origin.url
+[color]
+	ui     = auto
+	diff   = auto
+	status = auto
+	banch  = auto
+[remote "origin"]
+[include]
+	path = ~/.gitconfig.local
+[merge]
+#	ff = false
+[core]
+	editor = emacs
+[push]
+#	default = simple
