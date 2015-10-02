@@ -46,6 +46,7 @@
 (el-get-bundle migemo)
 (el-get-bundle helm)
 (el-get-bundle helm-swoop)
+(el-get-bundle wdired)
 (el-get-bundle smartparens)
 (el-get-bundle cperl-mode)
 (el-get-bundle perl-completion)
