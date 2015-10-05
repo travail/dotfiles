@@ -9,6 +9,8 @@
   "cperl-mode"
   "alternate mode for editing Perl programs" t)
 
+(require 'cperl-mode)
+
 (setq cperl-indent-level 4)
 (setq cperl-continued-statement-offset 4)
 (setq cperl-brace-offset -4)
@@ -17,8 +19,6 @@
 (setq cperl-close-paren-offset -4)
 (setq cperl-tab-always-indent t)
 (setq cperl-highlight-variables-indiscriminately t)
-
-(require 'cperl-mode)
 
 (add-hook 'cperl-mode-hook
 		  '(lambda ()
@@ -43,18 +43,30 @@
 (add-to-list 'auto-mode-alist '("\\.t$" . perl-mode))
 (add-to-list 'auto-mode-alist '("\cpanfile$" . perl-mode))
 
-;; yasnippet
-(defun yas/perl-package-name ()
-  (let ((file-path (file-name-sans-extension (buffer-file-name))))
-    (if (string-match "lib/" file-path)
-        (replace-regexp-in-string "/" "::"
-                                  (car (last (split-string file-path "/lib/"))))
-      (file-name-nondirectory file-path))))
+;; flycheck
+(require 'flycheck)
+(setenv "CATALYST_ENV" (or (getenv "CATALYST_ENV") "development"))
+(flycheck-define-checker perl-project-libs
+  "A perl syntax checker."
+  :command ("perl"
+            "-MProject::Libs lib_dirs => [qw(local/lib/perl5 lib)]"
+            "-w" "-c"
+            source-inplace)
+  :error-patterns ((error line-start
+                          (minimal-match (message))
+                          " at " (file-name) " line " line
+                          (or "." (and ", " (zero-or-more not-newline)))
+                          line-end))
+  :modes (perl-mode cperl-mode))
+(add-hook 'cperl-mode-hook
+          (lambda ()
+            (flycheck-mode t)
+            (setq flycheck-checker 'perl-project-libs)))
 
 ;; perl-completion
+;; (require 'perl-completion)
 ;; (add-hook 'cperl-mode-hook
 ;;           '(lambda()
-;;              (require 'perl-completion)
 ;;              (perl-completion-mode t)))
 
 ;; (add-hook  'cperl-mode-hook
@@ -64,28 +76,5 @@
 ;;                (make-variable-buffer-local 'ac-sources)
 ;;                (setq ac-sources
 ;;                      '(ac-source-perl-completion)))))
-
-;; flycheck
-;; (flycheck-define-checker perl-project-libs
-;;   "A perl syntax checker."
-;;   :command ("perl"
-;;             "-MProject::Libs lib_dirs => [qw(local/lib/perl5)]"
-;;             "-wc"
-;;             source-inplace)
-;;   :error-patterns ((error line-start
-;;                           (minimal-match (message))
-;;                           " at " (file-name) " line " line
-;;                           (or "." (and ", " (zero-or-more not-newline)))
-;;                           line-end))
-;;   :modes (cperl-mode))
-;; (add-hook 'cperl-mode-hook
-;;           (lambda ()
-;;             (flycheck-mode t)
-;;             (setq flycheck-checker 'perl-project-libs)))
-
-;; (setq cperl-electric-keywords t)
-;; (setq cperl-electric-lbrace-space nil)
-;; (setq cperl-font-lock t)
-;; (setq cperl-electric-parens nil)
 
 ;;; 40_perl.el ends here
