@@ -58,6 +58,7 @@
 (el-get-bundle js2-mode)
 (el-get-bundle js2-highlight-vars)
 (el-get-bundle json-mode)
+(el-get-bundle web-mode)
 (el-get-bundle php-completion)
 (el-get-bundle yaml-mode)
 
