@@ -44,6 +44,7 @@
 (el-get-bundle pos-tip)
 (el-get-bundle auto-complete)
 (el-get-bundle migemo)
+(el-get-bundle git-gutter)
 (el-get-bundle helm)
 (el-get-bundle helm-swoop)
 (el-get-bundle wdired)
