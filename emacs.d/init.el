@@ -53,9 +53,11 @@
 (el-get-bundle ruby-mode)
 (el-get-bundle ruby-end)
 (el-get-bundle php-mode)
+(el-get-bundle scss-mode)
+(el-get-bundle auto-complete-css)
 (el-get-bundle js2-mode)
-(el-get-bundle json-mode)
 (el-get-bundle js2-highlight-vars)
+(el-get-bundle json-mode)
 (el-get-bundle php-completion)
 (el-get-bundle yaml-mode)
 
