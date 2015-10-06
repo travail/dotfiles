@@ -41,6 +41,7 @@
 (setq el-get-dir (locate-user-emacs-file "site-lisp"))
 (require 'el-get)
 (el-get-bundle init-loader)
+(el-get-bundle anything)
 (el-get-bundle pos-tip)
 (el-get-bundle auto-complete)
 (el-get-bundle migemo)
