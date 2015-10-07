@@ -6,6 +6,5 @@
 
 (require 'js2-mode)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
-(add-to-list 'auto-mode-alist '("\\.json$" . json-mode))
 
 ;;; 40_js.el ends here
