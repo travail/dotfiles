@@ -33,7 +33,7 @@
   "Run perltidy on the current region."
   (interactive)
   (save-excursion
-	(shell-command-on-region (point) (mark) "perltidy -q" nil t)))
+	(shell-command-on-region (point) (mark) "PERL_CARTON_CPANFILE=~/.perl/cpanfile carton exec perltidy -q" nil t)))
 (add-to-list 'auto-mode-alist '("\\.pl$" . perl-mode))
 (add-to-list 'auto-mode-alist '("\\.pm$" . perl-mode))
 (add-to-list 'auto-mode-alist '("\\.fcgi$" . perl-mode))
@@ -49,6 +49,10 @@
 (flycheck-define-checker perl-project-libs
   "A perl syntax checker."
   :command ("perl"
+            ;; Specify the directoy where Project::Libs is located to load it,
+            ;; since "PERL_CARTON_CPANFILE=/path/to/cpanfile carton exec perl"
+            ;; doesn't work as command.
+            (eval (concat "-I" (getenv "HOME") "/.perl/local/lib/perl5"))
             "-MProject::Libs lib_dirs => [qw(local/lib/perl5 lib)]"
             "-w" "-c"
             source-inplace)
