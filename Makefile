@@ -1,5 +1,5 @@
 PWD=$(shell pwd)
-all: link_emacs link_git link_mysql link_perltidyrc link_tmux link_zshrc link_gemrc
+all: link_emacs link_git link_mysql link_perltidyrc link_tmux link_zshrc link_gemrc link_perl install_perl_lib
 
 link_emacs:
 	ln -s $(PWD)/emacs.d ~/.emacs.d
@@ -23,9 +23,18 @@ link_zshrc: zshrc
 link_gemrc: gemrc
 	ln -s $(PWD)/gemrc ~/.gemrc
 
+link_perl:
+	ln -s $(PWD)/perl ~/.perl
+
+install_perl_lib: perl/cpanfile
+	cd $(PWD)/perl && carton install --cached --deployment
+
 clean_emacs:
 	rm -rf $(PWD)/emacs.d/elpa
 	rm -rf $(PWD)/emacs.d/site-lisp
+
+clean_perl_lib:
+	rm -rf $(PWD)/perl/local
 
 clean:
 	rm -f ~/.emacs.d
@@ -38,5 +47,6 @@ clean:
 	rm -f ~/.zshrc
 	rm -rf ~/.zsh
 	rm -f ~/.gemrc
+	rm -f ~/.perl
 
-cleanall: clean clean_emacs
+cleanall: clean clean_emacs clean_perl_lib
