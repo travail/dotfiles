@@ -38,10 +38,16 @@
 
 (add-hook 'php-mode-hook
           (lambda ()
-            (setq flycheck-phpcs-standard "PSR2")
-            (setq flycheck-phpmd-rulesets '("unusedcode"))
-            (setq flycheck-php-phpmd-executable "~/bin/phpmd")
-            (setq flycheck-php-phpcs-executable "~/bin/phpcs")
+            (cond
+             ((executable-find "phpcs")
+              (setq flycheck-phpcs-standard "PSR2")
+              )
+             )
+            (cond
+             ((executable-find "phpmd")
+              (setq flycheck-phpmd-rulesets '("unusedcode"))
+              )
+             )
             ))
 
 ;;; 40_php.el
