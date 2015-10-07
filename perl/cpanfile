@@ -1,0 +1,3 @@
+requires 'Carton';
+requires 'Perl::Critic', '1.126';
+requires 'Project::Libs', '0.02';
