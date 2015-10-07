@@ -1,0 +1,9 @@
+/home/travail/git/dotfiles/perl/local/lib/perl5/File/ShareDir.pm
+/home/travail/git/dotfiles/perl/local/lib/perl5/auto/share/dist/File-ShareDir/sample.txt
+/home/travail/git/dotfiles/perl/local/lib/perl5/auto/share/dist/File-ShareDir/subdir/sample.txt
+/home/travail/git/dotfiles/perl/local/lib/perl5/auto/share/module/File-ShareDir/test_file.txt
+/usr/local/plenv/versions/5.20/lib/perl5/site_perl/5.20.1/File/ShareDir.pm
+/usr/local/plenv/versions/5.20/lib/perl5/site_perl/5.20.1/auto/share/dist/File-ShareDir/sample.txt
+/usr/local/plenv/versions/5.20/lib/perl5/site_perl/5.20.1/auto/share/dist/File-ShareDir/subdir/sample.txt
+/usr/local/plenv/versions/5.20/lib/perl5/site_perl/5.20.1/auto/share/module/File-ShareDir/test_file.txt
+/usr/local/plenv/versions/5.20/man/man3/File::ShareDir.3

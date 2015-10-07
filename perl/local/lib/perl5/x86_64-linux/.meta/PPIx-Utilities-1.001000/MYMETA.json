@@ -1,0 +1,81 @@
+{
+   "abstract" : "Extensions to L<PPI|PPI>.",
+   "author" : [
+      "Elliot Shank <perl@galumph.com>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Module::Build version 0.4214",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "PPIx-Utilities",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "xt"
+      ],
+      "file" : []
+   },
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "Data::Dumper" : "0",
+            "PPI::Document" : "1.208",
+            "PPI::Dumper" : "1.208",
+            "Test::Deep" : "0",
+            "Test::More" : "0"
+         }
+      },
+      "runtime" : {
+         "recommends" : {
+            "Readonly::XS" : "0"
+         },
+         "requires" : {
+            "Exception::Class" : "0",
+            "Exporter" : "0",
+            "PPI" : "1.208",
+            "PPI::Document::Fragment" : "1.208",
+            "Readonly" : "0",
+            "Scalar::Util" : "0",
+            "Task::Weaken" : "0",
+            "base" : "0",
+            "strict" : "0",
+            "warnings" : "0"
+         }
+      }
+   },
+   "provides" : {
+      "PPIx::Utilities" : {
+         "file" : "lib/PPIx/Utilities.pm",
+         "version" : "1.001000"
+      },
+      "PPIx::Utilities::Exception::Bug" : {
+         "file" : "lib/PPIx/Utilities/Exception/Bug.pm",
+         "version" : "1.001000"
+      },
+      "PPIx::Utilities::Node" : {
+         "file" : "lib/PPIx/Utilities/Node.pm",
+         "version" : "1.001000"
+      },
+      "PPIx::Utilities::Statement" : {
+         "file" : "lib/PPIx/Utilities/Statement.pm",
+         "version" : "1.001000"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "license" : [
+         "http://dev.perl.org/licenses/"
+      ],
+      "repository" : {
+         "url" : "http://guest@perlcritic.tigris.org/svn/perlcritic/trunk/distributions/PPIx-Utilities/"
+      },
+      "x_MailingList" : "http://perlcritic.tigris.org/servlets/SummarizeList?listName=users"
+   },
+   "version" : "1.001000",
+   "x_serialization_backend" : "JSON::PP version 2.27203"
+}
