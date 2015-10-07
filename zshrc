@@ -67,6 +67,8 @@ export JAVA_HOME=/usr/java/default
 # set umask
 umask 002
 
+PATH=$PATH:~/bin
+
 for file (`find ~/.zsh/ -type f -name '*.sh'`) do
     if [ -f $file ]; then
         source $file

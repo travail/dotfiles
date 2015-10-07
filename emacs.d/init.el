@@ -41,6 +41,7 @@
 (setq el-get-dir (locate-user-emacs-file "site-lisp"))
 (require 'el-get)
 (el-get-bundle init-loader)
+(el-get-bundle exec-path-from-shell)
 (el-get-bundle pos-tip)
 (el-get-bundle auto-complete)
 (el-get-bundle migemo)
@@ -81,5 +82,7 @@
 (setq init-loader-byte-compile nil)
 (setq init-loader-default-regexp "\\(?:^[[:digit:]]\\{2\\}\\).*\\.el\$")
 (init-loader-load (locate-user-emacs-file "lisp/conf"))
+
+(exec-path-from-shell-initialize)
 
 ;;; init.el ends here
