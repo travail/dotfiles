@@ -1,4 +1,9 @@
-;; cc-mode
+;;; package --- 40_c.el
+
+;;; Commentary:
+
+;;; Code:
+
 (require 'cc-mode)
 ;; Kernighan & Ritchie style
 (setq c-default-style "k&r")
@@ -10,3 +15,5 @@
              (progn
                (c-toggle-hungry-state 1)
                (setq c-basic-offset 2 indent-tabs-mode nil))))
+
+;;; 40_c.el ends here
