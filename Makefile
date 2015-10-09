@@ -1,6 +1,18 @@
 PWD=$(shell pwd)
 
-all: mkdir_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl install_perl_lib
+CARTON_PATH=$(shell which carton 2>/dev/null)
+
+all: check mkdir_bin install_perl_lib ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl
+
+check:
+ifneq ($(CARTON_PATH),)
+	echo "Found command $(CARTON_PATH)"
+else
+	echo "Command not found: carton in $(PATH)" && exit 1
+endif
+
+install_perl_lib: perl/cpanfile perl/cpanfile.snapshot
+	cd $(PWD)/perl && carton install --cached --deployment
 
 mkdir_bin:
 	mkdir -p ~/bin
@@ -29,9 +41,6 @@ ln_gemrc: gemrc
 
 ln_perl:
 	ln -s $(PWD)/perl ~/.perl
-
-install_perl_lib: perl/cpanfile perl/cpanfile.snapshot
-	cd $(PWD)/perl && carton install --cached --deployment
 
 clean_emacs:
 	rm -rf $(PWD)/emacs.d/elpa
