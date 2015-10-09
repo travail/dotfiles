@@ -18,8 +18,8 @@ else
 	echo "Command not found: carton in $(PATH)" && exit 1
 endif
 
-install_perl_lib: perl/cpanfile.snapshot
-	cd $(PWD)/perl && carton install --cached --deployment
+install_perl_lib: perl/cpanfile
+	cd $(PWD)/perl && carton install
 
 install_php_lib: php/composer.lock
 	cd $(PWD)/php && composer install
