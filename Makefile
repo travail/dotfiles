@@ -77,5 +77,6 @@ clean:
 	rm -rf ~/.zsh
 	rm -f ~/.gemrc
 	rm -f ~/.perl
+	rm -f ~/.php
 
 cleanall: clean clean_emacs clean_perl_lib clean_php_lib
