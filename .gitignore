@@ -6,3 +6,4 @@ emacs.d/lisp/*/*.elc
 emacs.d/url
 emacs.d/site-lisp
 perl/local
+php/vendor
