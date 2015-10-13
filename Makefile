@@ -1,18 +1,28 @@
 PWD=$(shell pwd)
 
 CARTON_PATH=$(shell which carton 2>/dev/null)
+COMPOSER_PATH=$(shell which composer 2>/dev/null)
 
-all: check mkdir_bin install_perl_lib ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl
+all: check mkdir_bin install_perl_lib install_php_lib ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php
 
 check:
 ifneq ($(CARTON_PATH),)
-	echo "Found command $(CARTON_PATH)"
+	@printf "\033[0;32mFound command %s\033[0m\n" $(CARTON_PATH)
 else
-	echo "Command not found: carton in $(PATH)" && exit 1
+	@printf "\033[0;31mCommand not found: carton in %s\033[0m\n" $(PATH) && exit 1
 endif
 
-install_perl_lib: perl/cpanfile perl/cpanfile.snapshot
-	cd $(PWD)/perl && carton install --cached --deployment
+ifneq ($(COMPOSER_PATH),)
+	@printf "\033[0;32mFound command %s\033[0m\n" $(COMPOSER_PATH)
+else
+	@printf "\033[0;31mCommand not found: composer in %s\033[0m\n" $(PATH) && exit 1
+endif
+
+install_perl_lib: perl/cpanfile
+	cd $(PWD)/perl && carton install
+
+install_php_lib: php/composer.lock
+	cd $(PWD)/php && composer install
 
 mkdir_bin:
 	mkdir -p ~/bin
@@ -42,12 +52,18 @@ ln_gemrc: gemrc
 ln_perl:
 	ln -s $(PWD)/perl ~/.perl
 
+ln_php:
+	ln -s $(PWD)/php ~/.php
+
 clean_emacs:
 	rm -rf $(PWD)/emacs.d/elpa
 	rm -rf $(PWD)/emacs.d/site-lisp
 
 clean_perl_lib:
 	rm -rf $(PWD)/perl/local
+
+clean_php_lib:
+	rm -rf $(PWD)/php/vendor
 
 clean:
 	rm -f ~/.emacs.d
@@ -61,5 +77,6 @@ clean:
 	rm -rf ~/.zsh
 	rm -f ~/.gemrc
 	rm -f ~/.perl
+	rm -f ~/.php
 
-cleanall: clean clean_emacs clean_perl_lib
+cleanall: clean clean_emacs clean_perl_lib clean_php_lib
