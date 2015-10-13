@@ -9,8 +9,6 @@
   "cperl-mode"
   "alternate mode for editing Perl programs" t)
 
-(autoload 'cperl-mode "cperl-mode" nil t)
-
 (setq cperl-indent-level 4)
 (setq cperl-continued-statement-offset 4)
 (setq cperl-brace-offset -4)
@@ -19,14 +17,6 @@
 (setq cperl-close-paren-offset -4)
 (setq cperl-tab-always-indent t)
 (setq cperl-highlight-variables-indiscriminately t)
-
-(add-hook 'cperl-mode-hook
-		  '(lambda ()
-			 (define-key cperl-mode-map (kbd "M-.")  'cperl-find-module)
-			 (define-key cperl-mode-map (kbd "C-c t") 'perltidy-region)
-			 (abbrev-mode 1)
-			 (set-face-foreground 'font-lock-variable-name-face "yellow")
-			 ))
 
 ;; source reindent by perltidy
 (defun perltidy-region ()
@@ -62,10 +52,6 @@
                           (or "." (and ", " (zero-or-more not-newline)))
                           line-end))
   :modes (perl-mode cperl-mode))
-(add-hook 'cperl-mode-hook
-          (lambda ()
-            (flycheck-mode t)
-            (setq flycheck-checker 'perl-project-libs)))
 
 ;; perl-completion
 ;; (require 'perl-completion)
@@ -80,5 +66,12 @@
 ;;                (make-variable-buffer-local 'ac-sources)
 ;;                (setq ac-sources
 ;;                      '(ac-source-perl-completion)))))
+
+(add-hook 'cperl-mode-hook
+		  '(lambda ()
+			 (define-key cperl-mode-map (kbd "C-c t") 'perltidy-region)
+             (flycheck-mode t)
+             (setq flycheck-checker 'perl-project-libs)
+			 ))
 
 ;;; 40_perl.el ends here
