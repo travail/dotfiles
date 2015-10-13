@@ -4,7 +4,7 @@
 
 ;;; Code:
 
-(require 'cc-mode)
+(autoload 'cc-mode "cc-mode" nil t)
 ;; Kernighan & Ritchie style
 (setq c-default-style "k&r")
 (setq auto-mode-alist

@@ -9,7 +9,7 @@
 (setq auto-mode-alist (append '(("Rakefile$" . ruby-mode)) auto-mode-alist))
 (setq auto-mode-alist (append '(("Gemfile$" . ruby-mode)) auto-mode-alist))
 
-(require 'ruby-end)
+(autoload 'ruby-end "ruby-end" nil t)
 (add-hook 'ruby-mode-hook
           '(lambda ()
              (abbrev-mode 1)))

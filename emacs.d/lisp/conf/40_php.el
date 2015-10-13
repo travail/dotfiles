@@ -28,9 +28,9 @@
             (c-set-offset 'arglist-intro 'ywb-php-lineup-arglist-intro)
             (c-set-offset 'arglist-close 'ywb-php-lineup-arglist-close)
 
-            (require 'php-completion)
+            (autoload 'php-completion "php-completion" nil t)
             (php-completion-mode t)
-            (when (require 'auto-complete nil t)
+            (when (autoload 'auto-complete "auto-complete" nil t)
               (make-variable-buffer-local 'ac-sources)
               (add-to-list 'ac-sources 'ac-source-php-completion)
               (auto-complete-mode t)
