@@ -6,7 +6,6 @@
 
 ;; highlight current line
 (global-hl-line-mode 1)
-(custom-set-faces '(hl-line ((t (:background "color-234")))))
 
 ;; highlight brackets, braces
 (show-paren-mode t)
