@@ -4,10 +4,10 @@
 
 ;;; Code:
 
+(autoload 'web-mode "web-mode" nil t)
 (setq auto-mode-alist
       (append '(("\\.\\(html\\|xhtml\\|shtml\\|tpl\\)\\'" . web-mode)) auto-mode-alist))
 
-(require 'web-mode)
 (defun web-mode-hook ()
   (setq web-mode-markup-indent-offset 2)
   (setq web-mode-css-indent-offset 2)

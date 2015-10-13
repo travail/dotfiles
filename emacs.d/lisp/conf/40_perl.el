@@ -9,7 +9,7 @@
   "cperl-mode"
   "alternate mode for editing Perl programs" t)
 
-(require 'cperl-mode)
+(autoload 'cperl-mode "cperl-mode" nil t)
 
 (setq cperl-indent-level 4)
 (setq cperl-continued-statement-offset 4)
@@ -44,7 +44,7 @@
 (add-to-list 'auto-mode-alist '("\cpanfile$" . perl-mode))
 
 ;; flycheck
-(require 'flycheck)
+(autoload 'flycheck "flycheck" nil t)
 (setenv "CATALYST_ENV" (or (getenv "CATALYST_ENV") "development"))
 (flycheck-define-checker perl-project-libs
   "A perl syntax checker."

@@ -8,7 +8,7 @@
 (setq auto-mode-alist
       (cons '("\\.css\\'" . css-mode) auto-mode-alist))
 
-(require 'scss-mode)
+(autoload 'scss-mode "scss-mode")
 (add-to-list 'auto-mode-alist '("\\.scss$" . scss-mode))
 (add-to-list 'auto-mode-alist '("\\.css$" . scss-mode))
 
