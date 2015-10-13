@@ -7,15 +7,15 @@ all: check mkdir_bin install_perl_lib install_php_lib ln_emacs ln_git ln_mysql l
 
 check:
 ifneq ($(CARTON_PATH),)
-	echo "Found command $(CARTON_PATH)"
+	@printf "\033[0;32mFound command %s\033[0m\n" $(CARTON_PATH)
 else
-	echo "Command not found: carton in $(PATH)" && exit 1
+	@printf "\033[0;31mCommand not found: carton in %s\033[0m\n" $(PATH) && exit 1
 endif
 
 ifneq ($(COMPOSER_PATH),)
-	echo "Found command $(COMPOSER_PATH)"
+	@printf "\033[0;32mFound command %s\033[0m\n" $(COMPOSER_PATH)
 else
-	echo "Command not found: carton in $(PATH)" && exit 1
+	@printf "\033[0;31mCommand not found: composer in %s\033[0m\n" $(PATH) && exit 1
 endif
 
 install_perl_lib: perl/cpanfile
