@@ -1,4 +1,3 @@
-# plenv
 export PLENV_ROOT=/usr/local/plenv
 export PATH="$PLENV_ROOT/bin:$PLENV_ROOT/shims:$PATH"
 EXECUTABLE_PATH="$PLENV_ROOT/bin/plenv"

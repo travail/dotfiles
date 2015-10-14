@@ -1,4 +1,3 @@
-# rbenv
 export RBENV_ROOT=/usr/local/rbenv
 export PATH="$RBENV_ROOT/bin:$RBENV_ROOT/shims:$PATH"
 EXECUTABLE_PATH="$RBENV_ROOT/bin/rbenv"
