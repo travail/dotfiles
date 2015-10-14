@@ -34,7 +34,8 @@
               (make-variable-buffer-local 'ac-sources)
               (add-to-list 'ac-sources 'ac-source-php-completion)
               (auto-complete-mode t)
-              )))
+              )
+            ))
 
 (add-hook 'php-mode-hook
           (lambda ()
@@ -50,4 +51,4 @@
              )
             ))
 
-;;; 40_php.el
+;;; 40_php.el ends here
