@@ -1,0 +1,5 @@
+#!/bin/env zsh
+
+local r
+r=$(ps aux | peco | awk '{print $2}')
+_on-complete $r

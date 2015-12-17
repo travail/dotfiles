@@ -1,0 +1,5 @@
+#!/bin/env zsh
+
+local r
+r=$(fc -l -n 1 | tail -r | peco)
+_on-complete $r
