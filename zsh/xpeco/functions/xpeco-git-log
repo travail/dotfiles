@@ -1,0 +1,5 @@
+#!/bin/env zsh
+
+local r
+r=$(git log --oneline --decorate=full | peco | awk '{print $1}')
+_on-complete $r

@@ -1,0 +1,15 @@
+#!/bin/env zsh
+
+local r
+case $1 in
+    -d)
+        r=$(find . -type d | grep -v "/\." | peco)
+        ;;
+    -f)
+        r=$(find . -type f | grep -v "/\." | peco)
+        ;;
+    *)
+        r=$(find . | grep -v "/\." | peco)
+        ;;
+esac
+_on-complete $r

@@ -1,0 +1,20 @@
+#!/bin/env zsh
+
+_xpeco() {
+    _arguments \
+        '(- *)'{-h,--help}'[Show help]' \
+        '*: :->commands' \
+
+    case $state in
+        commands)
+            _values \
+                commands \
+                'find[Find file or directory by "find" command]' \
+                'git-checkout[Pick up branch to "git checkout" by command]' \
+                'git-log[Pick up commit hash by "git log" by command]' \
+                'history[Pick up history by "history" command]' \
+                'pid[Pick up pid by "pid" command]' \
+                'ssh[Pick up host from "~/.ssh/config"]'
+            ;;
+    esac
+}
