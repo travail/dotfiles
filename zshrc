@@ -19,7 +19,7 @@ fi
 printf "\033P\033]0;$USER@$HOSTNAME\007\033\\"
 
 autoload -Uz compinit
-compinit
+compinit -u
 
 #allow tab completion in the middle of a word
 setopt COMPLETE_IN_WORD
