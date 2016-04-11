@@ -17,6 +17,7 @@ elif [ ! -L "$SSH_AUTH_SOCK" ]; then
 fi
 
 PROMPT="[%n@%m]%~%% "
+RPROMPT="[%D %*]"
 
 autoload -Uz compinit
 compinit -u
