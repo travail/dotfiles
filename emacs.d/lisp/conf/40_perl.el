@@ -31,7 +31,7 @@
 (add-to-list 'auto-mode-alist '("\\.PL$" . perl-mode))
 (add-to-list 'auto-mode-alist '("\\.psgi$" . perl-mode))
 (add-to-list 'auto-mode-alist '("\\.t$" . perl-mode))
-(add-to-list 'auto-mode-alist '("\cpanfile$" . perl-mode))
+;; (add-to-list 'auto-mode-alist '("\cpanfile$" . perl-mode))
 
 ;; flycheck
 (autoload 'flycheck "flycheck" nil t)
