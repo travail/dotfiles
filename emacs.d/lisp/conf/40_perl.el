@@ -17,13 +17,15 @@
 (setq cperl-close-paren-offset -4)
 (setq cperl-tab-always-indent t)
 (setq cperl-highlight-variables-indiscriminately t)
+(setq cperl-indent-subs-specially nil)
+(setq cperl-electric-backspace-untabify nil)
 
 ;; source reindent by perltidy
 (defun perltidy-region ()
   "Run perltidy on the current region."
   (interactive)
   (save-excursion
-	(shell-command-on-region (point) (mark) "PERL_CARTON_CPANFILE=~/.perl/cpanfile carton exec perltidy -q" nil t)))
+    (shell-command-on-region (point) (mark) "PERL_CARTON_CPANFILE=~/.perl/cpanfile carton exec perltidy -q" nil t)))
 (add-to-list 'auto-mode-alist '("\\.pl$" . perl-mode))
 (add-to-list 'auto-mode-alist '("\\.pm$" . perl-mode))
 (add-to-list 'auto-mode-alist '("\\.fcgi$" . perl-mode))
@@ -31,7 +33,6 @@
 (add-to-list 'auto-mode-alist '("\\.PL$" . perl-mode))
 (add-to-list 'auto-mode-alist '("\\.psgi$" . perl-mode))
 (add-to-list 'auto-mode-alist '("\\.t$" . perl-mode))
-;; (add-to-list 'auto-mode-alist '("\cpanfile$" . perl-mode))
 
 ;; flycheck
 (autoload 'flycheck "flycheck" nil t)
@@ -68,10 +69,10 @@
 ;;                      '(ac-source-perl-completion)))))
 
 (add-hook 'cperl-mode-hook
-		  '(lambda ()
-			 (define-key cperl-mode-map (kbd "C-c t") 'perltidy-region)
+          '(lambda ()
+             (define-key cperl-mode-map (kbd "C-c t") 'perltidy-region)
              (flycheck-mode t)
              (setq flycheck-checker 'perl-project-libs)
-			 ))
+             ))
 
 ;;; 40_perl.el ends here
