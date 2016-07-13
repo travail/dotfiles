@@ -2,9 +2,6 @@
 	name  = travail
 	email = sawa.tomoyuki@gmail.com
 [alias]
-	ci  = commit -a
-	co  = checkout
-	st  = status
 	url = config --get remote.origin.url
 [color]
 	ui     = auto
