@@ -29,7 +29,6 @@
        "https://raw.github.com/dimitri/el-get/master/el-get-install.el")
     (goto-char (point-max))
     (eval-print-last-sexp)))
-(el-get 'sync)
 (unless (file-exists-p (locate-user-emacs-file "elpa")) (el-get-elpa-build-local-recipes))
 
 ;; el-get
@@ -48,13 +47,17 @@
 (el-get-bundle helm-swoop)
 (el-get-bundle wdired)
 (el-get-bundle smartparens)
+(el-get-bundle flycheck)
+(el-get-bundle flycheck-pos-tip)
 (el-get-bundle cperl-mode)
 (el-get-bundle perl-completion)
+(el-get-bundle go-autocomplete)
+(el-get-bundle company-go)
+(el-get-bundle go-eldoc)
 (el-get-bundle ruby-mode)
 (el-get-bundle ruby-end)
 (el-get-bundle php-mode)
 (el-get-bundle scss-mode)
-(el-get-bundle auto-complete-css)
 (el-get-bundle js2-mode)
 (el-get-bundle js2-highlight-vars)
 (el-get-bundle json-mode)
@@ -62,18 +65,13 @@
 (el-get-bundle php-completion)
 (el-get-bundle yaml-mode)
 
+(el-get 'sync)
+
 ;; setup package
 (require 'package)
 (add-to-list 'package-archives '("melpa"     . "http://melpa.milkbox.net/packages/"))
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 (package-initialize)
-
-;; install flycheck by package,
-;; since installing by el-get depends on the version of texinfo
-(unless (package-installed-p 'flycheck)
-  (package-refresh-contents) (package-install 'flycheck))
-(unless (package-installed-p 'flycheck-pos-tip)
-  (package-refresh-contents) (package-install 'flycheck-pos-tip))
 
 ;; init-loader
 (setq init-loader-show-log-after-init nil)
