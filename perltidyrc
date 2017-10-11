@@ -1,15 +1,23 @@
--l=86   # Max line witdh is 86 cols
+-l=100   # Max line witdh is 86 cols
 -i=4    # Indent level is 4 cols
 -ci=4   # Continuation indent is 4 cols
 -st     # Output to STDOUT
 -se     # Errors to STDERR
 #-vt=2  # Maximal vertical tightness
 -cti=0  # No extra indentation for closing brackets
--pt=1   # Medium parenthesis tightness
--bt=1   # Medium brace tightness
--sbt=1  # Medium square bracket tightness
--bbt=1  # Medium block brace tightness
+-pt=2   # Medium parenthesis tightness
+-bt=2   # Medium brace tightness
+-sbt=2  # Medium square bracket tightness
+-bbt=2  # Medium block brace tightness
 -nsfs   # No space before semicolons
 -nolq   # Don't outdent long quoted strings
+-sot
+-sct
+-nsbl
+--closing-token-indentation=1
+--nospace-for-semicolon
+--nooutdent-long-quotes
+--nooutdent-long-lines
+--break-at-old-comma-breakpoints # Do not remove linebreak trailing comma
 # Break before all operators
 -wbb="% + - * / x != == >= <= =~ !~ < > | & >= < = **= += *= &= <<= &&= -= /= |= >>= ||= .= %= ^= x="
