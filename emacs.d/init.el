@@ -64,6 +64,7 @@
 (el-get-bundle web-mode)
 (el-get-bundle php-completion)
 (el-get-bundle yaml-mode)
+(el-get-bundle protobuf-mode)
 
 (el-get 'sync)
 
