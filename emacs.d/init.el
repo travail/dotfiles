@@ -51,8 +51,6 @@
 (el-get-bundle flycheck-pos-tip)
 (el-get-bundle cperl-mode)
 (el-get-bundle perl-completion)
-(el-get-bundle go-autocomplete)
-(el-get-bundle go-eldoc)
 (el-get-bundle ruby-mode)
 (el-get-bundle ruby-end)
 (el-get-bundle php-mode)
