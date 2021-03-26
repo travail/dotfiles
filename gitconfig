@@ -12,8 +12,12 @@
 [include]
 	path = ~/.gitconfig.local
 [merge]
-#	ff = false
+	ff = false
 [core]
 	editor = emacs
 [push]
-#	default = simple
+	default = simple
+[pull]
+	ff = only
+[url "git@github.com:"]
+	insteadOf = https://github.com/
