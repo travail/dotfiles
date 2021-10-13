@@ -94,3 +94,11 @@
  '(web-mode-html-attr-value-face ((t (:foreground "#82AE46"))))
  '(web-mode-html-tag-face ((t (:foreground "#E6B422" :weight bold))))
  '(web-mode-server-comment-face ((t (:foreground "#D9333F")))))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("0717ec4adc3308de8cdc31d1b1aef17dc61003f09cb5f058f77d49da14e809cf" default))
+ '(flycheck-display-errors-function #'flycheck-pos-tip-error-messages))

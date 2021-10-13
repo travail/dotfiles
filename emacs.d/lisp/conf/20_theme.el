@@ -5,7 +5,7 @@
 ;;; Code:
 
 (add-to-list 'custom-theme-load-path (concat user-emacs-directory "/lisp/theme/solarized"))
-(load-theme 'solarized t)
+(load-theme 'manoj-dark t)
 (set-frame-parameter nil 'background-mode 'dark)
 (set-terminal-parameter nil 'background-mode 'dark)
 
