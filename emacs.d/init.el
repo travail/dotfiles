@@ -58,6 +58,7 @@
 (el-get-bundle js2-mode)
 (el-get-bundle js2-highlight-vars)
 (el-get-bundle json-mode)
+(el-get-bundle typescript-mode)
 (el-get-bundle web-mode)
 (el-get-bundle php-completion)
 (el-get-bundle yaml-mode)
@@ -100,5 +101,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("0717ec4adc3308de8cdc31d1b1aef17dc61003f09cb5f058f77d49da14e809cf" default))
- '(flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
+   (quote
+    ("0717ec4adc3308de8cdc31d1b1aef17dc61003f09cb5f058f77d49da14e809cf" default)))
+ '(flycheck-display-errors-function (function flycheck-pos-tip-error-messages))
+ '(package-selected-packages (quote (typescript-mode))))
