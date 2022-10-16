@@ -14,6 +14,10 @@ for fp in $(ls $basedir/functions/*); do
     case $f in
         _*)
             ;;
+        xpeco-cdr)
+            zle -N $f
+            bindkey '^f' $f
+            ;;
         xpeco-find)
             zle -N $f
             bindkey '^x^f' $f
