@@ -19,7 +19,7 @@ fi
 PROMPT="[%n@%m]%~%% "
 RPROMPT="[%D %*]"
 
-autoload -Uz compinit
+autoload -Uz compinit chpwd_recent_dirs cdr add-zsh-hook
 compinit -u
 
 # Allow tab completion in the middle of a word
@@ -41,6 +41,15 @@ setopt print_eight_bit
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' menu select=1
 
+# cdr
+zstyle ':completion:*:*:cdr:*:*' menu selection
+zstyle ':completion:*' recent-dirs-insert both
+zstyle ':chpwd:*' recent-dirs-max 500
+zstyle ':chpwd:*' recent-dirs-default true
+zstyle ':chpwd:*' recent-dirs-file "${XDG_CACHE_HOME:-$HOME/.cache}/shell/chpwd-recent-dirs"
+zstyle ':chpwd:*' recent-dirs-pushd true
+
+
 # Never ever beep ever
 setopt NO_BEEP
 
@@ -53,7 +62,7 @@ export JAVA_HOME=/usr/java/default
 # Set umask
 umask 002
 
-PATH=$PATH:~/bin
+PATH=$PATH:~/bin:/opt/homebrew/bin
 
 for file (`find ~/.zsh/ -type f -name '*.sh'`) do
     if [ -f $file ]; then

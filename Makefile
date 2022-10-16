@@ -45,6 +45,7 @@ ln_tmux: tmux.conf
 
 ln_zshrc: zshrc
 	ln -s $(PWD)/zshrc ~/.zshrc && ln -s $(PWD)/zsh ~/.zsh
+	mkdir -p $(HOME)/.cache/shell
 
 ln_gemrc: gemrc
 	ln -s $(PWD)/gemrc ~/.gemrc
