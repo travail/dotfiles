@@ -16,7 +16,7 @@ for fp in $(ls $basedir/functions/*); do
             ;;
         xpeco-cdr)
             zle -N $f
-            bindkey '^f' $f
+            bindkey '^xcd' $f
             ;;
         xpeco-find)
             zle -N $f
