@@ -54,27 +54,9 @@
     (leaf-keywords-init)))
 
 ;; customize
-(global-set-key "\C-h" `delete-backward-char)
-
-;; install straight.el
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-
-
-(leaf solarized-theme
+(leaf zenburn-theme
   :ensure t
-  :config (load-theme 'solarized-dark t))
-
+  :config (load-theme 'zenburn t))
 
 (leaf leaf
   :config
@@ -88,6 +70,11 @@
   :ensure t
   :bind (("C-c e" . macrostep-expand)))
 
+(leaf key-settings
+  :doc "Key mapping"
+  :config
+  (global-set-key "\C-h" `delete-backward-char))
+
 (leaf autorevert
   :doc "revert buffers when files on disk change"
   :tag "builtin"
@@ -95,15 +82,20 @@
   :global-minor-mode global-auto-revert-mode)
 
 (leaf delsel
-  :doc "delete selection if you insert"
+  :doc "Delete selection if you insert"
   :tag "builtin"
   :global-minor-mode delete-selection-mode)
 
 (leaf paren
-  :doc "highlight matching paren"
+  :doc "Highlight matching paren"
   :tag "builtin"
   :custom ((show-paren-delay . 0.1))
   :global-minor-mode show-paren-mode)
+
+(leaf electric-pair-mode
+  :doc "Complete brackets"
+  :tag "builtin"
+  :global-minor-mode electric-pair-mode)
 
 (leaf ivy
   :doc "Incremental Vertical completYon"
@@ -174,6 +166,12 @@
          ("M-p" . flycheck-previous-error))
   :global-minor-mode global-flycheck-mode)
 
+(leaf git-gutter
+  :doc "git-gutter"
+  :tag "development"
+  :ensure t
+  :global-minor-mode global-git-gutter-mode)
+
 ;; company
 (leaf company
   :doc "Modular text completion framework"
@@ -200,23 +198,10 @@
   :global-minor-mode global-company-mode)
 
 ;; php-mode
-(defun my-php-mode-init ()
-  (subword-mode 1)
-  (setq-local show-trailing-whitespace t)
-  (setq-local ac-disable-faces '(font-lock-comment-face font-lock-string-face))
-  (add-hook 'hack-local-variables-hook 'php-ide-turn-on nil t))
-
-(with-eval-after-load 'php-mode
-  (add-hook 'php-mode-hook #'my-php-mode-init)
-  (custom-set-variables
-   '(php-mode-coding-style 'psr2)
-   '(php-mode-template-compatibility nil)
-   '(php-imenu-generic-expression 'php-imenu-generic-expression-simple))
-
-  ;; If you find phpcs to be bothersome, you can disable it.
-  (when (require 'flycheck nil)
-    (add-to-list 'flycheck-disabled-checkers 'php-phpmd)
-    (add-to-list 'flycheck-disabled-checkers 'php-phpcs)))
+(leaf php-mode
+  :doc "php-mode"
+  :tag "minor-mode" "languages"
+  :ensure t)
 
 (leaf company-c-headers
   :doc "Company mode backend for C/C++ header files"
