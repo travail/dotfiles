@@ -64,6 +64,8 @@ export JAVA_HOME=/usr/java/default
 umask 002
 
 PATH=$PATH:~/bin:/opt/homebrew/bin
+PROMPT='%D %* '
+RPROMPT='% %~'
 
 for file (`find ~/.zsh/ -type f -name '*.sh'`) do
     if [ -f $file ]; then
@@ -79,3 +81,4 @@ if [ -d ~/.zsh.local ]; then
         fi
     done
 fi
+

@@ -1,7 +1,7 @@
-PAHT=$PAHT:/opt/homebrew/bin
-EXECUTABLE_PATH="/opt/homebrew/bin/brew"
-if [ -x "$EXECUTABLE_PATH" ]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
+COMMAND=brew
+PATH=$PATH:/opt/homebrew/bin
+if type $COMMAND > /dev/null 2>&1; then
+    eval "$($COMMAND shellenv)"
 else
-    echo "Executable $EXECUTABLE_PATH not found"
+    echo "$COMMAND not found"
 fi
