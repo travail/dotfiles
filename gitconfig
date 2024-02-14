@@ -1,6 +1,7 @@
 [user]
 	name  = travail
 	email = sawa.tomoyuki@gmail.com
+	signingkey = F7F867AF7781AC2A
 [alias]
 	url = config --get remote.origin.url
 [color]
@@ -21,3 +22,5 @@
 	ff = only
 [url "git@github.com:"]
 	insteadOf = https://github.com/
+[gpg]
+	program = /opt/homebrew/bin/gpg
