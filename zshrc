@@ -55,6 +55,7 @@ setopt NO_BEEP
 
 export PERL_BADLANG=0
 export GREP_OPTIONS="--color=auto"
+export GPG_TTY=$(tty)
 
 # java
 export JAVA_HOME=/usr/java/default
