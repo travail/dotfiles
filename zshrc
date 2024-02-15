@@ -64,7 +64,7 @@ export JAVA_HOME=/usr/java/default
 umask 002
 
 PATH=$PATH:~/bin:/opt/homebrew/bin
-PROMPT='%D %* '
+PROMPT='%D{%Y-%m-%d %H:%M:%S} '
 RPROMPT='% %~'
 
 for file (`find ~/.zsh/ -type f -name '*.sh'`) do
