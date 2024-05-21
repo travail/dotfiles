@@ -233,4 +233,8 @@
 ;; indent-tabs-mode: nil
 ;; End:
 
+;; Do not create backup files
+(setq make-backup-files nil)
+(setq auto-save-default nil)
+
 ;;; init.el ends here
