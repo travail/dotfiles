@@ -5,6 +5,8 @@ emacs.d/lisp/*.elc
 emacs.d/lisp/*/*.elc
 emacs.d/url
 emacs.d/site-lisp
+emacs.d/straight
+emacs.d/var
 perl/cpanfile.snapshot
 perl/local
 php/vendor
