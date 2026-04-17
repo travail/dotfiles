@@ -53,6 +53,9 @@ zstyle ':chpwd:*' recent-dirs-pushd true
 # Never ever beep ever
 setopt NO_BEEP
 
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
 export PERL_BADLANG=0
 export GREP_OPTIONS="--color=auto"
 export GPG_TTY=$(tty)
