@@ -54,9 +54,9 @@
     (leaf-keywords-init)))
 
 ;; customize
-(leaf zenburn-theme
+(leaf solarized-theme
   :ensure t
-  :config (load-theme 'zenburn t))
+  :config (load-theme 'solarized-dark t))
 
 (leaf leaf
   :config
