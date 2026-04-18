@@ -80,5 +80,3 @@ if [ -d ~/.zsh.local ]; then
         source $file
     done
 fi
-
-
