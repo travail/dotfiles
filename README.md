@@ -56,6 +56,19 @@ $(aqua which fzf | xargs dirname)/../install --key-bindings --completion --no-up
 
 When prompted, answer `y` to enable key bindings and fuzzy completion.
 
+#### Key bindings
+
+| Key | Description |
+| --- | ----------- |
+| `Ctrl+R` | Search command history |
+| `Ctrl+X f` | Search files (multi-select with `Tab`) |
+| `Alt+C` | Change directory with fuzzy search |
+| `Tab` | Context-aware fuzzy completion |
+| `Ctrl+X d` | Change directory using cdr |
+| `Ctrl+X b` | Switch git branch |
+| `Ctrl+X l` | Search git log and insert commit hash |
+| `Ctrl+X p` | Select process ID |
+
 ## GPG Signed Commits
 
 Git is configured to sign all commits with GPG (`commit.gpgsign = true`).
@@ -121,16 +134,3 @@ op item get GPG-Secret-Key-Git-Signing --fields private_key | gpg --import
 # Import public key
 op item get GPG-Public-Key-Git-Signing --fields public_key | gpg --import
 ```
-
-#### Key bindings
-
-| Key | Description |
-| --- | ----------- |
-| `Ctrl+R` | Search command history |
-| `Ctrl+X f` | Search files (multi-select with `Tab`) |
-| `Alt+C` | Change directory with fuzzy search |
-| `Tab` | Context-aware fuzzy completion |
-| `Ctrl+X d` | Change directory using cdr |
-| `Ctrl+X b` | Switch git branch |
-| `Ctrl+X l` | Search git log and insert commit hash |
-| `Ctrl+X p` | Select process ID |
