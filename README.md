@@ -7,6 +7,7 @@ Personal dotfiles for macOS.
 - [Homebrew](https://brew.sh)
 - carton
 - composer
+- gnupg (`brew install gnupg`)
 
 ## Installation
 
@@ -46,6 +47,51 @@ $(brew --prefix)/opt/fzf/install
 ```
 
 When prompted, answer `y` to enable key bindings and fuzzy completion.
+
+## GPG Signed Commits
+
+Git is configured to sign all commits with GPG (`commit.gpgsign = true`).
+
+### Setup
+
+1. Install GnuPG:
+
+```sh
+brew install gnupg
+```
+
+2. Generate a new GPG key:
+
+```sh
+gpg --batch --gen-key <<EOF
+%no-protection
+Key-Type: RSA
+Key-Length: 4096
+Key-Usage: sign
+Name-Real: <your name>
+Name-Email: <your email>
+Expire-Date: 0
+%commit
+EOF
+```
+
+3. Find the key ID:
+
+```sh
+gpg --list-secret-keys --keyid-format=long
+```
+
+4. Set the key in git config:
+
+```sh
+git config --global user.signingkey <KEY_ID>
+```
+
+5. To register with GitHub, export the public key and add it to Settings → SSH and GPG keys → New GPG key:
+
+```sh
+gpg --armor --export <KEY_ID>
+```
 
 #### Key bindings
 
