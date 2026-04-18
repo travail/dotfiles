@@ -5,17 +5,28 @@ Personal dotfiles for macOS.
 ## Requirements
 
 - [Homebrew](https://brew.sh)
-- carton
-- composer
-- gnupg (`brew install gnupg`)
 
 ## Installation
+
+### 1. Install Homebrew packages
+
+```sh
+brew bundle install --file=Brewfile
+```
+
+This installs all required tools including aqua.
+
+### 2. Install CLI tools via aqua
+
+```sh
+aqua install
+```
+
+### 3. Symlink dotfiles
 
 ```sh
 make
 ```
-
-This will symlink all dotfiles to your home directory.
 
 ## Zsh Setup
 
@@ -37,13 +48,10 @@ source ~/.zshrc
 
 ### fzf
 
-[fzf](https://github.com/junegunn/fzf) is used for fuzzy searching.
-
-Install via Homebrew and set up zsh integration:
+[fzf](https://github.com/junegunn/fzf) is managed by aqua. After `aqua install`, set up zsh integration:
 
 ```sh
-brew install fzf
-$(brew --prefix)/opt/fzf/install
+$(aqua which fzf | xargs dirname)/../install --key-bindings --completion --no-update-rc
 ```
 
 When prompted, answer `y` to enable key bindings and fuzzy completion.
@@ -54,13 +62,21 @@ Git is configured to sign all commits with GPG (`commit.gpgsign = true`).
 
 ### Setup
 
-1. Install GnuPG:
+1. Install GnuPG and pinentry-mac (included in Brewfile):
 
 ```sh
-brew install gnupg
+brew bundle install --file=Brewfile
 ```
 
-2. Generate a new GPG key:
+1. Configure gpg-agent to use pinentry-mac:
+
+```sh
+mkdir -p ~/.gnupg
+echo "pinentry-program /opt/homebrew/bin/pinentry-mac" > ~/.gnupg/gpg-agent.conf
+gpgconf --kill gpg-agent
+```
+
+1. Generate a new GPG key:
 
 ```sh
 gpg --batch --gen-key <<EOF
@@ -75,19 +91,19 @@ Expire-Date: 0
 EOF
 ```
 
-3. Find the key ID:
+1. Find the key ID:
 
 ```sh
 gpg --list-secret-keys --keyid-format=long
 ```
 
-4. Set the key in git config:
+1. Set the key in git config:
 
 ```sh
 git config --global user.signingkey <KEY_ID>
 ```
 
-5. To register with GitHub, export the public key and add it to Settings → SSH and GPG keys → New GPG key:
+1. To register with GitHub, export the public key and add it to Settings → SSH and GPG keys → New GPG key:
 
 ```sh
 gpg --armor --export <KEY_ID>
@@ -96,7 +112,7 @@ gpg --armor --export <KEY_ID>
 #### Key bindings
 
 | Key | Description |
-|-----|-------------|
+| --- | ----------- |
 | `Ctrl+R` | Search command history |
 | `Ctrl+X f` | Search files (multi-select with `Tab`) |
 | `Alt+C` | Change directory with fuzzy search |
