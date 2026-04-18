@@ -1,11 +1,5 @@
 # -*- mode: Shell-script -*-
 
-#
-# .zshrc is sourced in interactive shells.
-# It should contain commands to set up aliases,
-# functions, options, key bindings, etc.
-#
-
 # ssh
 agent="$HOME/.ssh-agent-`hostname`"
 if [ -S "$agent" ]; then
@@ -16,18 +10,7 @@ elif [ ! -L "$SSH_AUTH_SOCK" ]; then
     ln -snf "$SSH_AUTH_SOCK" $agent && export SSH_AUTH_SOCK=$agent
 fi
 
-PROMPT="[%n@%m]%~%% "
-RPROMPT="[%D %*]"
-
-autoload -Uz compinit chpwd_recent_dirs cdr add-zsh-hook
-compinit -u
-
-# Allow tab completion in the middle of a word
-setopt COMPLETE_IN_WORD
-
 # history
-# setopt APPEND_HISTORY
-# for sharing history between zsh processes
 HISTFILE=~/.zsh_history
 HISTSIZE=100000
 SAVEHIST=100000
@@ -38,6 +21,7 @@ setopt share_history
 setopt print_eight_bit
 
 # Completion
+setopt COMPLETE_IN_WORD
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' menu select=1
 
@@ -49,6 +33,7 @@ zstyle ':chpwd:*' recent-dirs-default true
 zstyle ':chpwd:*' recent-dirs-file "${XDG_CACHE_HOME:-$HOME/.cache}/shell/chpwd-recent-dirs"
 zstyle ':chpwd:*' recent-dirs-pushd true
 
+autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
 
 # Never ever beep ever
 setopt NO_BEEP
@@ -67,10 +52,32 @@ export JAVA_HOME=/usr/java/default
 umask 002
 
 PATH=$PATH:~/bin:/opt/homebrew/bin
-PROMPT='%D{%Y-%m-%d %H:%M:%S} '
-RPROMPT='% %~'
 
-for file (`find ~/.zsh/ -type f -name '*.sh'`) do
+PROMPT='%D{%Y-%m-%d %H:%M:%S} '
+RPROMPT='%~'
+
+# fzf
+export FZF_CTRL_T_OPTS="--multi"
+
+# zsh-autosuggestions
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=242'
+ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+
+# Zim
+ZSH_DISABLE_COMPFIX=true
+ZIM_HOME=~/.zim
+if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
+  curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh \
+      https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+fi
+if [[ ! ${ZIM_HOME}/init.zsh -nt ~/.zimrc ]]; then
+  source ${ZIM_HOME}/zimfw.zsh init -q
+fi
+source ${ZIM_HOME}/init.zsh
+
+autoload -Uz compinit && compinit -u
+
+for file (`find ~/.zsh/ -type f -name '*.sh' | grep -v xpeco`) do
     if [ -f $file ]; then
         source $file
     fi
@@ -84,4 +91,6 @@ if [ -d ~/.zsh.local ]; then
         fi
     done
 fi
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
