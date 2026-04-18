@@ -75,20 +75,21 @@ if [[ ! ${ZIM_HOME}/init.zsh -nt ~/.zimrc ]]; then
 fi
 source ${ZIM_HOME}/init.zsh
 
-autoload -Uz compinit && compinit -u
+autoload -Uz compinit
+if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
+  compinit -u
+else
+  compinit -C -u
+fi
 
-for file (`find ~/.zsh/ -type f -name '*.sh' | grep -v xpeco`) do
-    if [ -f $file ]; then
-        source $file
-    fi
+for file (~/.zsh/**/*.sh(N)) do
+    [[ $file != *xpeco* ]] && source $file
 done
 
 # Override by local setting
 if [ -d ~/.zsh.local ]; then
-    for file (`find ~/.zsh.local -type f -name '*.sh'`) do
-        if [ -f $file ]; then
-            source $file
-        fi
+    for file (~/.zsh.local/**/*.sh(N)) do
+        source $file
     done
 fi
 
