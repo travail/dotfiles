@@ -109,6 +109,19 @@ git config --global user.signingkey <KEY_ID>
 gpg --armor --export <KEY_ID>
 ```
 
+### Restoring keys from 1Password
+
+```sh
+# Sign in to 1Password
+eval $(op signin)
+
+# Import secret key
+op item get GPG-Secret-Key-Git-Signing --fields private_key | gpg --import
+
+# Import public key
+op item get GPG-Public-Key-Git-Signing --fields public_key | gpg --import
+```
+
 #### Key bindings
 
 | Key | Description |
