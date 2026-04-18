@@ -1,9 +1,0 @@
-#!/bin/env zsh
-
-local r tailr
-tailr="tail -r"
-if which "tac" > /dev/null 2>&1; then
-    tailr="tac"
-fi
-r=$(fc -l -n 1 | eval $tailr | peco)
-_on-complete $r
