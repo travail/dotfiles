@@ -1,0 +1,7 @@
+# Zim modules
+
+# Completion
+zmodule zsh-users/zsh-completions --fpath src
+
+# Autosuggestions (must be last)
+zmodule zsh-users/zsh-autosuggestions
