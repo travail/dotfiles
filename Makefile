@@ -3,7 +3,7 @@ PWD=$(shell pwd)
 CARTON_PATH=$(shell which carton 2>/dev/null)
 COMPOSER_PATH=$(shell which composer 2>/dev/null)
 
-all: check mkdir_bin install_perl_lib install_php_lib ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php
+all: check mkdir_bin brew_bundle install_perl_lib install_php_lib ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua
 
 check:
 ifneq ($(CARTON_PATH),)
@@ -23,6 +23,9 @@ install_perl_lib: perl/cpanfile
 
 install_php_lib: php/composer.lock
 	cd $(PWD)/php && composer install
+
+brew_bundle: Brewfile
+	brew bundle install --file=$(PWD)/Brewfile
 
 mkdir_bin:
 	mkdir -p ~/bin
@@ -56,6 +59,14 @@ ln_perl:
 ln_php:
 	ln -s $(PWD)/php ~/.php
 
+ln_aqua: aqua.yaml
+	mkdir -p $(HOME)/.config/aquaproj-aqua
+	ln -s $(PWD)/aqua.yaml $(HOME)/.config/aquaproj-aqua/aqua.yaml
+
+clean_aqua:
+	rm -f ~/.config/aquaproj-aqua/aqua.yaml
+	rm -f $(PWD)/aqua-checksums.json
+
 clean_emacs:
 	rm -rf $(PWD)/emacs.d/elpa
 	rm -rf $(PWD)/emacs.d/site-lisp
@@ -79,5 +90,7 @@ clean:
 	rm -f ~/.gemrc
 	rm -f ~/.perl
 	rm -f ~/.php
+	rm -f ~/.config/aquaproj-aqua/aqua.yaml
+	rm -f $(PWD)/aqua-checksums.json
 
 cleanall: clean clean_emacs clean_perl_lib clean_php_lib
