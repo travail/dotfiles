@@ -42,16 +42,12 @@ export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
 export PERL_BADLANG=0
-export GREP_OPTIONS="--color=auto"
 export GPG_TTY=$(tty)
-
-# java
-export JAVA_HOME=/usr/java/default
 
 # Set umask
 umask 002
 
-PATH=$PATH:~/bin:/opt/homebrew/bin
+PATH=$PATH:~/bin
 
 PROMPT='%D{%Y-%m-%d %H:%M:%S} '
 RPROMPT='%~'
