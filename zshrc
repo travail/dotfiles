@@ -71,7 +71,7 @@ else
 fi
 
 for file (~/.zsh/**/*.sh(N)) do
-    [[ $file != *xpeco* ]] && source $file
+    source $file
 done
 
 # Override by local setting
