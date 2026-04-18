@@ -1,0 +1,21 @@
+---
+# aqua - Declarative CLI Version Manager
+# https://aquaproj.github.io
+registries:
+  - type: standard
+    ref: v4.495.0
+packages:
+  - name: nodejs/node
+    version: v25.4.0
+  - name: junegunn/fzf
+    version: v0.71.0
+  - name: jqlang/jq
+    version: jq-1.8.1
+  - name: BurntSushi/ripgrep
+    version: 15.1.0
+  - name: peco/peco
+    version: v0.6.0
+  - name: astral-sh/uv
+    version: 0.11.7
+  - name: golang/go
+    version: go1.26.1
