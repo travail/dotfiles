@@ -43,9 +43,6 @@ PATH=$PATH:~/bin
 PROMPT='%D{%Y-%m-%d %H:%M:%S} '
 RPROMPT='%~'
 
-# fzf
-export FZF_CTRL_T_OPTS="--multi"
-export FZF_CTRL_R_OPTS="--exact"
 
 # zsh-autosuggestions
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=242'

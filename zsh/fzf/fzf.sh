@@ -1,3 +1,6 @@
+export FZF_CTRL_T_OPTS="--multi"
+export FZF_CTRL_R_OPTS="--exact"
+
 # cdr でディレクトリ移動
 fzf-cdr() {
     local selected_dir
