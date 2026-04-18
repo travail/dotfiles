@@ -94,5 +94,4 @@ if [ -d ~/.zsh.local ]; then
     done
 fi
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
