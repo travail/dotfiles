@@ -1,6 +1,5 @@
 # -*- mode: Shell-script -*-
 
-
 # history
 HISTFILE=~/.zsh_history
 HISTSIZE=100000
@@ -33,6 +32,8 @@ export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
 export PERL_BADLANG=0
+# Required for GPG to find the TTY for passphrase input.
+# Redundant since pinentry-mac handles it via GUI dialog, but kept as a fallback.
 export GPG_TTY=$(tty)
 
 # Set umask
@@ -61,12 +62,14 @@ fi
 source ${ZIM_HOME}/init.zsh
 
 autoload -Uz compinit
+# Regenerate ~/.zcompdump only if older than 24 hours, otherwise use cache to speed up startup
 if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
   compinit -u
 else
   compinit -C -u
 fi
 
+# Load all zsh config files
 for file (~/.zsh/**/*.sh(N)) do
     source $file
 done
