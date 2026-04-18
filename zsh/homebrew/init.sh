@@ -1,7 +1,8 @@
-COMMAND=brew
-PATH=$PATH:/opt/homebrew/bin
-if type $COMMAND > /dev/null 2>&1; then
-    eval "$($COMMAND shellenv)"
-else
-    echo "$COMMAND not found"
-fi
+[[ "$(uname)" != "Darwin" ]] && return
+
+export HOMEBREW_PREFIX="/opt/homebrew"
+export HOMEBREW_CELLAR="/opt/homebrew/Cellar"
+export HOMEBREW_REPOSITORY="/opt/homebrew"
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:${PATH}"
+export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:"
+export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}"
