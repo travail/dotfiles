@@ -10,3 +10,16 @@ emacs.d/var
 perl/cpanfile.snapshot
 perl/local
 php/vendor
+
+# macOS
+.DS_Store
+
+# Secrets
+*.pem
+*.key
+*.secret
+
+# Editor
+.vscode/
+*.swp
+*~
