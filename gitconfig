@@ -4,33 +4,32 @@
 	signingkey = F7F867AF7781AC2A
 [alias]
 	url = config --get remote.origin.url
-	find-merge = "!sh -c 'commit=$0 && branch=${1:-HEAD} && (git rev-list $commit..$branch --ancestry-path | cat -n; git rev-list $commit..$branch --first-parent | cat -n) | sort -k2 -s | uniq -f1 -d | sort -n | tail -1 | cut -f2'"
-	show-merge = "!sh -c 'merge=$(git find-merge $0 $1) && [ -n \"$merge\" ] && git show $merge'"
 	st = status
 	co = checkout
 	hist = log --oneline --graph --decorate
 [color]
-	ui     = auto
-	diff   = auto
-	status = auto
-	branch = auto
-[remote "origin"]
+	ui = auto
 [include]
 	path = ~/.gitconfig.local
-[merge]
-	ff = false
 [core]
 	editor = emacs
 	untrackedCache = true
 	pager = delta
+	excludesFile = ~/.gitignore
 [delta]
 	navigate = true
 	line-numbers = true
 	side-by-side = true
+[diff]
+	colorMoved = default
 [interactive]
 	diffFilter = delta --color-only
+[merge]
+	ff = false
+	conflictstyle = zdiff3
 [push]
-	default = simple
+	autoSetupRemote = true
+	default = current
 [pull]
 	ff = only
 [fetch]
@@ -53,5 +52,3 @@
 	enabled = true
 [maintenance]
 	auto = true
-[merge]
-	conflictstyle = zdiff3
