@@ -14,7 +14,7 @@ Personal dotfiles for macOS.
 brew bundle install --file=Brewfile
 ```
 
-This installs all required tools including aqua.
+This installs all required tools including aqua and Docker Desktop.
 
 ### 2. Install CLI tools via aqua
 
@@ -35,6 +35,7 @@ make
 [Zim](https://github.com/zimfw/zimfw) is used as the zsh framework. It manages the following modules:
 
 - `zsh-users/zsh-completions` — additional completion definitions
+- `zsh-users/zsh-syntax-highlighting` — command syntax highlighting
 - `zsh-users/zsh-autosuggestions` — fish-like history suggestions
 
 After symlinking `zimrc` to `~/.zimrc`, install Zim:
@@ -48,13 +49,7 @@ source ~/.zshrc
 
 ### fzf
 
-[fzf](https://github.com/junegunn/fzf) is managed by aqua. After `aqua install`, set up zsh integration:
-
-```sh
-$(aqua which fzf | xargs dirname)/../install --key-bindings --completion --no-update-rc
-```
-
-When prompted, answer `y` to enable key bindings and fuzzy completion.
+[fzf](https://github.com/junegunn/fzf) is managed by aqua. The zsh integration is set up automatically via `fzf --zsh` with caching on first shell startup.
 
 #### Key bindings
 
@@ -68,6 +63,23 @@ When prompted, answer `y` to enable key bindings and fuzzy completion.
 | `Ctrl+X b` | Switch git branch |
 | `Ctrl+X l` | Search git log and insert commit hash |
 | `Ctrl+X p` | Select process ID |
+
+## CLI Tools (aqua)
+
+The following tools are managed by aqua (see `aqua.yaml`):
+
+| Tool | Description |
+| ---- | ----------- |
+| [fzf](https://github.com/junegunn/fzf) | Fuzzy finder |
+| [jq](https://github.com/jqlang/jq) | JSON processor |
+| [ripgrep](https://github.com/BurntSushi/ripgrep) | Fast grep |
+| [peco](https://github.com/peco/peco) | Interactive filter |
+| [uv](https://github.com/astral-sh/uv) | Python package manager |
+| [delta](https://github.com/dandavison/delta) | Git diff pager |
+| [lazygit](https://github.com/jesseduffield/lazygit) | TUI git client (`lg`) |
+| [Node.js](https://nodejs.org) | JavaScript runtime |
+| [Go](https://go.dev) | Go toolchain |
+| [1Password CLI](https://developer.1password.com/docs/cli/) | Secret management |
 
 ## GPG Signed Commits
 
