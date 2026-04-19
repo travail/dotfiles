@@ -41,9 +41,6 @@ umask 002
 
 PATH=$PATH:~/bin
 
-PROMPT='%D{%Y-%m-%d %H:%M:%S} '
-RPROMPT='%~'
-
 
 # zsh-autosuggestions
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=242'
