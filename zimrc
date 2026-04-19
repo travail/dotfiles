@@ -3,5 +3,8 @@
 # Completion
 zmodule zsh-users/zsh-completions --fpath src
 
+# Syntax highlighting
+zmodule zsh-users/zsh-syntax-highlighting
+
 # Autosuggestions (must be last)
 zmodule zsh-users/zsh-autosuggestions
