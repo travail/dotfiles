@@ -3,7 +3,7 @@ PWD=$(shell pwd)
 CARTON_PATH=$(shell which carton 2>/dev/null)
 COMPOSER_PATH=$(shell which composer 2>/dev/null)
 
-all: check mkdir_bin brew_bundle install_perl_lib install_php_lib ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua
+all: check ln_bin brew_bundle install_perl_lib install_php_lib ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua
 
 check:
 ifneq ($(CARTON_PATH),)
@@ -27,8 +27,10 @@ install_php_lib: php/composer.lock
 brew_bundle: Brewfile
 	brew bundle install --file=$(PWD)/Brewfile
 
-mkdir_bin:
-	mkdir -p ~/bin
+bin: ln_bin
+
+ln_bin:
+	ln -s $(PWD)/bin ~/bin
 
 ln_emacs:
 	ln -s $(PWD)/emacs.d ~/.emacs.d
@@ -93,6 +95,7 @@ clean:
 	rm -f ~/.my.cnf
 	rm -f ~/.perltidyrc
 	rm -f ~/.tmux.conf
+	rm -f ~/bin
 	rm -f ~/.zshrc
 	rm -rf ~/.zsh
 	rm -f ~/.gemrc

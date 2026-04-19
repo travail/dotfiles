@@ -1,0 +1,4 @@
+#!/bin/sh
+# Show the merge commit that brought a given commit into a branch
+merge=$(git find-merge "$1" "$2")
+[ -n "$merge" ] && git show "$merge"
