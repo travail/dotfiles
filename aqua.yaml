@@ -21,3 +21,5 @@ packages:
     version: go1.26.1
   - name: 1password/cli
     version: v2.31.1
+  - name: dandavison/delta
+    version: 0.19.2

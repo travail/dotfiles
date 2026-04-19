@@ -6,11 +6,14 @@
 	url = config --get remote.origin.url
 	find-merge = "!sh -c 'commit=$0 && branch=${1:-HEAD} && (git rev-list $commit..$branch --ancestry-path | cat -n; git rev-list $commit..$branch --first-parent | cat -n) | sort -k2 -s | uniq -f1 -d | sort -n | tail -1 | cut -f2'"
 	show-merge = "!sh -c 'merge=$(git find-merge $0 $1) && [ -n \"$merge\" ] && git show $merge'"
+	st = status
+	co = checkout
+	lg = log --oneline --graph --decorate
 [color]
 	ui     = auto
 	diff   = auto
 	status = auto
-	banch  = auto
+	branch = auto
 [remote "origin"]
 [include]
 	path = ~/.gitconfig.local
@@ -18,13 +21,37 @@
 	ff = false
 [core]
 	editor = emacs
+	untrackedCache = true
+	pager = delta
+[delta]
+	navigate = true
+	line-numbers = true
+	side-by-side = true
+[interactive]
+	diffFilter = delta --color-only
 [push]
 	default = simple
 [pull]
 	ff = only
+[fetch]
+	prune = true
+[rebase]
+	autosquash = true
 [url "git@github.com:"]
 	insteadOf = https://github.com/
 [gpg]
 	program = /opt/homebrew/bin/gpg
 [commit]
 	gpgsign = true
+[init]
+	defaultBranch = main
+[log]
+	date = iso
+[tag]
+	sort = version:refname
+[rerere]
+	enabled = true
+[maintenance]
+	auto = true
+[merge]
+	conflictstyle = zdiff3
