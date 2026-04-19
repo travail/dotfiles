@@ -59,6 +59,14 @@ ln_perl:
 ln_php:
 	ln -s $(PWD)/php ~/.php
 
+ln_zim: zimrc
+	ln -sf $(PWD)/zimrc ~/.zimrc
+
+zim: ln_zim
+	curl -fsSL --create-dirs -o ~/.zim/zimfw.zsh \
+		https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+	ZIM_HOME=~/.zim zsh ~/.zim/zimfw.zsh install
+
 ln_aqua: aqua.yaml
 	mkdir -p $(HOME)/.config/aquaproj-aqua
 	ln -s $(PWD)/aqua.yaml $(HOME)/.config/aquaproj-aqua/aqua.yaml
