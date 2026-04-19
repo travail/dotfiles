@@ -8,7 +8,7 @@
 	show-merge = "!sh -c 'merge=$(git find-merge $0 $1) && [ -n \"$merge\" ] && git show $merge'"
 	st = status
 	co = checkout
-	lg = log --oneline --graph --decorate
+	hist = log --oneline --graph --decorate
 [color]
 	ui     = auto
 	diff   = auto
