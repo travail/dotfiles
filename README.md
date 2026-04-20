@@ -28,6 +28,35 @@ aqua install
 make
 ```
 
+## Updates
+
+### Homebrew
+
+```sh
+brew update && brew upgrade && brew upgrade --cask
+```
+
+- `brew update` — update Homebrew recipes
+- `brew upgrade` — upgrade all installed formulae
+- `brew upgrade --cask` — upgrade all installed casks
+- `brew cleanup` — remove old versions and cached downloads
+
+### aqua
+
+```sh
+aqua update
+```
+
+Updates all tools defined in `aqua.yaml` to their latest versions.
+
+### uv tools
+
+```sh
+uv tool upgrade --all
+```
+
+Upgrades all uv-managed tools (e.g. `claude-monitor`).
+
 ## Zsh Setup
 
 ### Zim
