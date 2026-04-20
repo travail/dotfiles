@@ -77,3 +77,5 @@ if [ -d ~/.zsh.local ]; then
         source $file
     done
 fi
+
+eval "$(mise activate zsh)"

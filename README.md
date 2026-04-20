@@ -110,6 +110,38 @@ The following tools are managed by aqua (see `aqua.yaml`):
 | [Go](https://go.dev) | Go toolchain |
 | [1Password CLI](https://developer.1password.com/docs/cli/) | Secret management |
 
+## mise (Dev environment manager)
+
+[mise](https://mise.jdx.dev) manages language versions, environment variables, and tasks per project.
+
+### mise Setup
+
+After running `brew bundle install`, activate mise in zsh (already included in `zshrc`):
+
+```sh
+eval "$(mise activate zsh)"
+```
+
+### Install Ruby
+
+```sh
+mise install ruby@latest
+mise use -g ruby@latest   # set globally
+```
+
+### Per-project version
+
+```sh
+cd ~/git/your-project
+mise use ruby@3.4         # creates .mise.toml
+```
+
+### mise Updates
+
+```sh
+mise upgrade ruby
+```
+
 ## GPG Signed Commits
 
 Git is configured to sign all commits with GPG (`commit.gpgsign = true`).
