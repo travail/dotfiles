@@ -21,5 +21,6 @@ cask "docker-desktop"
 cask "gcloud-cli"
 cask "vagrant"
 cask "vagrant-vmware-utility"
+cask "virtualbox"
 
 uv "claude-monitor"
