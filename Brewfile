@@ -6,6 +6,7 @@ brew "emacs"
 brew "gnupg"
 brew "pinentry-mac"
 brew "php@8.4", link: true
+brew "mycli"
 brew "tmux"
 brew "tree"
 brew "aqua"
