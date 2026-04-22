@@ -1,8 +1,1 @@
-#!/bin/sh
-# checkout remote branch with fzf
-branch=$(git for-each-ref --sort=-committerdate --format='%(refname:short)' refs/remotes/ \
-  | grep -v HEAD \
-  | fzf --prompt='remote> ' \
-        --preview='git log --oneline --color=always -15 {}' \
-        --preview-window=right:60%)
-[ -n "$branch" ] && git checkout -b "${branch#origin/}" --track "$branch"
+git-checkout-remote
