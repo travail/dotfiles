@@ -1,3 +1,5 @@
+tap "metalbear-co/mirrord"
+
 brew "libevent"
 brew "p11-kit"
 brew "unbound"
@@ -14,6 +16,7 @@ brew "claude-code-router"
 brew "kubernetes-cli"
 brew "peco"
 brew "ripgrep"
+brew "metalbear-co/mirrord/mirrord"
 brew "libyaml"
 brew "mise"
 brew "uv"
