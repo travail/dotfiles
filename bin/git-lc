@@ -1,7 +1,1 @@
-#!/bin/sh
-# checkout local branch with fzf
-branch=$(git for-each-ref --sort=-committerdate --format='%(refname:short)' refs/heads/ \
-  | fzf --prompt='local> ' \
-        --preview='git log --oneline --color=always -15 {}' \
-        --preview-window=right:60%)
-[ -n "$branch" ] && git checkout "$branch"
+git-checkout-local
