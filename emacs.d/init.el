@@ -166,6 +166,11 @@
          ("M-p" . flycheck-previous-error))
   :global-minor-mode global-flycheck-mode)
 
+(leaf magit
+  :doc "A Git porcelain inside Emacs"
+  :ensure t
+  :bind (("C-x g" . magit-status)))
+
 (leaf git-gutter
   :doc "git-gutter"
   :tag "development"
