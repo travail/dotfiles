@@ -1,15 +1,21 @@
-# Called on each precmd hook to update _git_prompt
+# Async git prompt using SIGUSR1 pattern
+_git_prompt=""
+_git_async_tmpfile=$(mktemp -t git_prompt.XXXXXX)
+
 _git_prompt_update() {
   local git_dir branch action flags="" info=""
 
-  # Clear prompt and exit if not inside a git repository
-  if ! git_dir=$(git rev-parse --git-dir 2>/dev/null); then
-    _git_prompt=""
+  # Get git dir and branch in one call; exit if not in a git repository
+  local rev_out
+  rev_out=$(git rev-parse --git-dir --abbrev-ref HEAD 2>/dev/null) || {
+    echo "" > "$_git_async_tmpfile"
     return
-  fi
+  }
+  git_dir=${rev_out%%$'\n'*}
+  branch=${rev_out##*$'\n'}
 
-  # Branch name, or commit hash when in detached HEAD state
-  branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
+  # Detached HEAD: fall back to short commit hash
+  [[ "$branch" == "HEAD" ]] && branch=$(git rev-parse --short HEAD 2>/dev/null)
 
   # Detect in-progress operations (rebase, merge, etc.)
   if [[ -f "$git_dir/rebase-merge/interactive" ]]; then action="rebase-i"
@@ -31,14 +37,30 @@ _git_prompt_update() {
   [[ -n $action ]] && info+="%F{magenta}|${action}%f"
   info+="${flags}"
 
-  _git_prompt=$info
+  echo "$info" > "$_git_async_tmpfile"
+}
+
+# SIGUSR1 handler: read result from tmp file and redraw prompt
+TRAPUSR1() {
+  _git_prompt=$(cat "$_git_async_tmpfile")
+  zle reset-prompt 2>/dev/null
+  return 0
+}
+
+# Launch git prompt update in background, signal parent when done
+_git_prompt_start_async() {
+  {
+    _git_prompt_update
+    kill -USR1 $$
+  } &!
 }
 
 # Remove any leftover vcs_info hook from previous configurations
 precmd_functions=( ${precmd_functions:#precmd_vcs_info} )
-# Register hook, guarded against duplicate registration on re-source
-if (( ! ${precmd_functions[(Ie)_git_prompt_update]} )); then
-  precmd_functions+=( _git_prompt_update )
+precmd_functions=( ${precmd_functions:#_git_prompt_update} )
+# Register async hook, guarded against duplicate registration on re-source
+if (( ! ${precmd_functions[(Ie)_git_prompt_start_async]} )); then
+  precmd_functions+=( _git_prompt_start_async )
 fi
 
 setopt prompt_subst
