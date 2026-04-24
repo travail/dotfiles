@@ -36,8 +36,6 @@
 	prune = true
 [rebase]
 	autosquash = true
-[url "git@github.com:"]
-	insteadOf = https://github.com/
 [gpg]
 	program = /opt/homebrew/bin/gpg
 [commit]
@@ -52,3 +50,5 @@
 	enabled = true
 [maintenance]
 	auto = true
+[url "ssh://git@github.com/"]
+	insteadOf = https://github.com/
