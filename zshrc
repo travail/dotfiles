@@ -59,12 +59,8 @@ fi
 source ${ZIM_HOME}/init.zsh
 
 autoload -Uz compinit
-# Regenerate ~/.zcompdump only if older than 24 hours, otherwise use cache to speed up startup
-if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
-  compinit -u
-else
-  compinit -C -u
-fi
+# Always use cached dump (-C). Run `compinit && exec zsh` to rebuild after installing new tools.
+compinit -C -u
 
 # Load all zsh config files
 for file (~/.zsh/**/*.sh(N)) do
