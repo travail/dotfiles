@@ -13,3 +13,7 @@ alias eng='LANG=C LANGUAGE=C LC_ALL=C'
 alias ec='emacsclient -nw -a "emacs --daemon"'
 alias aq='aqua'
 alias lg='lazygit'
+
+zsh-rehash() {
+  autoload -Uz compinit && compinit -u && exec zsh
+}
