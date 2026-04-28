@@ -4,4 +4,8 @@ zstyle ':completion:*:*:git:*' user-commands \
   'checkout-local:checkout local branch with fzf' \
   'cr:checkout remote branch with fzf' \
   'checkout-remote:checkout remote branch with fzf' \
-  'sync:pull origin master and fetch all'
+  'sync:pull origin master and fetch all' \
+  'dl:delete local branch(es) with fzf' \
+  'delete-local:delete local branch(es) with fzf' \
+  'dr:delete remote branch(es) with fzf' \
+  'delete-remote:delete remote branch(es) with fzf'

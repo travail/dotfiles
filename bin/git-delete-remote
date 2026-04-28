@@ -1,0 +1,9 @@
+#!/bin/sh
+# delete remote branch(es) with fzf multi-select
+branches=$(git for-each-ref --sort=-committerdate --format='%(refname:short)' refs/remotes/ \
+  | grep -v HEAD \
+  | fzf --prompt='delete remote> ' \
+        --multi \
+        --preview='git log --oneline --color=always -15 {}' \
+        --preview-window=right:60%)
+[ -n "$branches" ] && echo "$branches" | sed 's|origin/||' | xargs -I{} git push origin --delete {}
