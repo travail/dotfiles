@@ -1,0 +1,11 @@
+#!/bin/sh
+# delete merged remote branch(es) with fzf multi-select
+branches=$(git branch -r --merged \
+  | grep -v 'HEAD' \
+  | grep -vE 'origin/(master|main)$' \
+  | sed 's|^ *origin/||' \
+  | fzf --prompt='delete merged remote> ' \
+        --multi \
+        --preview='git log --oneline --color=always -15 origin/{}' \
+        --preview-window=right:60%)
+[ -n "$branches" ] && echo "$branches" | xargs -I{} git push origin --delete {}
