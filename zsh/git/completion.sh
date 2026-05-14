@@ -8,4 +8,8 @@ zstyle ':completion:*:*:git:*' user-commands \
   'dl:delete local branch(es) with fzf' \
   'delete-local:delete local branch(es) with fzf' \
   'dr:delete remote branch(es) with fzf' \
-  'delete-remote:delete remote branch(es) with fzf'
+  'delete-remote:delete remote branch(es) with fzf' \
+  'dlm:delete merged local branch(es) with fzf' \
+  'delete-local-merged:delete merged local branch(es) with fzf' \
+  'drm:delete merged remote branch(es) with fzf' \
+  'delete-remote-merged:delete merged remote branch(es) with fzf'
