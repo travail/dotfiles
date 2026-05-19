@@ -71,6 +71,36 @@
       "algorithm": "sha256"
     },
     {
+      "id": "github_release/github.com/jesseduffield/lazygit/v0.61.1/lazygit_0.61.1_darwin_arm64.tar.gz",
+      "checksum": "CB665FAEC92D1574D398296869C084D2B9686464A42806558B967BB87CD07BC9",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/jesseduffield/lazygit/v0.61.1/lazygit_0.61.1_darwin_x86_64.tar.gz",
+      "checksum": "6EFDB97B8EC24B5729156555D6BC05B340776F00084DDD78AB8BDC7F3DD9B727",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/jesseduffield/lazygit/v0.61.1/lazygit_0.61.1_linux_arm64.tar.gz",
+      "checksum": "20B1ABB2BEE5DFD46173B9047353EB678BC51A23839E821958D0B1863AB1655E",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/jesseduffield/lazygit/v0.61.1/lazygit_0.61.1_linux_x86_64.tar.gz",
+      "checksum": "1B91E660700F2332696726B635202576B543E2BC49B639830DCCD26BC5160D5D",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/jesseduffield/lazygit/v0.61.1/lazygit_0.61.1_windows_arm64.zip",
+      "checksum": "2A04E7123E06CBFA38B9276C901D12D4D3CD1976BFD53A11E0F7E1C9D0BF9817",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "github_release/github.com/jesseduffield/lazygit/v0.61.1/lazygit_0.61.1_windows_x86_64.zip",
+      "checksum": "6024F3094904CAAF9B9672B801CBA31A65AD36729A0D2C5A03C432F739C0678B",
+      "algorithm": "sha256"
+    },
+    {
       "id": "github_release/github.com/jqlang/jq/jq-1.8.1/jq-linux-amd64",
       "checksum": "020468DE7539CE70EF1BCEAF7CDE2E8C4F2CA6C3AFB84642AABC5C97D9FC2A0D",
       "algorithm": "sha256"
@@ -125,31 +155,7 @@
       "checksum": "9D0DE41E8C40E8A7AC1EDB64FE93AAE96181ED93439E9E6D8D35DEDA61EE910B",
       "algorithm": "sha256"
     },
-    {
-      "id": "github_release/github.com/peco/peco/v0.6.0/peco_0.6.0_darwin_amd64.zip",
-      "checksum": "89DB4861044958F0EBE349B5009137FA8323390B6FF5C19F2CCBB578A6B03E54",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/peco/peco/v0.6.0/peco_0.6.0_darwin_arm64.zip",
-      "checksum": "778A4ED7B254294451B5EC1695097E72CE0C70B2E753EE32BFDE2158A72C4ED7",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/peco/peco/v0.6.0/peco_0.6.0_linux_amd64.tar.gz",
-      "checksum": "93D4418AB1261EB723A1F614C2E652C9E912885CFF7D969F913C0686459C62E8",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/peco/peco/v0.6.0/peco_0.6.0_linux_arm64.tar.gz",
-      "checksum": "035184A97026F79DBC6571A3BF5F74586C523E4485C034322E93820E3F135494",
-      "algorithm": "sha256"
-    },
-    {
-      "id": "github_release/github.com/peco/peco/v0.6.0/peco_0.6.0_windows_amd64.zip",
-      "checksum": "5BD9AA4BC02338A6EC8AB1EF212C7B2E54C23E2416254C7681F03E9FA6857863",
-      "algorithm": "sha256"
-    },
+
     {
       "id": "http/cache.agilebits.com/dist/1P/op2/pkg/v2.31.1/op_darwin_amd64_v2.31.1.zip",
       "checksum": "A708A8592051A4B28A0F1039E4C2CF9268412F00CFE05D71D3F23948A9A4BED5",
@@ -173,6 +179,36 @@
     {
       "id": "http/cache.agilebits.com/dist/1P/op2/pkg/v2.31.1/op_windows_amd64_v2.31.1.zip",
       "checksum": "7CF3A30BDE910A8087052CD453186F80B72931B94FD4E90B4C6F5485C436B451",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/golang.org/dl/go1.25.9.darwin-amd64.tar.gz",
+      "checksum": "92CB78FBA4796E218C1ACCB0EA0A214EF2094C382049A244AD6505505D015FBE",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/golang.org/dl/go1.25.9.darwin-arm64.tar.gz",
+      "checksum": "9528BE7329B9770631A6BD09CA2F3A73ED7332BEC01D87435E75E92D8F130363",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/golang.org/dl/go1.25.9.linux-amd64.tar.gz",
+      "checksum": "00859D7BD6DEFE8BF84D9DB9E57B9A4467B2887C18CD93AE7460E713DB774BC1",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/golang.org/dl/go1.25.9.linux-arm64.tar.gz",
+      "checksum": "EC342E7389B7F489564ED5463C63B16CF8040023DABC7861256677165A8C0E2B",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/golang.org/dl/go1.25.9.windows-amd64.zip",
+      "checksum": "A7A710E225467B34E9E09FB432B829C86C9B2DA5821EE5418F7EB2E8AE1A22CC",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/golang.org/dl/go1.25.9.windows-arm64.zip",
+      "checksum": "33CD73CF1B3CEEE655EF71BC96E94006C02AE3C617FDD67AC9BE3DFAE3957449",
       "algorithm": "sha256"
     },
     {
@@ -203,6 +239,36 @@
     {
       "id": "http/golang.org/dl/go1.26.1.windows-arm64.zip",
       "checksum": "C17E09676BE0FAAD3CBED1C81BB02F38FB73E2F93D048571CC13730FE23F2D5B",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/golang.org/dl/go1.26.2.darwin-amd64.tar.gz",
+      "checksum": "BC3F1500D9968C36D705442D90BA91ADDF9271665033748B82532682E90A7966",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/golang.org/dl/go1.26.2.darwin-arm64.tar.gz",
+      "checksum": "32AF1522BF3E3FF3975864780A429CC0B41D190EC7BF90FAA661D6D64566E7AF",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/golang.org/dl/go1.26.2.linux-amd64.tar.gz",
+      "checksum": "990E6B4BBBA816DC3EE129EAEAF4B42F17C2800B88A2166C265AC1A200262282",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/golang.org/dl/go1.26.2.linux-arm64.tar.gz",
+      "checksum": "C958A1FE1B361391DB163A485E21F5F228142D6F8B584F6BEF89B26F66DC5B23",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/golang.org/dl/go1.26.2.windows-amd64.zip",
+      "checksum": "98EB3570BADE15CB826B0909338DF6CC6D2CF590BC39C471142002DB3832B708",
+      "algorithm": "sha256"
+    },
+    {
+      "id": "http/golang.org/dl/go1.26.2.windows-arm64.zip",
+      "checksum": "094D05CAAF6BA235E2BD570B625D064CEB65943866252722A8F3FDBA232139C6",
       "algorithm": "sha256"
     },
     {
