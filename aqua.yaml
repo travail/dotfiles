@@ -15,8 +15,6 @@ packages:
     version: 15.1.0
   - name: peco/peco
     version: v0.6.0
-  - name: astral-sh/uv
-    version: 0.11.7
   - name: golang/go
     version: go1.25.9
   - name: 1password/cli
