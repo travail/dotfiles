@@ -13,12 +13,9 @@ packages:
     version: jq-1.8.1
   - name: BurntSushi/ripgrep
     version: 15.1.0
-  - name: golang/go
-    version: go1.25.9
   - name: 1password/cli
     version: v2.31.1
   - name: dandavison/delta
     version: 0.19.2
   - name: jesseduffield/lazygit
     version: v0.61.1
-  - name: golang/go@go1.26.2
