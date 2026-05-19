@@ -30,39 +30,39 @@ brew_bundle: Brewfile
 bin: ln_bin
 
 ln_bin:
-	ln -s $(PWD)/bin ~/bin
+	ln -sfn $(PWD)/bin ~/bin
 
 ln_emacs:
-	ln -s $(PWD)/emacs.d ~/.emacs.d
+	ln -sfn $(PWD)/emacs.d ~/.emacs.d
 	mkdir -p $(PWD)/emacs.d/site-lisp
 
 ln_git: gitconfig gitignore
-	ln -s $(PWD)/gitconfig ~/.gitconfig && ln -s $(PWD)/gitignore ~/.gitignore
+	ln -sfn $(PWD)/gitconfig ~/.gitconfig && ln -sfn $(PWD)/gitignore ~/.gitignore
 
 ln_mysql: my.cnf
-	ln -s $(PWD)/my.cnf ~/.my.cnf
+	ln -sfn $(PWD)/my.cnf ~/.my.cnf
 
 ln_perltidyrc: perltidyrc
-	ln -s $(PWD)/perltidyrc ~/.perltidyrc
+	ln -sfn $(PWD)/perltidyrc ~/.perltidyrc
 
 ln_tmux: tmux.conf
-	ln -s $(PWD)/tmux.conf ~/.tmux.conf
+	ln -sfn $(PWD)/tmux.conf ~/.tmux.conf
 
 ln_zshrc: zshrc
-	ln -s $(PWD)/zshrc ~/.zshrc && ln -s $(PWD)/zsh ~/.zsh
+	ln -sfn $(PWD)/zshrc ~/.zshrc && ln -sfn $(PWD)/zsh ~/.zsh
 	mkdir -p $(HOME)/.cache/shell
 
 ln_gemrc: gemrc
-	ln -s $(PWD)/gemrc ~/.gemrc
+	ln -sfn $(PWD)/gemrc ~/.gemrc
 
 ln_perl:
-	ln -s $(PWD)/perl ~/.perl
+	ln -sfn $(PWD)/perl ~/.perl
 
 ln_php:
-	ln -s $(PWD)/php ~/.php
+	ln -sfn $(PWD)/php ~/.php
 
 ln_zim: zimrc
-	ln -sf $(PWD)/zimrc ~/.zimrc
+	ln -sfn $(PWD)/zimrc ~/.zimrc
 
 zim: ln_zim
 	curl -fsSL --create-dirs -o ~/.zim/zimfw.zsh \
@@ -71,7 +71,7 @@ zim: ln_zim
 
 ln_aqua: aqua.yaml
 	mkdir -p $(HOME)/.config/aquaproj-aqua
-	ln -s $(PWD)/aqua.yaml $(HOME)/.config/aquaproj-aqua/aqua.yaml
+	ln -sfn $(PWD)/aqua.yaml $(HOME)/.config/aquaproj-aqua/aqua.yaml
 
 clean_aqua:
 	rm -f ~/.config/aquaproj-aqua/aqua.yaml
