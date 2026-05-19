@@ -102,7 +102,6 @@ The following tools are managed by aqua (see `aqua.yaml`):
 | [fzf](https://github.com/junegunn/fzf) | Fuzzy finder |
 | [jq](https://github.com/jqlang/jq) | JSON processor |
 | [ripgrep](https://github.com/BurntSushi/ripgrep) | Fast grep |
-| [peco](https://github.com/peco/peco) | Interactive filter |
 | [uv](https://github.com/astral-sh/uv) | Python package manager |
 | [delta](https://github.com/dandavison/delta) | Git diff pager |
 | [lazygit](https://github.com/jesseduffield/lazygit) | TUI git client (`lg`) |
