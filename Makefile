@@ -1,28 +1,6 @@
 PWD=$(shell pwd)
 
-CARTON_PATH=$(shell which carton 2>/dev/null)
-COMPOSER_PATH=$(shell which composer 2>/dev/null)
-
-all: check ln_bin brew_bundle install_perl_lib install_php_lib ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua
-
-check:
-ifneq ($(CARTON_PATH),)
-	@printf "\033[0;32mFound command %s\033[0m\n" $(CARTON_PATH)
-else
-	@printf "\033[0;31mCommand not found: carton in %s\033[0m\n" $(PATH) && exit 1
-endif
-
-ifneq ($(COMPOSER_PATH),)
-	@printf "\033[0;32mFound command %s\033[0m\n" $(COMPOSER_PATH)
-else
-	@printf "\033[0;31mCommand not found: composer in %s\033[0m\n" $(PATH) && exit 1
-endif
-
-install_perl_lib: perl/cpanfile
-	cd $(PWD)/perl && carton install
-
-install_php_lib: php/composer.lock
-	cd $(PWD)/php && composer install
+all: ln_bin brew_bundle ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua
 
 brew_bundle: Brewfile
 	brew bundle install --file=$(PWD)/Brewfile
@@ -81,12 +59,6 @@ clean_emacs:
 	rm -rf $(PWD)/emacs.d/elpa
 	rm -rf $(PWD)/emacs.d/site-lisp
 
-clean_perl_lib:
-	rm -rf $(PWD)/perl/local
-
-clean_php_lib:
-	rm -rf $(PWD)/php/vendor
-
 clean:
 	rm -f ~/.emacs.d
 	rm -f ~/.git
@@ -104,4 +76,4 @@ clean:
 	rm -f ~/.config/aquaproj-aqua/aqua.yaml
 	rm -f $(PWD)/aqua-checksums.json
 
-cleanall: clean clean_emacs clean_perl_lib clean_php_lib
+cleanall: clean clean_emacs
