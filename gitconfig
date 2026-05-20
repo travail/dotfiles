@@ -7,6 +7,17 @@
 	st = status
 	co = checkout
 	hist = log --oneline --graph --decorate
+	cl = checkout-local
+	lc = checkout-local
+	cr = checkout-remote
+	rc = checkout-remote
+	dl = delete-local
+	dlm = delete-local-merged
+	dr = delete-remote
+	drm = delete-remote-merged
+	sync = sync
+	find-merge = find-merge
+	show-merge = show-merge
 [color]
 	ui = auto
 [include]
