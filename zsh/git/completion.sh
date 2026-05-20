@@ -14,4 +14,6 @@ zstyle ':completion:*:*:git:*' user-commands \
   'dlm:delete merged local branch(es) with fzf' \
   'delete-local-merged:delete merged local branch(es) with fzf' \
   'drm:delete merged remote branch(es) with fzf' \
-  'delete-remote-merged:delete merged remote branch(es) with fzf'
+  'delete-remote-merged:delete merged remote branch(es) with fzf' \
+  'find-merge:find the merge commit that introduced a given commit' \
+  'show-merge:show the merge commit that introduced a given commit'
