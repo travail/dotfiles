@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+set -euo pipefail
 branch=$(git symbolic-ref --short HEAD)
 case "$branch" in
   master|main) ;;

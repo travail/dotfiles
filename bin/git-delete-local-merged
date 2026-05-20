@@ -1,11 +1,13 @@
-#!/bin/sh
-# delete merged local branch(es) with fzf multi-select
-branches=$(git branch --merged \
+#!/bin/bash
+set -euo pipefail
+# fzf exits non-zero on cancel (Esc), if handles that without triggering set -e
+if branches=$(git branch --merged \
   | grep -v '^\*' \
   | grep -vE '^\s*(master|main)$' \
   | sed 's/^ *//' \
   | fzf --prompt='delete merged local> ' \
         --multi \
         --preview='git log --oneline --color=always -15 {}' \
-        --preview-window=right:60%)
-[ -n "$branches" ] && echo "$branches" | xargs git branch -d
+        --preview-window=right:60%); then
+  echo "$branches" | xargs git branch -d
+fi

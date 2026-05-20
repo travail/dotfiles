@@ -1,4 +1,9 @@
-#!/bin/sh
+#!/bin/bash
+set -euo pipefail
 # Show the merge commit that brought a given commit into a branch
-merge=$(git find-merge "$1" "$2")
+if [ $# -lt 1 ]; then
+  echo "usage: git show-merge <commit> [<branch>]" >&2
+  exit 1
+fi
+merge=$(git find-merge "$@")
 [ -n "$merge" ] && git show "$merge"
