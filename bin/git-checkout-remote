@@ -1,8 +1,10 @@
-#!/bin/sh
-# checkout remote branch with fzf
-branch=$(git for-each-ref --sort=-committerdate --format='%(refname:short)' refs/remotes/ \
+#!/bin/bash
+set -euo pipefail
+# fzf exits non-zero on cancel (Esc), if handles that without triggering set -e
+if branch=$(git for-each-ref --sort=-committerdate --format='%(refname:short)' refs/remotes/ \
   | grep -v HEAD \
   | fzf --prompt='remote> ' \
         --preview='git log --oneline --color=always -15 {}' \
-        --preview-window=right:60%)
-[ -n "$branch" ] && git checkout -b "${branch#origin/}" --track "$branch"
+        --preview-window=right:60%); then
+  git checkout -b "${branch#origin/}" --track "$branch"
+fi
