@@ -1,6 +1,6 @@
 PWD=$(shell pwd)
 
-all: ln_bin brew_bundle ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua
+all: ln_bin brew_bundle ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua ln_zim
 
 brew_bundle: Brewfile
 	brew bundle install --file=$(PWD)/Brewfile
