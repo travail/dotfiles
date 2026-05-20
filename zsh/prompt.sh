@@ -1,6 +1,7 @@
 # Async git prompt using SIGUSR1 pattern
 _git_prompt=""
 _git_async_tmpfile=$(mktemp -t git_prompt.XXXXXX)
+zshexit() { rm -f "$_git_async_tmpfile" }
 
 _git_prompt_update() {
   local git_dir branch action flags="" info=""
