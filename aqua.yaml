@@ -5,8 +5,6 @@ registries:
   - type: standard
     ref: v4.495.0
 packages:
-  - name: nodejs/node
-    version: v25.4.0
   - name: junegunn/fzf
     version: v0.71.0
   - name: jqlang/jq
