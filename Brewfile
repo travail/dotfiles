@@ -3,7 +3,7 @@ tap "metalbear-co/mirrord"
 brew "git"
 brew "emacs"
 brew "gnupg"
-brew "pinentry-mac"
+brew "pinentry-mac" # macOS only
 brew "php@8.4", link: true
 brew "mycli"
 brew "tmux"
@@ -15,6 +15,7 @@ brew "mise"
 brew "uv"
 brew "gh"
 brew "github-mcp-server"
+# macOS only
 cask "docker-desktop"
 cask "gcloud-cli"
 cask "vagrant"

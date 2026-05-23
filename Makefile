@@ -1,8 +1,16 @@
 PWD=$(shell pwd)
+UNAME := $(shell uname)
 
-.PHONY: all brew_bundle bin ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_zim zim ln_aqua clean_aqua clean_emacs clean cleanall
+.PHONY: all install_packages brew_bundle bin ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_zim zim ln_aqua clean_aqua clean_emacs clean cleanall
 
-all: brew_bundle ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua ln_zim
+all: install_packages ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua ln_zim
+
+install_packages:
+ifeq ($(UNAME), Darwin)
+	brew bundle install --file=$(PWD)/Brewfile
+else
+	@echo "Skipping brew_bundle on Linux"
+endif
 
 brew_bundle: Brewfile
 	brew bundle install --file=$(PWD)/Brewfile

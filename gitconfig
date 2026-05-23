@@ -37,7 +37,7 @@
 [rebase]
 	autosquash = true
 [gpg]
-	program = /opt/homebrew/bin/gpg
+	program = gpg
 [commit]
 	gpgsign = true
 [init]
