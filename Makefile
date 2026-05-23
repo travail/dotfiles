@@ -8,8 +8,9 @@ all: install_packages ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_z
 install_packages:
 ifeq ($(UNAME), Darwin)
 	brew bundle install --file=$(PWD)/Brewfile
+	brew bundle install --file=$(PWD)/Brewfile.darwin
 else
-	@echo "Skipping brew_bundle on Linux"
+	brew bundle install --file=$(PWD)/Brewfile
 endif
 
 brew_bundle: Brewfile

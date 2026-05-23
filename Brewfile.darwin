@@ -1,0 +1,7 @@
+brew "pinentry-mac"
+
+cask "docker-desktop"
+cask "gcloud-cli"
+cask "vagrant"
+cask "vagrant-vmware-utility"
+cask "virtualbox"
