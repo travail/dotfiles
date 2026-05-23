@@ -1,17 +1,23 @@
 PWD=$(shell pwd)
 UNAME := $(shell uname)
 
-.PHONY: all install_packages brew_bundle bin ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_zim zim ln_aqua clean_aqua clean_emacs clean cleanall
+.PHONY: all brew_bundle bin ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_zim zim ln_aqua clean_aqua clean_emacs clean cleanall
 
-all: install_packages ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua ln_zim
+all: .make/install_packages ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua ln_zim
 
-install_packages:
+ifeq ($(UNAME), Darwin)
+.make/install_packages: Brewfile Brewfile.darwin
+else
+.make/install_packages: Brewfile
+endif
+	@mkdir -p .make
 ifeq ($(UNAME), Darwin)
 	brew bundle install --file=$(PWD)/Brewfile
 	brew bundle install --file=$(PWD)/Brewfile.darwin
 else
 	brew bundle install --file=$(PWD)/Brewfile
 endif
+	@touch $@
 
 brew_bundle: Brewfile
 	brew bundle install --file=$(PWD)/Brewfile
