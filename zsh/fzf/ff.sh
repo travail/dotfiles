@@ -7,6 +7,7 @@ _ff() {
         'ssh:Select a host from ~/.ssh/config and connect'
         'man:Select a man page and open it'
         'alias:Select an alias and execute it'
+        'bindkey:Select a key binding and print it'
         'help:Show help message'
     )
     if (( CURRENT == 2 )); then
@@ -54,6 +55,9 @@ ff() {
             selected=$(alias | fzf --prompt="alias> " | cut -d= -f2- | tr -d "'\"")
             [ -n "$selected" ] && eval "$selected"
             ;;
+        bindkey)
+            bindkey | fzf --prompt="bindkey> "
+            ;;
         help|--help|-h|"")
             echo "Usage: ff <subcommand> [options]"
             echo ""
@@ -65,6 +69,7 @@ ff() {
             echo "  ssh            Select a host from ~/.ssh/config and connect"
             echo "  man            Select a man page and open it"
             echo "  alias          Select an alias and execute it"
+            echo "  bindkey        Select a key binding and print it"
             echo "  help           Show this help message"
             ;;
         *)
