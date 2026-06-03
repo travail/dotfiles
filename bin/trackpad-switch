@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+
+DEVICE_NAME="Trackpad"
+
+address=$(blueutil --paired | grep -i "$DEVICE_NAME" | grep -oE '[0-9a-f]{2}(-[0-9a-f]{2}){5}' | head -1)
+
+if [ -z "$address" ]; then
+    echo "error: $DEVICE_NAME not found in paired devices" >&2
+    exit 1
+fi
+
+if [ "$(blueutil --is-connected "$address")" = "1" ]; then
+    blueutil --unpair "$address"
+    echo "Disconnected: $DEVICE_NAME ($address)"
+else
+    blueutil --pair "$address" && blueutil --connect "$address"
+    echo "Connected: $DEVICE_NAME ($address)"
+fi
