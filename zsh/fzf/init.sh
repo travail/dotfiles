@@ -4,3 +4,6 @@ if [[ ! -f "$_fzf_cache" ]] || [[ "$(command -v fzf)" -nt "$_fzf_cache" ]]; then
 fi
 source "$_fzf_cache"
 unset _fzf_cache
+
+bindkey -r '^T'     # use CTRL-T for other purposes
+bindkey -r '\ec'    # use ALT-C for other purposes
