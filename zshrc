@@ -24,6 +24,7 @@ zstyle ':chpwd:*' recent-dirs-file "${XDG_CACHE_HOME:-$HOME/.cache}/shell/chpwd-
 zstyle ':chpwd:*' recent-dirs-pushd true
 
 autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
+add-zsh-hook chpwd chpwd_recent_dirs
 
 # Never ever beep ever
 setopt NO_BEEP
