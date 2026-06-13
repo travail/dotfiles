@@ -75,4 +75,3 @@ if [ -d ~/.zsh.local ]; then
     done
 fi
 
-eval "$(mise activate zsh)"
