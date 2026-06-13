@@ -14,5 +14,6 @@ brew "mise"
 brew "uv"
 brew "gh"
 brew "github-mcp-server"
+brew "awscli"
 
 uv "claude-monitor"
