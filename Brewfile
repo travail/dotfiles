@@ -15,5 +15,6 @@ brew "uv"
 brew "gh"
 brew "github-mcp-server"
 brew "awscli"
+brew "mcp-toolbox"
 
 uv "claude-monitor"
