@@ -1,4 +1,5 @@
 brew "pinentry-mac"
+cask "1password-cli"
 
 cask "docker-desktop"
 cask "gcloud-cli"
