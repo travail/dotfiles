@@ -3,7 +3,7 @@ UNAME := $(shell uname)
 
 .PHONY: all brew_bundle bin ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_zim zim ln_aqua clean_aqua clean_emacs clean cleanall
 
-all: .make/install_packages ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua ln_zim
+all: .make/install_packages .make/aqua_install ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua ln_zim
 
 ifeq ($(UNAME), Darwin)
 .make/install_packages: Brewfile Brewfile.darwin
@@ -17,6 +17,11 @@ ifeq ($(UNAME), Darwin)
 else
 	brew bundle install --file=$(PWD)/Brewfile
 endif
+	@touch $@
+
+.make/aqua_install: aqua.yaml
+	@mkdir -p .make
+	aqua install
 	@touch $@
 
 brew_bundle: Brewfile
