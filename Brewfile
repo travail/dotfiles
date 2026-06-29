@@ -5,6 +5,7 @@ brew "emacs"
 brew "gnupg"
 brew "php@8.4", link: true
 brew "mycli"
+brew "pgcli"
 brew "tmux"
 brew "tree"
 brew "aqua"
