@@ -220,6 +220,33 @@
   :config
   (add-to-list 'company-backends 'company-c-headers))
 
+;; lsp-mode
+(leaf lsp-mode
+  :doc "Language Server Protocol support"
+  :ensure t
+  :commands (lsp lsp-deferred)
+  :custom ((lsp-keymap-prefix . "C-c l")
+           (lsp-enable-snippet . nil)))
+
+(leaf lsp-ui
+  :doc "UI integrations for lsp-mode"
+  :ensure t
+  :hook (lsp-mode-hook . lsp-ui-mode)
+  :custom ((lsp-ui-doc-enable . t)
+           (lsp-ui-sideline-enable . t)))
+
+;; go
+(leaf go-mode
+  :doc "Major mode for Go source code"
+  :ensure t
+  :mode "\\.go\\'"
+  :hook (go-mode-hook . lsp-deferred)
+  :config
+  (add-hook 'go-mode-hook
+            (lambda ()
+              (add-hook 'before-save-hook #'lsp-format-buffer nil t)
+              (add-hook 'before-save-hook #'lsp-organize-imports nil t))))
+
 (provide 'init)
 
 (custom-set-variables
