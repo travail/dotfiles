@@ -15,6 +15,7 @@ brew "mise"
 brew "uv"
 brew "gh"
 brew "github-mcp-server"
+brew "herdr"
 brew "awscli"
 brew "mcp-toolbox"
 
