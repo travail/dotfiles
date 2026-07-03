@@ -15,6 +15,9 @@ setopt COMPLETE_IN_WORD
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' menu select=1
 
+# make: only suggest targets, not local files
+zstyle ':completion:*:*:make:*' tag-order 'targets'
+
 # cdr
 zstyle ':completion:*:*:cdr:*:*' menu selection
 zstyle ':completion:*' recent-dirs-insert both
