@@ -1,4 +1,5 @@
 brew "pinentry-mac"
+brew "terminal-notifier"
 
 cask "docker-desktop"
 cask "gcloud-cli"
