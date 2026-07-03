@@ -1,9 +1,9 @@
 PWD=$(shell pwd)
 UNAME := $(shell uname)
 
-.PHONY: all brew_bundle bin ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_zim zim ln_aqua clean_aqua clean_emacs clean cleanall
+.PHONY: all brew_bundle bin ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_zim zim ln_aqua ln_herdr clean_aqua clean_emacs clean cleanall
 
-all: .make/install_packages .make/aqua_install ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua ln_zim
+all: .make/install_packages .make/aqua_install ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua ln_zim ln_herdr
 
 ifeq ($(UNAME), Darwin)
 .make/install_packages: Brewfile Brewfile.darwin
@@ -73,6 +73,10 @@ ln_aqua: aqua.yaml
 	mkdir -p $(HOME)/.config/aquaproj-aqua
 	ln -sfn $(PWD)/aqua.yaml $(HOME)/.config/aquaproj-aqua/aqua.yaml
 
+ln_herdr: herdr-config.toml
+	mkdir -p $(HOME)/.config/herdr
+	ln -sfn $(PWD)/herdr-config.toml $(HOME)/.config/herdr/config.toml
+
 clean_aqua:
 	rm -f ~/.config/aquaproj-aqua/aqua.yaml
 	rm -f $(PWD)/aqua-checksums.json
@@ -97,5 +101,6 @@ clean:
 	rm -f ~/.php
 	rm -f ~/.config/aquaproj-aqua/aqua.yaml
 	rm -f $(PWD)/aqua-checksums.json
+	rm -f ~/.config/herdr/config.toml
 
 cleanall: clean clean_emacs
