@@ -1,0 +1,19 @@
+[theme]
+auto_switch = false
+
+[keys]
+prefix = "ctrl+t"
+next_tab = "prefix+ctrl+n"
+previous_tab = "prefix+ctrl+p"
+previous_workspace = "prefix+up"
+next_workspace = "prefix+down"
+previous_agent = "prefix+,"
+next_agent = "prefix+."
+switch_workspace = "prefix+shift+1..9"
+last_pane = "prefix+o"
+
+[ui]
+agent_panel_sort = "spaces"
+confirm_close = true
+prompt_new_tab_name = false
+show_agent_labels_on_pane_borders = true
