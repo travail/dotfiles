@@ -24,8 +24,15 @@ endif
 	aqua install
 	@touch $@
 
+ifeq ($(UNAME), Darwin)
+brew_bundle: Brewfile Brewfile.darwin
+else
 brew_bundle: Brewfile
+endif
 	brew bundle install --file=$(PWD)/Brewfile
+ifeq ($(UNAME), Darwin)
+	brew bundle install --file=$(PWD)/Brewfile.darwin
+endif
 
 bin: ln_bin
 

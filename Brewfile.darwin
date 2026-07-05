@@ -3,6 +3,7 @@ brew "terminal-notifier"
 
 cask "docker-desktop"
 cask "gcloud-cli"
+cask "obsidian"
 cask "vagrant"
 cask "vagrant-vmware-utility"
 cask "virtualbox"
