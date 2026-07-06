@@ -1,6 +1,7 @@
 brew "pinentry-mac"
 brew "terminal-notifier"
 
+cask "clipory/tap/clipory"
 cask "docker-desktop"
 cask "gcloud-cli"
 cask "obsidian"
