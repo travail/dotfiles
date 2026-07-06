@@ -20,3 +20,8 @@ delivery = "herdr"
 
 [ui.sound]
 enabled = false
+
+[[keys.command]]
+key = "prefix+u"
+type = "pane"
+command = "/Users/travail/bin/herdr-unread"
