@@ -1,3 +1,4 @@
+onboarding = false
 [theme]
 auto_switch = false
 
@@ -16,7 +17,7 @@ prompt_new_tab_name = false
 show_agent_labels_on_pane_borders = true
 
 [ui.toast]
-delivery = "herdr"
+delivery = "system"
 
 [ui.sound]
 enabled = false
