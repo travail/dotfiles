@@ -15,6 +15,8 @@ agent_panel_sort = "spaces"
 confirm_close = true
 prompt_new_tab_name = false
 show_agent_labels_on_pane_borders = true
+sidebar_min_width = 32
+sidebar_max_width = 36
 
 [ui.toast]
 delivery = "system"
