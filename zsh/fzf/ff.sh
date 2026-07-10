@@ -32,7 +32,7 @@ ff() {
         cd)
             local dir
             dir=$(cdr -l | sed 's/^[0-9]* *//' | fzf --prompt="cd> ")
-            [ -n "$dir" ] && cd "$dir"
+            [ -n "$dir" ] && cd "${dir/#\~/$HOME}"
             ;;
         env)
             env | fzf --prompt="env> " | cut -d= -f1
