@@ -26,5 +26,5 @@ enabled = false
 
 [[keys.command]]
 key = "prefix+u"
-type = "pane"
+type = "shell"
 command = "/Users/travail/bin/herdr-unread"
