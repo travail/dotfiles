@@ -1,0 +1,81 @@
+#!/bin/bash
+set -euo pipefail
+# Set up a new herdr workspace with a 2x2 pane layout, panes renamed p0-p3:
+#   p0 (top-left)     plain shell
+#   p1 (bottom-left)  claude
+#   p2 (top-right)    claude
+#   p3 (bottom-right) claude
+#
+# Agents are intentionally left unnamed: agent.name does not survive a herdr
+# server restart (e.g. after an update), while pane labels do, so renaming
+# agents here would just be wasted, non-durable effort.
+
+usage() {
+  cat <<'EOF'
+Usage: herdr-init [-h] <dir> [prefix]
+
+Arguments:
+  dir     Target project directory for the new workspace. (required)
+  prefix  Label prefix for the pane and agent names. (default: basename of dir)
+
+Options:
+  -h  Show this help and exit.
+EOF
+}
+
+while getopts "h" OPT; do
+  case "$OPT" in
+    h)
+      usage
+      exit 0
+      ;;
+    *)
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ $# -lt 1 ]; then
+  usage >&2
+  exit 1
+fi
+
+DIR="$1"
+PREFIX="${2:-$(basename "$DIR")}"
+
+WS_JSON=$(herdr workspace create --cwd "$DIR" --label "$PREFIX")
+WORKSPACE_ID=$(echo "$WS_JSON" | jq -r '.result.workspace.workspace_id')
+ROOT_PANE=$(echo "$WS_JSON" | jq -r '.result.root_pane.pane_id')
+
+TOP_RIGHT=$(herdr pane split "$ROOT_PANE" --direction right --no-focus | jq -r '.result.pane.pane_id')
+BOTTOM_LEFT=$(herdr pane split "$ROOT_PANE" --direction down --no-focus | jq -r '.result.pane.pane_id')
+BOTTOM_RIGHT=$(herdr pane split "$TOP_RIGHT" --direction down --no-focus | jq -r '.result.pane.pane_id')
+
+TOP_LEFT="$ROOT_PANE"
+
+herdr pane rename "$TOP_LEFT" "$PREFIX-p0"
+herdr pane rename "$BOTTOM_LEFT" "$PREFIX-p1"
+herdr pane rename "$TOP_RIGHT" "$PREFIX-p2"
+herdr pane rename "$BOTTOM_RIGHT" "$PREFIX-p3"
+
+for PANE in "$BOTTOM_LEFT" "$TOP_RIGHT" "$BOTTOM_RIGHT"; do
+  herdr pane run "$PANE" "claude"
+  # herdr needs a moment to detect the freshly spawned agent, and the first
+  # run in an untrusted directory shows a one-time trust prompt (herdr
+  # reports agent_status idle even while that prompt is up). Keep dismissing
+  # the prompt and polling until the agent is actually detected.
+  for _ in $(seq 1 30); do
+    if herdr pane read "$PANE" --source recent --lines 20 2>/dev/null | grep -q "trust this folder"; then
+      herdr pane send-keys "$PANE" Enter
+      sleep 0.5
+      continue
+    fi
+    herdr agent get "$PANE" >/dev/null 2>&1 && break
+    sleep 0.5
+  done
+  herdr agent wait "$PANE" --until idle --timeout 15000
+done
+
+herdr workspace focus "$WORKSPACE_ID"
