@@ -42,7 +42,7 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
-DIR="$1"
+DIR=$(cd "$1" && pwd)
 PREFIX="${2:-$(basename "$DIR")}"
 
 WS_JSON=$(herdr workspace create --cwd "$DIR" --label "$PREFIX")
@@ -63,16 +63,31 @@ herdr pane rename "$BOTTOM_RIGHT" "$PREFIX-p3"
 for PANE in "$BOTTOM_LEFT" "$TOP_RIGHT" "$BOTTOM_RIGHT"; do
   herdr pane run "$PANE" "claude"
   # herdr needs a moment to detect the freshly spawned agent, and the first
-  # run in an untrusted directory shows a one-time trust prompt (herdr
-  # reports agent_status idle even while that prompt is up). Keep dismissing
-  # the prompt and polling until the agent is actually detected.
+  # run in a not-yet-trusted directory shows a one-time trust prompt (herdr
+  # reports agent_status idle even while that prompt is up). `herdr agent get`
+  # can succeed *before* the prompt has even been rendered, so a single
+  # successful check isn't proof the prompt won't show up. Only pay for the
+  # extra confirmation delay when the directory isn't already trusted (per
+  # ~/.claude.json) -- once any pane accepts the prompt, the directory is
+  # trusted for the rest of this loop too, so this is re-checked per pane.
+  TRUSTED=$(jq -r --arg d "$DIR" '.projects[$d].hasTrustDialogAccepted // false' "$HOME/.claude.json" 2>/dev/null || echo false)
+  if [ "$TRUSTED" = "true" ]; then
+    REQUIRED_CLEAN=1
+  else
+    REQUIRED_CLEAN=4
+  fi
+  CLEAN_CHECKS=0
   for _ in $(seq 1 30); do
     if herdr pane read "$PANE" --source recent --lines 20 2>/dev/null | grep -q "trust this folder"; then
       herdr pane send-keys "$PANE" Enter
+      CLEAN_CHECKS=0
       sleep 0.5
       continue
     fi
-    herdr agent get "$PANE" >/dev/null 2>&1 && break
+    CLEAN_CHECKS=$((CLEAN_CHECKS + 1))
+    if [ "$CLEAN_CHECKS" -ge "$REQUIRED_CLEAN" ] && herdr agent get "$PANE" >/dev/null 2>&1; then
+      break
+    fi
     sleep 0.5
   done
   herdr agent wait "$PANE" --until idle --timeout 15000
