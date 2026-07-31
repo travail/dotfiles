@@ -1,0 +1,117 @@
+#!/bin/bash
+set -euo pipefail
+# On-demand: split an existing pane and spawn+prime a claude agent in the new
+# pane. Meant to be called either by a human or by a hub agent (via a Bash
+# tool call) once it actually needs to delegate to a role that doesn't have a
+# pane yet -- see bin/herdr-init, which only pre-creates the hub pane (p1).
+#
+# Prints ONLY the new pane's id to stdout, so it's safe to capture via
+# command substitution. All progress/diagnostics go to stderr.
+
+usage() {
+  cat <<'EOF'
+Usage: herdr-spawn-agent [-h] [-r RATIO] [-l LABEL] [-n] [-f] <target> <right|down>
+
+Arguments:
+  target      Pane id or label to split (e.g. dotfiles-p1). (required)
+  right|down  Which side of target the new pane appears on. (required)
+
+Options:
+  -r RATIO  Size ratio, passed through to `herdr pane split --ratio`
+            (sizes the pane being split, i.e. target -- the new pane gets
+            the remainder).
+  -l LABEL  Explicit label for the new pane. (default: auto-derived as
+            "<workspace-label>-pN", N = 1 + highest existing pM in the
+            workspace)
+  -n        Skip the /herdr preload step (spawn + clear trust dialog only).
+  -f        Focus the new pane after creating it. (default: unfocused)
+  -h        Show this help and exit.
+EOF
+}
+
+RATIO=""
+LABEL=""
+PRIME=1
+FOCUS_FLAG="--no-focus"
+
+while getopts "r:l:nfh" OPT; do
+  case "$OPT" in
+    r)
+      RATIO="$OPTARG"
+      ;;
+    l)
+      LABEL="$OPTARG"
+      ;;
+    n)
+      PRIME=0
+      ;;
+    f)
+      FOCUS_FLAG="--focus"
+      ;;
+    h)
+      usage
+      exit 0
+      ;;
+    *)
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ $# -ne 2 ]; then
+  usage >&2
+  exit 1
+fi
+
+TARGET_REF="$1"
+DIRECTION="$2"
+
+case "$DIRECTION" in
+  right | down) ;;
+  *)
+    echo "herdr-spawn-agent: direction must be 'right' or 'down'" >&2
+    exit 1
+    ;;
+esac
+
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+source "$SCRIPT_DIR/herdr-common.sh"
+
+# pane_ids contain a colon (e.g. w1:p1), labels don't -- same convention
+# herdr-id itself uses.
+case "$TARGET_REF" in
+  *:*)
+    TARGET_PANE="$TARGET_REF"
+    ;;
+  *)
+    TARGET_PANE=$("$SCRIPT_DIR/herdr-id" -p "$TARGET_REF")
+    ;;
+esac
+
+WORKSPACE_ID=$(herdr pane get "$TARGET_PANE" | jq -r '.result.pane.workspace_id')
+
+echo "herdr-spawn-agent: splitting $TARGET_PANE ($DIRECTION)..." >&2
+SPLIT_ARGS=(herdr pane split "$TARGET_PANE" --direction "$DIRECTION" "$FOCUS_FLAG")
+if [ -n "$RATIO" ]; then
+  SPLIT_ARGS+=(--ratio "$RATIO")
+fi
+NEW_PANE=$("${SPLIT_ARGS[@]}" | jq -r '.result.pane.pane_id')
+
+if [ -z "$LABEL" ]; then
+  # Derive the prefix from the workspace's own label (not the target pane's
+  # label) so this stays correct even if panes were manually renamed.
+  PREFIX=$(herdr workspace get "$WORKSPACE_ID" | jq -r '.result.workspace.label')
+  MAX_N=$(herdr pane list --workspace "$WORKSPACE_ID" | jq -r --arg p "$PREFIX" '
+    .result.panes[].label // empty
+    | select(test("^" + $p + "-p[0-9]+$"))
+    | sub("^" + $p + "-p"; "") | tonumber' | sort -n | tail -1)
+  LABEL="${PREFIX}-p$(( ${MAX_N:-0} + 1 ))"
+fi
+herdr pane rename "$NEW_PANE" "$LABEL" >&2
+
+echo "herdr-spawn-agent: spawning claude in $NEW_PANE ($LABEL)..." >&2
+spawn_and_prime_agent "$NEW_PANE" "$PRIME"
+
+echo "$NEW_PANE"
