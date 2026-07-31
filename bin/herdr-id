@@ -1,0 +1,53 @@
+#!/bin/bash
+set -euo pipefail
+# Resolve a herdr workspace/pane/agent label to its current id, for use in
+# command substitution, e.g.:
+#   herdr workspace close "$(herdr-id -w dotfiles)"
+#   herdr pane rename "$(herdr-id -p dotfiles-p0)" new-name
+#   herdr pane run "$(herdr-id -a dotfiles-a1)" "echo hi"
+#
+# Note: herdr agent commands already accept labels directly as targets,
+# so -a is mainly useful when you need the underlying pane_id (e.g. to
+# hand it to a pane subcommand).
+#
+# Usage: herdr-id -w|-p|-a <label>
+
+usage() {
+  echo "usage: herdr-id -w|-p|-a <label>" >&2
+  exit 1
+}
+
+[ $# -eq 2 ] || usage
+OPT="$1"
+LABEL="$2"
+
+case "$OPT" in
+  -w)
+    TYPE="workspace"
+    MATCHES=$(herdr workspace list | jq -r --arg l "$LABEL" '.result.workspaces[] | select(.label == $l) | .workspace_id')
+    ;;
+  -p)
+    TYPE="pane"
+    MATCHES=$(herdr pane list | jq -r --arg l "$LABEL" '.result.panes[] | select(.label == $l) | .pane_id')
+    ;;
+  -a)
+    TYPE="agent"
+    MATCHES=$(herdr agent list | jq -r --arg l "$LABEL" '.result.agents[] | select(.name == $l) | .pane_id')
+    ;;
+  *)
+    usage
+    ;;
+esac
+
+if [ -z "$MATCHES" ]; then
+  echo "herdr-id: no $TYPE with label '$LABEL'" >&2
+  exit 1
+fi
+
+if [ "$(echo "$MATCHES" | wc -l)" -gt 1 ]; then
+  echo "herdr-id: multiple ${TYPE}s with label '$LABEL':" >&2
+  echo "$MATCHES" >&2
+  exit 1
+fi
+
+echo "$MATCHES"
