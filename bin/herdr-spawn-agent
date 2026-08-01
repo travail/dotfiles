@@ -3,7 +3,8 @@ set -euo pipefail
 # On-demand: split an existing pane and spawn+prime a claude agent in the new
 # pane. Meant to be called either by a human or by a hub agent (via a Bash
 # tool call) once it actually needs to delegate to a role that doesn't have a
-# pane yet -- see bin/herdr-init, which only pre-creates the hub pane (p1).
+# pane yet -- see bin/herdr-init, which only pre-creates the terminal (root)
+# and hub agent panes.
 #
 # Prints ONLY the new pane's id to stdout, so it's safe to capture via
 # command substitution. All progress/diagnostics go to stderr.
@@ -20,9 +21,10 @@ Options:
   -r RATIO  Size ratio, passed through to `herdr pane split --ratio`
             (sizes the pane being split, i.e. target -- the new pane gets
             the remainder).
-  -l LABEL  Explicit label for the new pane. (default: auto-derived as
-            "<workspace-label>-pN", N = 1 + highest existing pM in the
-            workspace)
+  -l LABEL  Explicit label for the new pane. (default: auto-derived by
+            mirroring the pane_id suffix herdr itself assigns to the new
+            pane, e.g. "<workspace-label>-p3" or "<workspace-label>-pA" --
+            never guessed/computed, so it always matches the real id)
   -n        Skip the /herdr preload step (spawn + clear trust dialog only).
   -f        Focus the new pane after creating it. (default: unfocused)
   -h        Show this help and exit.
@@ -103,11 +105,13 @@ if [ -z "$LABEL" ]; then
   # Derive the prefix from the workspace's own label (not the target pane's
   # label) so this stays correct even if panes were manually renamed.
   PREFIX=$(herdr workspace get "$WORKSPACE_ID" | jq -r '.result.workspace.label')
-  MAX_N=$(herdr pane list --workspace "$WORKSPACE_ID" | jq -r --arg p "$PREFIX" '
-    .result.panes[].label // empty
-    | select(test("^" + $p + "-p[0-9]+$"))
-    | sub("^" + $p + "-p"; "") | tonumber' | sort -n | tail -1)
-  LABEL="${PREFIX}-p$(( ${MAX_N:-0} + 1 ))"
+  # Mirror herdr's own pane_id suffix (wN:pM's pM part) verbatim, as a
+  # string -- never guessed from existing labels. Guessing via "highest
+  # existing label + 1" breaks two ways: the suffix isn't guaranteed to be
+  # a decimal integer (herdr assigns letters too, e.g. pA), and even when
+  # it is, a deleted highest-numbered pane makes the guess undercount
+  # relative to herdr's real (monotonic, never-reused) internal counter.
+  LABEL="${PREFIX}-${NEW_PANE#*:}"
 fi
 herdr pane rename "$NEW_PANE" "$LABEL" >&2
 

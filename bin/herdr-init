@@ -1,12 +1,26 @@
 #!/bin/bash
 set -euo pipefail
-# Set up a new herdr workspace, editor-style: p1 (hub agent, ~70%) on top,
-# p0 (plain shell, ~30%) below it, like a terminal panel under an editor.
+# Set up a new herdr workspace, editor-style: the hub agent pane (~70%) on
+# top, a plain shell terminal strip (~30%) at the bottom, like a terminal
+# panel under an editor.
 #
-# Additional agent panes (p2, p3, p4, ...) are NOT pre-created here -- spawn
-# them on demand with `herdr-spawn-agent` once you actually need them, to
-# avoid paying process + /herdr skill-load cost for panes that mostly sit
-# idle.
+# The workspace root pane (always the first pane, created by `herdr
+# workspace create`) stays the plain terminal; the pane split off from it
+# becomes the hub agent. herdr's `pane split` only supports `right`/`down`,
+# and always keeps the split target in the "before" position (top for
+# `down`) -- so a plain split alone can't put the root pane at the bottom.
+# Instead we split down (root pane large, new pane small -- backwards from
+# the final layout) and then `pane swap` the two, which exchanges each
+# pane's full rect (position + size): the root pane/terminal ends up small
+# at the bottom, and the new pane/hub ends up large at the top.
+#
+# Pane labels always mirror herdr's own pane_id suffix verbatim (see the
+# rename calls below) rather than hardcoding numbers, so label and pane_id
+# always agree by construction.
+#
+# Additional agent panes are NOT pre-created here -- spawn them on demand
+# with `herdr-spawn-agent` once you actually need them, to avoid paying
+# process + /herdr skill-load cost for panes that mostly sit idle.
 #
 # Agents are intentionally left unnamed: agent.name does not survive a herdr
 # server restart (e.g. after an update), while pane labels do, so renaming
@@ -54,15 +68,20 @@ WS_JSON=$(herdr workspace create --cwd "$DIR" --label "$PREFIX")
 WORKSPACE_ID=$(echo "$WS_JSON" | jq -r '.result.workspace.workspace_id')
 ROOT_PANE=$(echo "$WS_JSON" | jq -r '.result.root_pane.pane_id')
 
-# ROOT_PANE stays p1 (hub agent). Split it downward to carve out p0, a plain
-# shell strip below it. --ratio sizes the pane being split (the staying
-# side), so --ratio 0.7 keeps p1 at ~70% and leaves ~30% for the new p0.
-BOTTOM=$(herdr pane split "$ROOT_PANE" --direction down --ratio 0.7 --no-focus \
-         | jq -r '.result.pane.pane_id')
+# ROOT_PANE is always the first pane created in the workspace, so it becomes
+# the plain shell. Split it down at ratio 0.7 (ROOT_PANE large/top, new pane
+# small/bottom -- backwards from the final layout), then swap the two so
+# ROOT_PANE (terminal) ends up small at the bottom and the new pane (hub)
+# ends up large at the top.
+HUB_PANE=$(herdr pane split "$ROOT_PANE" --direction down --ratio 0.7 --no-focus \
+           | jq -r '.result.pane.pane_id')
+herdr pane swap --source-pane "$ROOT_PANE" --target-pane "$HUB_PANE" >&2
 
-herdr pane rename "$ROOT_PANE" "$PREFIX-p1"
-herdr pane rename "$BOTTOM" "$PREFIX-p0"
+# Mirror herdr's own pane_id suffix (everything after the colon in wN:pM)
+# verbatim -- never parsed as a number -- so label and id always agree.
+herdr pane rename "$ROOT_PANE" "$PREFIX-${ROOT_PANE#*:}"
+herdr pane rename "$HUB_PANE" "$PREFIX-${HUB_PANE#*:}"
 
-spawn_and_prime_agent "$ROOT_PANE"
+spawn_and_prime_agent "$HUB_PANE"
 
 herdr workspace focus "$WORKSPACE_ID"
