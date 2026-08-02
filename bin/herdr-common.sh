@@ -83,3 +83,84 @@ spawn_and_prime_agent() {
     herdr agent wait "$pane" --until idle --timeout 15000 >&2
   fi
 }
+
+# auto_detect_split_target [PANE_ID]
+#   Inspects the current layout (via `herdr pane edges`) and decides which
+#   pane to split and in which direction to grow a 1-pane -> 2 -> 3 -> 4
+#   (2x2) layout one step at a time. Sets the caller's TARGET_PANE and
+#   DIRECTION variables on success. On any shape it doesn't recognize
+#   (including an already-complete 2x2), prints a diagnostic to stderr and
+#   returns 1 without setting either variable -- callers run under `set -e`,
+#   so a plain (unwrapped) call aborts the script.
+#
+#   PANE_ID defaults to the caller's own pane (`herdr pane current`), since
+#   this is meant to be run from inside the hub/agent pane doing the
+#   delegating.
+auto_detect_split_target() {
+  local pane="${1:-}"
+  if [ -z "$pane" ]; then
+    pane=$(herdr pane current | jq -r '.result.pane.pane_id')
+  fi
+
+  local layout
+  layout=$(herdr pane edges --pane "$pane" | jq -c '.result.edges.layout')
+
+  # The bottom terminal band spans the full width of the area and sits at
+  # the largest y -- exclude it. What's left is the "upper area" that
+  # herdr-spawn-agent actually grows.
+  local upper
+  upper=$(echo "$layout" | jq -c '
+    (.area.width) as $aw
+    | (.panes | map(select(.rect.width == $aw)) | max_by(.rect.y).pane_id) as $bottom
+    | .panes | map(select(.pane_id != $bottom))
+  ')
+
+  local count
+  count=$(echo "$upper" | jq 'length')
+
+  case "$count" in
+    1)
+      TARGET_PANE=$(echo "$upper" | jq -r '.[0].pane_id')
+      DIRECTION="down"
+      return 0
+      ;;
+    2)
+      # Vertically stacked: same x, different y. Split the top one (smaller
+      # y) to the right, growing an L-shape.
+      local xs
+      xs=$(echo "$upper" | jq '[.[].rect.x] | unique | length')
+      if [ "$xs" -eq 1 ]; then
+        TARGET_PANE=$(echo "$upper" | jq -r 'min_by(.rect.y).pane_id')
+        DIRECTION="right"
+        return 0
+      fi
+      ;;
+    3)
+      # L-shape: grouping by x gives one column of 2 (stacked) and one
+      # column of 1, and the lone pane's y lines up with the pair column's
+      # top. Split the pair column's bottom pane to the right, completing
+      # the 2x2. Grouped by x rather than assuming "left column" -- stays
+      # correct even if panes were manually rearranged left/right.
+      local shape sizes
+      shape=$(echo "$upper" | jq -c 'group_by(.rect.x) | map({panes: ., n: length})')
+      sizes=$(echo "$shape" | jq -c '[.[].n] | sort')
+      if [ "$sizes" = "[1,2]" ]; then
+        local single_y pair_min_y
+        single_y=$(echo "$shape" | jq -r '.[] | select(.n == 1) | .panes[0].rect.y')
+        pair_min_y=$(echo "$shape" | jq -r '.[] | select(.n == 2) | (.panes | min_by(.rect.y).rect.y)')
+        if [ "$single_y" = "$pair_min_y" ]; then
+          TARGET_PANE=$(echo "$shape" | jq -r '.[] | select(.n == 2) | (.panes | max_by(.rect.y).pane_id)')
+          DIRECTION="right"
+          return 0
+        fi
+      fi
+      ;;
+    4)
+      echo "auto_detect_split_target: layout already has a complete 2x2 grid -- pass <target> <right|down> explicitly to grow further" >&2
+      return 1
+      ;;
+  esac
+
+  echo "auto_detect_split_target: unrecognized pane layout ($count pane(s) in the upper area) -- pass <target> <right|down> explicitly (manually rearranged?)" >&2
+  return 1
+}
