@@ -4,7 +4,9 @@
 # spawn_and_prime_agent PANE_ID [PRIME=1]
 #   Spawns `claude` in PANE_ID, clears the one-time trust-dialog prompt if it
 #   appears, and waits for the agent to go idle. Unless PRIME=0, also sends
-#   `/herdr` to preload the herdr CLI skill and waits idle again.
+#   `/herdr` and `/herdr-hub` (in that order) to preload the herdr CLI skill
+#   and our own multi-agent coordination conventions, waiting idle again
+#   after each.
 spawn_and_prime_agent() {
   local pane="$1" prime="${2:-1}"
 
@@ -55,31 +57,44 @@ spawn_and_prime_agent() {
   herdr agent wait "$pane" --until idle --timeout 15000 >&2
 
   if [ "$prime" -eq 1 ]; then
-    # Prime the agent with the herdr skill up front, so it can act as hub
-    # (dispatch to/pull from sibling panes) without the user having to
-    # explain herdr in the task prompt.
+    # Prime the agent with the herdr and herdr-hub skills up front, so it can
+    # act as hub (dispatch to/pull from sibling panes) without the user
+    # having to explain herdr in the task prompt. herdr-hub carries our own
+    # coordination conventions (push/pull discipline, spawn-agent usage,
+    # timeout handling, etc.) layered on top of herdr's generic CLI
+    # reference -- both are separate skills invoked by name, so both need
+    # priming here; neither loads on its own.
     #
     # A freshly spawned agent can report idle (via the wait right above)
     # slightly before its terminal UI is actually ready to receive input --
-    # sending "/herdr" right at that instant can silently go nowhere
+    # sending a slash command right at that instant can silently go nowhere
     # (verified empirically: the pane's prompt stays completely empty,
-    # never even shows "/herdr" having been typed). Give it a moment to
+    # never even shows the command having been typed). Give it a moment to
     # settle, then confirm the agent actually transitioned to working
     # (proof the input was received and processing started, not just that
     # it was still sitting idle) -- retrying the send a couple of times if
     # it doesn't.
     sleep 1
-    local primed=0
-    for _ in $(seq 1 3); do
-      herdr pane run "$pane" "/herdr" >&2
-      if herdr agent wait "$pane" --until working --timeout 3000 >&2; then
-        primed=1
-        break
+    local skill primed
+    for skill in herdr herdr-hub; do
+      primed=0
+      for _ in $(seq 1 3); do
+        herdr pane run "$pane" "/$skill" >&2
+        if herdr agent wait "$pane" --until working --timeout 3000 >&2; then
+          primed=1
+          break
+        fi
+      done
+      if [ "$primed" -eq 0 ]; then
+        echo "spawn_and_prime_agent: warning: /$skill priming may not have reached $pane" >&2
       fi
+      # Non-fatal: this is just pacing before the next skill's prompt, not
+      # the actual success signal (that's the working-transition check
+      # above). Under load this wait can time out even though the agent
+      # already finished -- don't let that flakiness abort priming the
+      # remaining skills.
+      herdr agent wait "$pane" --until idle --timeout 15000 >&2 \
+        || echo "spawn_and_prime_agent: warning: idle-wait after /$skill timed out, continuing anyway" >&2
     done
-    if [ "$primed" -eq 0 ]; then
-      echo "spawn_and_prime_agent: warning: /herdr priming may not have reached $pane" >&2
-    fi
-    herdr agent wait "$pane" --until idle --timeout 15000 >&2
   fi
 }
