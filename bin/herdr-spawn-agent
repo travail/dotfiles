@@ -11,13 +11,20 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: herdr-spawn-agent [-h] [-r RATIO] [-l LABEL] [-n] [-f] <target> <right|down>
+Usage: herdr-spawn-agent [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [<target> <right|down>]
 
 Arguments:
-  target      Pane id or label to split (e.g. dotfiles-p1). (required)
-  right|down  Which side of target the new pane appears on. (required)
+  target      Pane id or label to split (e.g. dotfiles-p1). (required
+              unless -a)
+  right|down  Which side of target the new pane appears on. (required
+              unless -a)
 
 Options:
+  -a        Auto-detect target/direction from the current layout instead of
+             taking them as arguments (grows a 1/2/3-pane upper area toward
+             a 2x2; errors out if the layout is already a complete 2x2 or
+             isn't a recognized shape). Mutually exclusive with
+             <target> <right|down>.
   -r RATIO  Size ratio, passed through to `herdr pane split --ratio`
             (sizes the pane being split, i.e. target -- the new pane gets
             the remainder).
@@ -35,8 +42,9 @@ RATIO=""
 LABEL=""
 PRIME=1
 FOCUS_FLAG="--no-focus"
+AUTO=0
 
-while getopts "r:l:nfh" OPT; do
+while getopts "r:l:nfah" OPT; do
   case "$OPT" in
     r)
       RATIO="$OPTARG"
@@ -50,6 +58,9 @@ while getopts "r:l:nfh" OPT; do
     f)
       FOCUS_FLAG="--focus"
       ;;
+    a)
+      AUTO=1
+      ;;
     h)
       usage
       exit 0
@@ -62,35 +73,44 @@ while getopts "r:l:nfh" OPT; do
 done
 shift $((OPTIND - 1))
 
-if [ $# -ne 2 ]; then
-  usage >&2
-  exit 1
-fi
-
-TARGET_REF="$1"
-DIRECTION="$2"
-
-case "$DIRECTION" in
-  right | down) ;;
-  *)
-    echo "herdr-spawn-agent: direction must be 'right' or 'down'" >&2
-    exit 1
-    ;;
-esac
-
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 source "$SCRIPT_DIR/herdr-common.sh"
 
-# pane_ids contain a colon (e.g. w1:p1), labels don't -- same convention
-# herdr-id itself uses.
-case "$TARGET_REF" in
-  *:*)
-    TARGET_PANE="$TARGET_REF"
-    ;;
-  *)
-    TARGET_PANE=$("$SCRIPT_DIR/herdr-id" -p "$TARGET_REF")
-    ;;
-esac
+if [ "$AUTO" -eq 1 ]; then
+  if [ $# -ne 0 ]; then
+    echo "herdr-spawn-agent: -a is mutually exclusive with <target> <right|down>" >&2
+    usage >&2
+    exit 1
+  fi
+  auto_detect_split_target
+else
+  if [ $# -ne 2 ]; then
+    usage >&2
+    exit 1
+  fi
+
+  TARGET_REF="$1"
+  DIRECTION="$2"
+
+  case "$DIRECTION" in
+    right | down) ;;
+    *)
+      echo "herdr-spawn-agent: direction must be 'right' or 'down'" >&2
+      exit 1
+      ;;
+  esac
+
+  # pane_ids contain a colon (e.g. w1:p1), labels don't -- same convention
+  # herdr-id itself uses.
+  case "$TARGET_REF" in
+    *:*)
+      TARGET_PANE="$TARGET_REF"
+      ;;
+    *)
+      TARGET_PANE=$("$SCRIPT_DIR/herdr-id" -p "$TARGET_REF")
+      ;;
+  esac
+fi
 
 WORKSPACE_ID=$(herdr pane get "$TARGET_PANE" | jq -r '.result.pane.workspace_id')
 
