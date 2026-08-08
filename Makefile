@@ -42,7 +42,7 @@ endif
 agent_skills: agent-skills.txt .make/mise_install
 	@while IFS=: read -r repo skill; do \
 		[ -z "$$repo" ] && continue; \
-		npx skills add "$$repo" --skill "$$skill" -g; \
+		npx skills add "$$repo" --skill "$$skill" -g < /dev/null; \
 	done < agent-skills.txt
 
 bin: ln_bin
