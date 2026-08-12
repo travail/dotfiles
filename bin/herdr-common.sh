@@ -135,8 +135,16 @@ auto_detect_split_target() {
 
   case "$count" in
     1)
+      # A single upper pane: match the general split heuristic (wide pane ->
+      # right, narrow/tall pane -> down) instead of hardcoding a direction,
+      # so this stays consistent with how the 2/3-pane cases already reason
+      # about shape.
       TARGET_PANE=$(echo "$upper" | jq -r '.[0].pane_id')
-      DIRECTION="down"
+      if echo "$upper" | jq -e '.[0].rect | .width > .height' >/dev/null; then
+        DIRECTION="right"
+      else
+        DIRECTION="down"
+      fi
       return 0
       ;;
     2)
