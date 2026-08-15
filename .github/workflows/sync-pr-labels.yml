@@ -21,7 +21,7 @@ jobs:
 
             // The set of category labels this repo classifies issues/PRs
             // with. Update this if the label scheme changes.
-            const CATEGORY_LABELS = new Set(['bug', 'enhancement', 'chore']);
+            const CATEGORY_LABELS = new Set(['bug', 'enhancement', 'maintenance']);
 
             const issueNumbers = new Set();
             let match;
