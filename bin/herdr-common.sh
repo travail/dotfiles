@@ -10,7 +10,17 @@
 spawn_and_prime_agent() {
   local pane="$1" prime="${2:-1}"
 
-  herdr pane run "$pane" "claude" >&2
+  # HERDR_PRIMED=1 is a hard signal (distinct from HERDR_ENV=1, which just
+  # means "running inside a herdr-managed pane") that /herdr and /herdr-hub
+  # were actually sent to this pane by this function -- set only when we're
+  # actually about to prime (prime=1), so a caller can check it instead of
+  # assuming priming happened just because HERDR_ENV=1 is set (e.g. a pane
+  # started by running `claude` directly was never routed through here).
+  if [ "$prime" -eq 1 ]; then
+    herdr pane run "$pane" "HERDR_PRIMED=1 claude" >&2
+  else
+    herdr pane run "$pane" "claude" >&2
+  fi
 
   # herdr needs a moment to detect the freshly spawned agent -- `herdr agent
   # wait` errors immediately (no retry) if the target isn't registered yet,
