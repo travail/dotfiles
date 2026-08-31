@@ -1,14 +1,85 @@
 # Shared helpers for herdr-init / herdr-spawn-agent. Source only, not
 # executable. Callers must have `set -euo pipefail` in effect.
 
+# ensure_dir_trusted DIR
+#   Marks DIR as trusted in ~/.claude.json, so `claude` never raises its
+#   one-time workspace trust prompt for it. Returns non-zero (with a
+#   diagnostic) when that can't be arranged, so callers can refuse to spawn
+#   instead of leaving an unattended pane parked on the prompt.
+#
+#   This used to be handled after the fact, by reading the pane and sending
+#   Enter once the prompt's text showed up. That broke two ways over on
+#   Claude Code v2.1.251: `pane read --source recent` returns nothing at all
+#   while claude's TUI holds the alternate screen (only `visible` and
+#   `detection` see it), so the text never matched -- and had it matched, the
+#   prompt's initial cursor now sits on "No, exit", so the Enter would have
+#   quit claude rather than trusting the directory. Matching on rendered text
+#   is fragile by construction, since upstream can restyle the prompt or
+#   reorder its options in any release, so the state that actually gates the
+#   prompt is set up front instead.
+#
+#   hasTrustDialogAccepted is the same key the old code already *read* to
+#   decide whether the prompt could appear at all, so writing it adds no new
+#   dependency on claude's internal state format -- it only drops the far
+#   more brittle dependency on what the prompt looks like.
+ensure_dir_trusted() {
+  local dir="$1" config="$HOME/.claude.json" trusted tmp
+
+  trusted=$(jq -r --arg d "$dir" '.projects[$d].hasTrustDialogAccepted // false' \
+            "$config" 2>/dev/null || echo false)
+  if [ "$trusted" = "true" ]; then
+    return 0
+  fi
+
+  if [ ! -f "$config" ]; then
+    echo "ensure_dir_trusted: $config does not exist" >&2
+    return 1
+  fi
+
+  # Written through a sibling temp file and a rename, so a concurrently
+  # running claude never reads a half-written config. mktemp creates the
+  # file 0600, which is what claude itself keeps this file at.
+  tmp=$(mktemp "${config}.herdr.XXXXXX") || return 1
+  if ! jq --arg d "$dir" \
+       '.projects[$d] = ((.projects[$d] // {}) + {hasTrustDialogAccepted: true})' \
+       "$config" >"$tmp" || ! mv -f "$tmp" "$config"; then
+    rm -f "$tmp"
+    echo "ensure_dir_trusted: failed to mark $dir as trusted in $config" >&2
+    return 1
+  fi
+
+  # Read back rather than trusting the write: ~/.claude.json is shared by
+  # every running claude, and one of them rewriting the whole file can land
+  # between our read and our rename, dropping the key again.
+  trusted=$(jq -r --arg d "$dir" '.projects[$d].hasTrustDialogAccepted // false' \
+            "$config" 2>/dev/null || echo false)
+  if [ "$trusted" = "true" ]; then
+    return 0
+  fi
+
+  echo "ensure_dir_trusted: $dir still untrusted after writing $config" >&2
+  return 1
+}
+
 # spawn_and_prime_agent PANE_ID [PRIME=1]
-#   Spawns `claude` in PANE_ID, clears the one-time trust-dialog prompt if it
-#   appears, and waits for the agent to go idle. Unless PRIME=0, also sends
-#   `/herdr` and `/herdr-hub` (in that order) to preload the herdr CLI skill
-#   and our own multi-agent coordination conventions, waiting idle again
-#   after each.
+#   Spawns `claude` in PANE_ID and waits for the agent to go idle, having
+#   first made sure the pane's directory is trusted so no trust prompt can
+#   intercept the session. Unless PRIME=0, also sends `/herdr` and
+#   `/herdr-hub` (in that order) to preload the herdr CLI skill and our own
+#   multi-agent coordination conventions, waiting idle again after each.
 spawn_and_prime_agent() {
-  local pane="$1" prime="${2:-1}"
+  local pane="$1" prime="${2:-1}" dir
+
+  # cwd is looked up per-pane (not passed in by the caller) so this works
+  # whether it's called against herdr-init's root pane or a pane
+  # herdr-spawn-agent just split off elsewhere. Trust has to be settled
+  # *before* claude starts -- it reads the flag once at startup, so a pane
+  # already sitting on the prompt can't be rescued by writing it afterwards.
+  dir=$(herdr pane get "$pane" | jq -r '.result.pane.cwd')
+  if ! ensure_dir_trusted "$dir"; then
+    echo "spawn_and_prime_agent: refusing to spawn in $pane -- run \`claude\` in $dir once, accept the trust prompt, then retry" >&2
+    return 1
+  fi
 
   # HERDR_PRIMED=1 is a hard signal (distinct from HERDR_ENV=1, which just
   # means "running inside a herdr-managed pane") that /herdr and /herdr-hub
@@ -24,46 +95,11 @@ spawn_and_prime_agent() {
 
   # herdr needs a moment to detect the freshly spawned agent -- `herdr agent
   # wait` errors immediately (no retry) if the target isn't registered yet,
-  # so some polling is unavoidable here regardless of trust state.
-  #
-  # The first run in a not-yet-trusted directory additionally shows a
-  # one-time trust prompt (herdr reports agent_status idle even while that
-  # prompt is up), and `herdr agent get` can succeed *before* the prompt has
-  # even been rendered, so a single successful check isn't proof the prompt
-  # won't show up -- that path polls for the prompt text and requires a few
-  # consecutive clean reads. Once a directory is trusted (per
-  # ~/.claude.json), the prompt can never show again for it, so that check
-  # is skipped entirely -- just poll for the agent to be detected.
-  #
-  # cwd is looked up per-pane (not passed in by the caller) so this works
-  # whether it's called against herdr-init's root pane or a pane
-  # herdr-spawn-agent just split off elsewhere.
-  local dir trusted
-  dir=$(herdr pane get "$pane" | jq -r '.result.pane.cwd')
-  trusted=$(jq -r --arg d "$dir" '.projects[$d].hasTrustDialogAccepted // false' \
-            "$HOME/.claude.json" 2>/dev/null || echo false)
-
-  if [ "$trusted" = "true" ]; then
-    for _ in $(seq 1 150); do
-      herdr agent get "$pane" >/dev/null 2>&1 && break
-      sleep 0.1
-    done
-  else
-    local clean_checks=0
-    for _ in $(seq 1 150); do
-      if herdr pane read "$pane" --source recent --lines 20 2>/dev/null | grep -q "trust this folder"; then
-        herdr pane send-keys "$pane" Enter
-        clean_checks=0
-        sleep 0.1
-        continue
-      fi
-      clean_checks=$((clean_checks + 1))
-      if [ "$clean_checks" -ge 4 ] && herdr agent get "$pane" >/dev/null 2>&1; then
-        break
-      fi
-      sleep 0.1
-    done
-  fi
+  # so a little polling is unavoidable before we can wait on it.
+  for _ in $(seq 1 150); do
+    herdr agent get "$pane" >/dev/null 2>&1 && break
+    sleep 0.1
+  done
   herdr agent wait "$pane" --until idle --timeout 15000 >&2
 
   if [ "$prime" -eq 1 ]; then
