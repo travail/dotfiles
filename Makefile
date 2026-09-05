@@ -1,9 +1,9 @@
 PWD=$(shell pwd)
 UNAME := $(shell uname)
 
-.PHONY: all brew_bundle agent_skills bin ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_zim zim ln_aqua ln_mise ln_herdr clean_aqua clean_emacs clean cleanall
+.PHONY: all brew_bundle agent_skills bin ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_zim zim ln_aqua ln_mise ln_herdr ln_claude clean_aqua clean_emacs clean cleanall
 
-all: .make/install_packages .make/aqua_install .make/mise_install ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua ln_mise ln_zim ln_herdr
+all: .make/install_packages .make/aqua_install .make/mise_install ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua ln_mise ln_zim ln_herdr ln_claude
 
 ifeq ($(UNAME), Darwin)
 .make/install_packages: Brewfile Brewfile.darwin
@@ -98,6 +98,11 @@ ln_mise: mise-config.toml
 ln_herdr: herdr-config.toml
 	mkdir -p $(HOME)/.config/herdr
 	ln -sfn $(PWD)/herdr-config.toml $(HOME)/.config/herdr/config.toml
+
+# settings.json itself stays outside this repository; only the script is linked.
+ln_claude: claude/statusline.sh
+	mkdir -p $(HOME)/.claude
+	ln -sfn $(PWD)/claude/statusline.sh $(HOME)/.claude/statusline.sh
 
 clean_aqua:
 	rm -f ~/.config/aquaproj-aqua/aqua.yaml
