@@ -9,7 +9,7 @@ set -euo pipefail
 #
 # What each number on the second line measures:
 #
-#   🔋 ctx N%   How full this conversation's context window is right now.
+#   ctx N%      How full this conversation's context window is right now.
 #               Taken against context_window_size, which is 200k by default and
 #               1M on models with extended context, and counted from input
 #               tokens only: fresh input, cache writes and cache reads. Output
@@ -18,20 +18,23 @@ set -euo pipefail
 #               /compact and /clear push it back down. Nearing 100% means
 #               auto-compaction is close.
 #
-#   ⏳ plan 5h N% / 7d N%
+#   5h N% / 7d N%
 #               How much of the subscription's rolling 5-hour and 7-day usage
 #               allowances is already spent. Both windows count every session
 #               inside the period, not just this one, so panes running side by
 #               side add up here. Each window frees itself at its own resets_at;
 #               at 100% that window is exhausted until it rolls over.
 #
-#   💰 $N       Estimated cost of this session in USD, computed client-side at
+#   $N          Estimated cost of this session in USD, computed client-side at
 #               list price. On a subscription it is a yardstick for how much
 #               work a session represents, not an amount that gets billed.
 #
-# Every percentage is "used", never "remaining", and is labelled with what it
-# measures. The leading emoji are static category markers rather than gauges,
-# so a full battery never reads as a full context window.
+# Every percentage is "used", never "remaining", and no segment carries an
+# emoji. A marker sitting in front of a group of numbers reads as qualifying
+# the first of them alone: an hourglass ahead of "5h 61% / 7d 42%" looked as
+# though it belonged to the five-hour window, though it applied to both. The
+# words and units already say what each number measures, so the markers were
+# paying for themselves with ambiguity.
 #
 # Fields that Claude Code omits (rate limits before the first API response,
 # effort on models without the parameter, repo outside a git checkout) drop
@@ -132,7 +135,7 @@ fi
 segments=()
 
 if [ -n "$ctx" ]; then
-  segments+=("🔋 ctx $(pct_color "$ctx")${ctx}%${RESET}")
+  segments+=("ctx $(pct_color "$ctx")${ctx}%${RESET}")
 fi
 
 plan=""
@@ -146,12 +149,12 @@ if [ -n "$seven_day" ]; then
   plan="${plan}7d $(pct_color "$seven_day")${seven_day}%${RESET}"
 fi
 if [ -n "$plan" ]; then
-  segments+=("⏳ plan ${plan}")
+  segments+=("$plan")
 fi
 
 cost_display=$(printf '%.2f' "$cost" 2>/dev/null) || cost_display=""
 if [ -n "$cost_display" ]; then
-  segments+=("💰 \$${cost_display}")
+  segments+=("\$${cost_display}")
 fi
 
 line2=""
