@@ -206,3 +206,27 @@ op item get GPG-Secret-Key-Git-Signing --fields private_key | gpg --import
 # Import public key
 op item get GPG-Public-Key-Git-Signing --fields public_key | gpg --import
 ```
+
+## Claude Code Status Line
+
+`bin/claude-statusline` prints the Claude Code status line: model and branch on
+the first line, context window usage, rate limit windows and session cost on the
+second. `make ln_bin` symlinks `bin` to `~/bin`, so the script needs no link of
+its own.
+
+Registering it takes one manual step. `~/.claude/settings.json` holds
+machine-specific entries such as the permission allowlist, so it is deliberately
+kept outside this repository and `make` cannot write to it. Add the `statusLine`
+field by hand:
+
+```json
+"statusLine": {
+  "type": "command",
+  "command": "~/bin/claude-statusline",
+  "refreshInterval": 60
+}
+```
+
+Without `refreshInterval` the command runs only on Claude Code's own events, and
+the time remaining on each rate limit window goes stale while the session sits
+idle. The value is in seconds.
