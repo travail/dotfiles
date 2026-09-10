@@ -210,14 +210,30 @@ op item get GPG-Public-Key-Git-Signing --fields public_key | gpg --import
 ## Claude Code Status Line
 
 `bin/claude-statusline` prints the Claude Code status line: model and branch on
-the first line, context window usage, rate limit windows and session cost on the
-second. `make ln_bin` symlinks `bin` to `~/bin`, so the script needs no link of
-its own.
+the first line, context window usage, rate limit windows and this run's cost on
+the second. It is a symlink into `claude-statusline/index.js`, a Node script split
+across three files: `index.js` (entry point: reads stdin and git, renders the
+two lines), `usage.js` (calls the Claude Agent SDK's
+`usage_EXPERIMENTAL_MAY_CHANGE_DO_NOT_RELY_ON_THIS_API_YET()` for the plan
+rate-limit numbers and decides which window to show), and `format.js` (colors,
+percentages, the countdown format). The SDK call takes the same path `/usage`
+itself takes, so the numbers are always current instead of depending on some
+other action having refreshed a cache first. That method name is Anthropic's
+own warning that the API is unstable and may change or disappear without
+notice. `make ln_bin` symlinks `bin` to `~/bin`, carrying the inner symlink
+along with it, so the script needs no link of its own.
 
-Registering it takes one manual step. `~/.claude/settings.json` holds
-machine-specific entries such as the permission allowlist, so it is deliberately
-kept outside this repository and `make` cannot write to it. Add the `statusLine`
-field by hand:
+The Node dependencies are not committed, so after cloning (or after pulling a
+change to `claude-statusline/package.json`), install them once:
+
+```sh
+cd claude-statusline && npm install
+```
+
+Registering the status line takes one manual step. `~/.claude/settings.json`
+holds machine-specific entries such as the permission allowlist, so it is
+deliberately kept outside this repository and `make` cannot write to it. Add
+the `statusLine` field by hand:
 
 ```json
 "statusLine": {
@@ -230,3 +246,13 @@ field by hand:
 Without `refreshInterval` the command runs only on Claude Code's own events, and
 the time remaining on each rate limit window goes stale while the session sits
 idle. The value is in seconds.
+
+Each render pays for a Node startup and an SDK round trip -- around a second in
+practice -- since the rate-limit numbers come from that live call rather than
+the stdin JSON Claude Code hands the command.
+
+See the comment at the top of `claude-statusline/index.js` for what each
+number means -- in particular, the trailing `run $N` tracks the running
+Claude Code process, not the conversation: confirmed by observation, it
+resets to `$0.00` on `/exit` + `/resume`, even when resuming the very same
+conversation (same `session_id` and all).
