@@ -40,6 +40,20 @@ set -euo pipefail
 #               is a fixed instant minus the clock, so recomputing it locally
 #               is enough.
 #
+#   credit N% ($N/$M)
+#               Only shown in place of 5h/7d, and only when the stdin JSON has
+#               neither -- which is how Claude.ai Pro/Max reports rate limits,
+#               but not how an Enterprise seat billed through a Claude apps
+#               gateway (e.g. AWS Marketplace) does. That plan still runs on a
+#               monthly usage-credit allowance, but Claude Code exposes it only
+#               through ~/.claude.json's cachedUsageUtilization cache, not the
+#               statusline JSON. That file is Claude Code's own undocumented
+#               state, refreshed opportunistically whenever a session fetches
+#               usage (e.g. opening /usage), not on a fixed schedule -- so this
+#               can lag actual spend by however long it has been since the
+#               cache's last refresh. No resets_at ships in that cache, so
+#               unlike 5h/7d there is no remaining-time suffix here.
+#
 #   $N          Estimated cost of this session in USD, computed client-side at
 #               list price. On a subscription it is a yardstick for how much
 #               work a session represents, not an amount that gets billed.
@@ -80,6 +94,9 @@ five_hour=""
 five_hour_resets=""
 seven_day=""
 seven_day_resets=""
+credit_pct=""
+credit_used=""
+credit_limit=""
 cost="0"
 
 # One jq pass emits shell assignments; @sh quotes each interpolated value.
@@ -100,6 +117,25 @@ assignments=$(printf '%s' "$input" | jq -r '
   @sh "cost=\(.cost.total_cost_usd // 0)"
 ' 2>/dev/null) || assignments=""
 eval "$assignments"
+
+# Enterprise seats behind a Claude apps gateway (e.g. AWS Marketplace billing)
+# never get .rate_limits on stdin -- Claude Code reserves that field for
+# Claude.ai Pro/Max. They still run on a monthly usage-credit allowance, but
+# the only place Claude Code surfaces it locally is its own cache file, so
+# fall back to that only when the plan-native fields are both absent.
+if [ -z "$five_hour" ] && [ -z "$seven_day" ] && [ -f "$HOME/.claude.json" ]; then
+  credit_assignments=$(jq -r '
+    .cachedUsageUtilization.utilization.extra_usage as $e |
+    if $e == null or ($e.is_enabled // false) != true then
+      empty
+    else
+      @sh "credit_pct=\($e.utilization | round | tostring)",
+      @sh "credit_used=\($e.used_credits / 100)",
+      @sh "credit_limit=\($e.monthly_limit / 100)"
+    end
+  ' "$HOME/.claude.json" 2>/dev/null) || credit_assignments=""
+  eval "$credit_assignments"
+fi
 
 # The branch is the one field the JSON does not carry, so ask git directly.
 # Anchor it to the session directory: the script's own cwd is not guaranteed.
@@ -203,6 +239,11 @@ if [ -n "$seven_day" ]; then
   if [ -n "$seven_day_resets" ]; then
     plan="${plan} ${DIM}($(remaining_time "$seven_day_resets" "$now"))${RESET}"
   fi
+fi
+if [ -z "$plan" ] && [ -n "$credit_pct" ]; then
+  credit_used_display=$(printf '%.0f' "$credit_used" 2>/dev/null) || credit_used_display="$credit_used"
+  credit_limit_display=$(printf '%.0f' "$credit_limit" 2>/dev/null) || credit_limit_display="$credit_limit"
+  plan="credit $(pct_color "$credit_pct")${credit_pct}%${RESET} ${DIM}(\$${credit_used_display}/\$${credit_limit_display})${RESET}"
 fi
 if [ -n "$plan" ]; then
   segments+=("$plan")
