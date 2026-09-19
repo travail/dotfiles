@@ -15,8 +15,10 @@ setopt COMPLETE_IN_WORD
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' menu select=1
 
-# make: only suggest targets, not local files
-zstyle ':completion:*:*:make:*' tag-order 'targets'
+# make: suggest targets and variables, not local files
+# Both tags in one string so they are offered together; separate arguments would
+# mean "fall back to variables only when targets yields nothing".
+zstyle ':completion:*:*:make:*' tag-order 'targets variables'
 
 # cdr
 zstyle ':completion:*:*:cdr:*:*' menu selection
