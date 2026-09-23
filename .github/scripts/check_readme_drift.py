@@ -68,9 +68,6 @@ def main() -> None:
         text = interaction.output_text or ""
     except Exception as exc:  # noqa: BLE001 - any API failure should not crash the workflow
         print(f"Gemini API call failed: {exc}", file=sys.stderr)
-        if "DRIFT_TEST_TRIGGER_WARNING" in diff:
-            write_output(needs_update=True, reason="Test Warning: README.md is missing documentation for the newly added feature.")
-            return
         write_output(needs_update=False, reason="")
         return
 
