@@ -1,0 +1,97 @@
+name: README Drift Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-readme-drift:
+    # Dependabot PRs can't read GEMINI_API_KEY (Dependabot-triggered runs only see
+    # the Dependabot secret store), and a version-number diff gives the model nothing
+    # to judge README drift from anyway.
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: install google-genai
+        run: pip install google-genai
+
+      - name: ask Gemini whether README.md needs updating
+        id: check
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          BASE_REF: ${{ github.base_ref }}
+        run: python .github/scripts/check_readme_drift.py
+
+      - name: upsert or remove the README drift comment
+        uses: actions/github-script@v9
+        env:
+          NEEDS_UPDATE: ${{ steps.check.outputs.needs_update }}
+          REASON: ${{ steps.check.outputs.reason }}
+        with:
+          script: |
+            const marker = '<!-- readme-drift-check -->';
+            const needsUpdate = process.env.NEEDS_UPDATE === 'true';
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(
+              (comment) => comment.user.type === 'Bot' && comment.body.includes(marker),
+            );
+
+            if (!needsUpdate) {
+              // The drift is gone, so drop the verdict comment left by an earlier run.
+              if (existing) {
+                await github.rest.issues.deleteComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existing.id,
+                });
+              }
+              return;
+            }
+
+            // The check never fails the build, so this comment is the only signal
+            // that the README drifted. Render it as an alert so it is not mistaken
+            // for routine bot chatter next to a green check list.
+            const reason = process.env.REASON;
+            const body = [
+              marker,
+              '> [!WARNING]',
+              '> ### :memo: README.md may be out of date',
+              '>',
+              ...reason.split('\n').map((line) => `> ${line}`),
+              '>',
+              '> Every other check can stay green while this one is true, so please',
+              '> look before merging. Judged automatically by Gemini, and advisory',
+              '> only: it never blocks a merge.',
+            ].join('\n');
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
