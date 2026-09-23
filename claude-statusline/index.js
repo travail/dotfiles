@@ -2,6 +2,15 @@
 //
 // Claude Code status line.
 //
+// Supported CLI options:
+//   --verbose  Show detailed breakdown of prompt cache tokens.
+//   --compact  Output single-line condensed status format.
+const parseArgs = (args) => {
+  const verbose = args.includes('--verbose');
+  const compact = args.includes('--compact');
+  return { verbose, compact };
+};
+
 // Reads the session JSON on stdin and prints two lines:
 //   1. model, reasoning effort, current branch and repository
 //   2. context window usage, plan rate limits and this run's cost
