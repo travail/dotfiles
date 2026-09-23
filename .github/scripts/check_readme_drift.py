@@ -61,10 +61,9 @@ def main() -> None:
     with open("README.md", encoding="utf-8") as f:
         readme = f.read()
 
-    client = genai.Client()
-    prompt = PROMPT_TEMPLATE.format(diff=diff[:20000], readme=readme)
-
     try:
+        client = genai.Client()
+        prompt = PROMPT_TEMPLATE.format(diff=diff[:20000], readme=readme)
         interaction = client.interactions.create(model=MODEL, input=prompt)
         text = interaction.output_text or ""
     except Exception as exc:  # noqa: BLE001 - any API failure should not crash the workflow
