@@ -15,7 +15,7 @@
 	editor = emacs
 	untrackedCache = true
 	pager = delta
-	excludesFile = ~/.gitignore
+	excludesFile = ~/.config/git/ignore
 	hooksPath = ~/.config/git/hooks
 [delta]
 	navigate = true

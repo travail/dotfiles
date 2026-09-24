@@ -55,8 +55,10 @@ ln_emacs:
 	mkdir -p $(PWD)/emacs.d/site-lisp
 
 ln_git: gitconfig gitignore
-	ln -sfn $(PWD)/gitconfig ~/.gitconfig && ln -sfn $(PWD)/gitignore ~/.gitignore
 	mkdir -p $(HOME)/.config/git
+	rm -f $(HOME)/.gitconfig $(HOME)/.gitignore $(HOME)/.config/git/ignore
+	ln -sfn $(PWD)/gitconfig $(HOME)/.config/git/config
+	ln -sfn $(PWD)/gitignore $(HOME)/.config/git/ignore
 	ln -sfn $(PWD)/git-hooks $(HOME)/.config/git/hooks
 
 ln_mysql: my.cnf
@@ -66,7 +68,9 @@ ln_perltidyrc: perltidyrc
 	ln -sfn $(PWD)/perltidyrc ~/.perltidyrc
 
 ln_tmux: tmux.conf
-	ln -sfn $(PWD)/tmux.conf ~/.tmux.conf
+	mkdir -p $(HOME)/.config/tmux
+	rm -f $(HOME)/.tmux.conf
+	ln -sfn $(PWD)/tmux.conf $(HOME)/.config/tmux/tmux.conf
 
 ln_zshrc: zshrc
 	ln -sfn $(PWD)/zshrc ~/.zshrc && ln -sfn $(PWD)/zsh ~/.zsh
@@ -127,6 +131,9 @@ clean:
 	rm -f $(PWD)/aqua-checksums.json
 	rm -f ~/.config/mise/config.toml
 	rm -f ~/.config/herdr/config.toml
+	rm -f ~/.config/git/config
+	rm -f ~/.config/git/ignore
 	rm -rf ~/.config/git/hooks
+	rm -f ~/.config/tmux/tmux.conf
 
 cleanall: clean clean_emacs
