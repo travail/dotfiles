@@ -56,6 +56,8 @@ ln_emacs:
 
 ln_git: gitconfig gitignore
 	ln -sfn $(PWD)/gitconfig ~/.gitconfig && ln -sfn $(PWD)/gitignore ~/.gitignore
+	mkdir -p $(HOME)/.config/git
+	ln -sfn $(PWD)/git-hooks $(HOME)/.config/git/hooks
 
 ln_mysql: my.cnf
 	ln -sfn $(PWD)/my.cnf ~/.my.cnf
@@ -125,5 +127,6 @@ clean:
 	rm -f $(PWD)/aqua-checksums.json
 	rm -f ~/.config/mise/config.toml
 	rm -f ~/.config/herdr/config.toml
+	rm -rf ~/.config/git/hooks
 
 cleanall: clean clean_emacs
