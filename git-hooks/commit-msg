@@ -1,0 +1,18 @@
+#!/bin/sh
+#
+# Git commit-msg hook to reject commits containing Co-Authored-By trailers.
+#
+
+commit_msg_file="$1"
+
+if [ ! -f "$commit_msg_file" ]; then
+	exit 0
+fi
+
+if grep -qiE '^[[:space:]]*co-authored-by:' "$commit_msg_file"; then
+	echo "Error: Co-Authored-By trailer is prohibited in commit messages." >&2
+	echo "Please remove 'Co-Authored-By: ...' from the commit message." >&2
+	exit 1
+fi
+
+exit 0
