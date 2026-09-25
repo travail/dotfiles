@@ -63,23 +63,12 @@ ensure_dir_trusted() {
   return 1
 }
 
-# spawn_and_prime_agent PANE_ID [PRIME=1] [SKILL...]
+# spawn_and_prime_agent PANE_ID
 #   Spawns `claude` in PANE_ID and waits for the agent to go idle, having
 #   first made sure the pane's directory is trusted so no trust prompt can
-#   intercept the session. Unless PRIME=0, also sends the specified skills
-#   (default: `herdr herdr-hub` in that order) to preload the herdr CLI skill
-#   and multi-agent coordination conventions, waiting idle again after each.
+#   intercept the session.
 spawn_and_prime_agent() {
-  local pane="$1" prime="${2:-1}" dir
-  if [ $# -ge 2 ]; then
-    shift 2
-  elif [ $# -eq 1 ]; then
-    shift 1
-  fi
-  local skills=("$@")
-  if [ "${#skills[@]}" -eq 0 ]; then
-    skills=(herdr herdr-hub)
-  fi
+  local pane="$1" dir
 
   # cwd is looked up per-pane (not passed in by the caller) so this works
   # whether it's called against herdr-init's root pane or a pane
@@ -92,17 +81,7 @@ spawn_and_prime_agent() {
     return 1
   fi
 
-  # HERDR_PRIMED=1 is a hard signal (distinct from HERDR_ENV=1, which just
-  # means "running inside a herdr-managed pane") that priming slash commands
-  # were actually sent to this pane by this function -- set only when we're
-  # actually about to prime (prime=1), so a caller can check it instead of
-  # assuming priming happened just because HERDR_ENV=1 is set (e.g. a pane
-  # started by running `claude` directly was never routed through here).
-  if [ "$prime" -eq 1 ]; then
-    herdr pane run "$pane" "HERDR_PRIMED=1 claude" >&2
-  else
-    herdr pane run "$pane" "claude" >&2
-  fi
+  herdr pane run "$pane" "claude" >&2
 
   # herdr needs a moment to detect the freshly spawned agent -- `herdr agent
   # wait` errors immediately (no retry) if the target isn't registered yet,
@@ -112,56 +91,18 @@ spawn_and_prime_agent() {
     sleep 0.1
   done
   herdr agent wait "$pane" --until idle --timeout 15000 >&2
-
-  if [ "$prime" -eq 1 ]; then
-    # Prime the agent with the specified skills up front, so it has necessary
-    # context without the user having to explain herdr conventions in the task
-    # prompt.
-    #
-    # A freshly spawned agent can report idle (via the wait right above)
-    # slightly before its terminal UI is actually ready to receive input --
-    # sending a slash command right at that instant can silently go nowhere
-    # (verified empirically: the pane's prompt stays completely empty,
-    # never even shows the command having been typed). Give it a moment to
-    # settle, then confirm the agent actually transitioned to working
-    # (proof the input was received and processing started, not just that
-    # it was still sitting idle) -- retrying the send a couple of times if
-    # it doesn't.
-    sleep 1
-    local skill primed
-    for skill in "${skills[@]}"; do
-      primed=0
-      for _ in $(seq 1 3); do
-        herdr pane run "$pane" "/$skill" >&2
-        if herdr agent wait "$pane" --until working --timeout 3000 >&2; then
-          primed=1
-          break
-        fi
-      done
-      if [ "$primed" -eq 0 ]; then
-        echo "spawn_and_prime_agent: warning: /$skill priming may not have reached $pane" >&2
-      fi
-      # Non-fatal: this is just pacing before the next skill's prompt, not
-      # the actual success signal (that's the working-transition check
-      # above). Under load this wait can time out even though the agent
-      # already finished -- don't let that flakiness abort priming the
-      # remaining skills.
-      herdr agent wait "$pane" --until idle --timeout 15000 >&2 \
-        || echo "spawn_and_prime_agent: warning: idle-wait after /$skill timed out, continuing anyway" >&2
-    done
-  fi
 }
 
-# spawn_agent SCRIPT_NAME DEFAULT_SKILLS_STR [ARGS...]
+# spawn_agent SCRIPT_NAME [ARGS...]
 #   Shared CLI implementation for herdr-spawn-hub-agent and
-#   herdr-spawn-cowork-agent. Splits an existing pane and spawns+primes a claude
-#   agent in the new pane with the specified default skills.
+#   herdr-spawn-cowork-agent. Splits an existing pane and spawns a claude
+#   agent in the new pane.
 spawn_agent() {
-  local opt_name="$1" default_skills_str="$2"
-  shift 2
+  local opt_name="$1"
+  shift 1
 
   local OPTIND=1
-  local RATIO="" LABEL="" PRIME=1 FOCUS_FLAG="--no-focus" AUTO=0
+  local RATIO="" LABEL="" FOCUS_FLAG="--no-focus" AUTO=0
   local opt
 
   while getopts "r:l:nfah" opt; do
@@ -173,7 +114,7 @@ spawn_agent() {
         LABEL="$OPTARG"
         ;;
       n)
-        PRIME=0
+        # Deprecated: no-op for backward compatibility. Skills are no longer primed at startup.
         ;;
       f)
         FOCUS_FLAG="--focus"
@@ -204,7 +145,7 @@ Options:
             mirroring the pane_id suffix herdr itself assigns to the new
             pane, e.g. "<workspace-label>-p3" or "<workspace-label>-pA" --
             never guessed/computed, so it always matches the real id)
-  -n        Skip the preload step (spawn + clear trust dialog only).
+  -n        Deprecated: no-op for backward compatibility.
   -f        Focus the new pane after creating it. (default: unfocused)
   -h        Show this help and exit.
 EOF
@@ -278,8 +219,7 @@ EOF
   herdr pane rename "$new_pane" "$LABEL" >&2
 
   echo "$opt_name: spawning claude in $new_pane ($LABEL)..." >&2
-  # shellcheck disable=SC2086
-  spawn_and_prime_agent "$new_pane" "$PRIME" $default_skills_str
+  spawn_and_prime_agent "$new_pane"
 
   echo "$new_pane"
 }
