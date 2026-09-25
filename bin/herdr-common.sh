@@ -1,5 +1,7 @@
-# Shared helpers for herdr-init / herdr-spawn-agent. Source only, not
+# Shared helpers for herdr-init / herdr-spawn-*. Source only, not
 # executable. Callers must have `set -euo pipefail` in effect.
+
+HERDR_COMMON_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 # ensure_dir_trusted DIR
 #   Marks DIR as trusted in ~/.claude.json, so `claude` never raises its
@@ -61,18 +63,27 @@ ensure_dir_trusted() {
   return 1
 }
 
-# spawn_and_prime_agent PANE_ID [PRIME=1]
+# spawn_and_prime_agent PANE_ID [PRIME=1] [SKILL...]
 #   Spawns `claude` in PANE_ID and waits for the agent to go idle, having
 #   first made sure the pane's directory is trusted so no trust prompt can
-#   intercept the session. Unless PRIME=0, also sends `/herdr` and
-#   `/herdr-hub` (in that order) to preload the herdr CLI skill and our own
-#   multi-agent coordination conventions, waiting idle again after each.
+#   intercept the session. Unless PRIME=0, also sends the specified skills
+#   (default: `herdr herdr-hub` in that order) to preload the herdr CLI skill
+#   and multi-agent coordination conventions, waiting idle again after each.
 spawn_and_prime_agent() {
   local pane="$1" prime="${2:-1}" dir
+  if [ $# -ge 2 ]; then
+    shift 2
+  elif [ $# -eq 1 ]; then
+    shift 1
+  fi
+  local skills=("$@")
+  if [ "${#skills[@]}" -eq 0 ]; then
+    skills=(herdr herdr-hub)
+  fi
 
   # cwd is looked up per-pane (not passed in by the caller) so this works
   # whether it's called against herdr-init's root pane or a pane
-  # herdr-spawn-agent just split off elsewhere. Trust has to be settled
+  # herdr-spawn-* just split off elsewhere. Trust has to be settled
   # *before* claude starts -- it reads the flag once at startup, so a pane
   # already sitting on the prompt can't be rescued by writing it afterwards.
   dir=$(herdr pane get "$pane" | jq -r '.result.pane.cwd')
@@ -82,7 +93,7 @@ spawn_and_prime_agent() {
   fi
 
   # HERDR_PRIMED=1 is a hard signal (distinct from HERDR_ENV=1, which just
-  # means "running inside a herdr-managed pane") that /herdr and /herdr-hub
+  # means "running inside a herdr-managed pane") that priming slash commands
   # were actually sent to this pane by this function -- set only when we're
   # actually about to prime (prime=1), so a caller can check it instead of
   # assuming priming happened just because HERDR_ENV=1 is set (e.g. a pane
@@ -103,13 +114,9 @@ spawn_and_prime_agent() {
   herdr agent wait "$pane" --until idle --timeout 15000 >&2
 
   if [ "$prime" -eq 1 ]; then
-    # Prime the agent with the herdr and herdr-hub skills up front, so it can
-    # act as hub (dispatch to/pull from sibling panes) without the user
-    # having to explain herdr in the task prompt. herdr-hub carries our own
-    # coordination conventions (push/pull discipline, spawn-agent usage,
-    # timeout handling, etc.) layered on top of herdr's generic CLI
-    # reference -- both are separate skills invoked by name, so both need
-    # priming here; neither loads on its own.
+    # Prime the agent with the specified skills up front, so it has necessary
+    # context without the user having to explain herdr conventions in the task
+    # prompt.
     #
     # A freshly spawned agent can report idle (via the wait right above)
     # slightly before its terminal UI is actually ready to receive input --
@@ -122,7 +129,7 @@ spawn_and_prime_agent() {
     # it doesn't.
     sleep 1
     local skill primed
-    for skill in herdr herdr-hub; do
+    for skill in "${skills[@]}"; do
       primed=0
       for _ in $(seq 1 3); do
         herdr pane run "$pane" "/$skill" >&2
@@ -143,6 +150,138 @@ spawn_and_prime_agent() {
         || echo "spawn_and_prime_agent: warning: idle-wait after /$skill timed out, continuing anyway" >&2
     done
   fi
+}
+
+# spawn_agent SCRIPT_NAME DEFAULT_SKILLS_STR [ARGS...]
+#   Shared CLI implementation for herdr-spawn-hub-agent and
+#   herdr-spawn-cowork-agent. Splits an existing pane and spawns+primes a claude
+#   agent in the new pane with the specified default skills.
+spawn_agent() {
+  local opt_name="$1" default_skills_str="$2"
+  shift 2
+
+  local OPTIND=1
+  local RATIO="" LABEL="" PRIME=1 FOCUS_FLAG="--no-focus" AUTO=0
+  local opt
+
+  while getopts "r:l:nfah" opt; do
+    case "$opt" in
+      r)
+        RATIO="$OPTARG"
+        ;;
+      l)
+        LABEL="$OPTARG"
+        ;;
+      n)
+        PRIME=0
+        ;;
+      f)
+        FOCUS_FLAG="--focus"
+        ;;
+      a)
+        AUTO=1
+        ;;
+      h)
+        cat <<EOF
+Usage: $opt_name [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [<target> <right|down>]
+
+Arguments:
+  target      Pane id or label to split (e.g. dotfiles-p1). (required
+              unless -a)
+  right|down  Which side of target the new pane appears on. (required
+              unless -a)
+
+Options:
+  -a        Auto-detect target/direction from the current layout instead of
+             taking them as arguments (grows a 1/2/3-pane upper area toward
+             a 2x2; errors out if the layout is already a complete 2x2 or
+             isn't a recognized shape). Mutually exclusive with
+             <target> <right|down>.
+  -r RATIO  Size ratio, passed through to \`herdr pane split --ratio\`
+            (sizes the pane being split, i.e. target -- the new pane gets
+            the remainder).
+  -l LABEL  Explicit label for the new pane. (default: auto-derived by
+            mirroring the pane_id suffix herdr itself assigns to the new
+            pane, e.g. "<workspace-label>-p3" or "<workspace-label>-pA" --
+            never guessed/computed, so it always matches the real id)
+  -n        Skip the preload step (spawn + clear trust dialog only).
+  -f        Focus the new pane after creating it. (default: unfocused)
+  -h        Show this help and exit.
+EOF
+        return 0
+        ;;
+      *)
+        echo "Usage: $opt_name [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [<target> <right|down>]" >&2
+        return 1
+        ;;
+    esac
+  done
+  shift $((OPTIND - 1))
+
+  local target_ref="" direction="" target_pane=""
+  if [ "$AUTO" -eq 1 ]; then
+    if [ $# -ne 0 ]; then
+      echo "$opt_name: -a is mutually exclusive with <target> <right|down>" >&2
+      echo "Usage: $opt_name [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [<target> <right|down>]" >&2
+      return 1
+    fi
+    auto_detect_split_target
+    target_pane="$TARGET_PANE"
+    direction="$DIRECTION"
+  else
+    if [ $# -ne 2 ]; then
+      echo "Usage: $opt_name [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [<target> <right|down>]" >&2
+      return 1
+    fi
+
+    target_ref="$1"
+    direction="$2"
+
+    case "$direction" in
+      right | down) ;;
+      *)
+        echo "$opt_name: direction must be 'right' or 'down'" >&2
+        return 1
+        ;;
+    esac
+
+    # pane_ids contain a colon (e.g. w1:p1), labels don't -- same convention
+    # herdr-id itself uses.
+    case "$target_ref" in
+      *:*)
+        target_pane="$target_ref"
+        ;;
+      *)
+        target_pane=$("$HERDR_COMMON_DIR/herdr-id" -p "$target_ref")
+        ;;
+    esac
+  fi
+
+  local workspace_id
+  workspace_id=$(herdr pane get "$target_pane" | jq -r '.result.pane.workspace_id')
+
+  echo "$opt_name: splitting $target_pane ($direction)..." >&2
+  local split_args=(herdr pane split "$target_pane" --direction "$direction" "$FOCUS_FLAG")
+  if [ -n "$RATIO" ]; then
+    split_args+=(--ratio "$RATIO")
+  fi
+  local new_pane
+  new_pane=$("${split_args[@]}" | jq -r '.result.pane.pane_id')
+
+  if [ -z "$LABEL" ]; then
+    # Derive the prefix from the workspace's own label (not the target pane's
+    # label) so this stays correct even if panes were manually renamed.
+    local prefix
+    prefix=$(herdr workspace get "$workspace_id" | jq -r '.result.workspace.label')
+    LABEL="${prefix}-${new_pane#*:}"
+  fi
+  herdr pane rename "$new_pane" "$LABEL" >&2
+
+  echo "$opt_name: spawning claude in $new_pane ($LABEL)..." >&2
+  # shellcheck disable=SC2086
+  spawn_and_prime_agent "$new_pane" "$PRIME" $default_skills_str
+
+  echo "$new_pane"
 }
 
 # auto_detect_split_target [PANE_ID]
@@ -168,7 +307,7 @@ auto_detect_split_target() {
 
   # The bottom terminal band spans the full width of the area and sits at
   # the largest y -- exclude it. What's left is the "upper area" that
-  # herdr-spawn-agent actually grows.
+  # herdr-spawn-* actually grows.
   local upper
   upper=$(echo "$layout" | jq -c '
     (.area.width) as $aw

@@ -19,7 +19,7 @@ set -euo pipefail
 # always agree by construction.
 #
 # Additional agent panes are NOT pre-created here -- spawn them on demand
-# with `herdr-spawn-agent` once you actually need them, to avoid paying
+# with `herdr-spawn-hub-agent` once you actually need them, to avoid paying
 # process + /herdr skill-load cost for panes that mostly sit idle.
 #
 # Agents are intentionally left unnamed: agent.name does not survive a herdr
