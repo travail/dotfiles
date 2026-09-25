@@ -1,23 +1,36 @@
+# Emacs
 emacs.d/*.dat
 emacs.d/auto-save-list
 emacs.d/elpa
-emacs.d/lisp/*.elc
-emacs.d/lisp/*/*.elc
 emacs.d/url
 emacs.d/site-lisp
 emacs.d/straight
 emacs.d/var
+emacs.d/tramp*
+emacs.d/.tramp-history
+*.elc
+
+# Languages / Runtimes
 perl/cpanfile.snapshot
 perl/local
 php/vendor
+node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*.py.class
+.venv/
 
 # macOS
 .DS_Store
 
-# Secrets
+# Secrets & Local configs
 *.pem
 *.key
 *.secret
+*.local
+.env.local
 
 # Editor
 .vscode/
@@ -25,6 +38,7 @@ php/vendor
 *~
 
 # Claude Code
+.claude/plans/
 .claude/settings.json
 .claude/settings.local.json
 
