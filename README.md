@@ -220,8 +220,15 @@ percentages, the countdown format). The SDK call takes the same path `/usage`
 itself takes, so the numbers are always current instead of depending on some
 other action having refreshed a cache first. That method name is Anthropic's
 own warning that the API is unstable and may change or disappear without
-notice. `make ln_bin` symlinks `bin` to `~/bin`, carrying the inner symlink
-along with it, so the script needs no link of its own.
+notice. `make ln_bin` symlinks `bin` to `~/bin`, carrying the inner symlinks
+along with it, so the scripts need no links of their own.
+
+In addition to the full status line, `bin/claude-statusline-enterprise-credit`
+(a symlink to `claude-statusline/enterprise-credit.js`) formats the Enterprise
+usage-credit segment for status line tools such as `ccstatusline` via a
+`custom-command` widget. It reuses `usage.js` and `format.js` to output the
+credit allowance (e.g. `credit 42% ($4/$10)`) for Enterprise accounts, or
+exits cleanly with no output for standard rate-limit accounts.
 
 The Node dependencies are not committed, so after cloning (or after pulling a
 change to `claude-statusline/package.json`), install them once:
