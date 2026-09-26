@@ -1,9 +1,23 @@
 PWD=$(shell pwd)
 UNAME := $(shell uname)
 
-.PHONY: all brew_bundle agent_skills bin ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_zim zim ln_aqua ln_mise ln_herdr clean_aqua clean_emacs clean cleanall
+MODULES := claude
 
-all: .make/install_packages .make/aqua_install .make/mise_install ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua ln_mise ln_zim ln_herdr
+.PHONY: all brew_bundle agent_skills bin ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_zim zim ln_aqua ln_mise ln_herdr clean_aqua clean_emacs clean cleanall $(MODULES) modules_setup modules_link modules_clean
+
+all: .make/install_packages .make/aqua_install .make/mise_install ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua ln_mise ln_zim ln_herdr modules_setup
+
+claude: .make/mise_install
+	$(MAKE) -C $@ setup
+
+modules_setup: .make/mise_install
+	@for m in $(MODULES); do $(MAKE) -C $$m setup || exit 1; done
+
+modules_link:
+	@for m in $(MODULES); do $(MAKE) -C $$m link || exit 1; done
+
+modules_clean:
+	@for m in $(MODULES); do $(MAKE) -C $$m clean || exit 1; done
 
 ifeq ($(UNAME), Darwin)
 .make/install_packages: Brewfile Brewfile.darwin
@@ -135,5 +149,6 @@ clean:
 	rm -f ~/.config/git/ignore
 	rm -rf ~/.config/git/hooks
 	rm -f ~/.config/tmux/tmux.conf
+	$(MAKE) modules_clean
 
 cleanall: clean clean_emacs
