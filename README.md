@@ -211,9 +211,9 @@ op item get GPG-Public-Key-Git-Signing --fields public_key | gpg --import
 
 To keep tool-specific configurations modular and cohesive, ecosystem-specific files are organized under top-level module directories (e.g. `claude/`). Each module provides a standalone `Makefile` conforming to a common interface:
 
-- `setup`: complete module environment setup (includes `link` and any tool-specific dependency installation; default target).
+- `setup`: complete module environment setup (includes `link` and any tool-specific dependency installation; the default target `all` depends on it).
 - `link`: create symlinks for module-managed files and scripts.
-- `clean`: safely unlink symlinks and clean module-specific temporary artifacts.
+- `clean`: remove the symlinks the module created, and only when they still point into this repository; real files and installed dependencies (e.g. `node_modules`) are left in place.
 
 The root `Makefile` orchestrates these modules via `modules_setup`, `modules_link`, and `modules_clean`, and provides individual module shortcuts such as `make claude`.
 
@@ -274,4 +274,3 @@ number means -- in particular, the trailing `run $N` tracks the running
 Claude Code process, not the conversation: confirmed by observation, it
 resets to `$0.00` on `/exit` + `/resume`, even when resuming the very same
 conversation (same `session_id` and all).
-
