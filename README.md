@@ -207,11 +207,21 @@ op item get GPG-Secret-Key-Git-Signing --fields private_key | gpg --import
 op item get GPG-Public-Key-Git-Signing --fields public_key | gpg --import
 ```
 
+## Modules and Directory Structure
+
+To keep tool-specific configurations modular and cohesive, ecosystem-specific files are organized under top-level module directories (e.g. `claude/`). Each module provides a standalone `Makefile` conforming to a common interface:
+
+- `setup`: complete module environment setup (includes `link` and any tool-specific dependency installation; default target).
+- `link`: create symlinks for module-managed files and scripts.
+- `clean`: safely unlink symlinks and clean module-specific temporary artifacts.
+
+The root `Makefile` orchestrates these modules via `modules_setup`, `modules_link`, and `modules_clean`, and provides individual module shortcuts such as `make claude`.
+
 ## Claude Code Status Line
 
 `bin/claude-statusline` prints the Claude Code status line: model and branch on
 the first line, context window usage, rate limit windows and this run's cost on
-the second. It is a symlink into `claude-statusline/index.js`, a Node script split
+the second. It is a symlink into `claude/statusline/index.js`, a Node script split
 across three files: `index.js` (entry point: reads stdin and git, renders the
 two lines), `usage.js` (calls the Claude Agent SDK's
 `usage_EXPERIMENTAL_MAY_CHANGE_DO_NOT_RELY_ON_THIS_API_YET()` for the plan
@@ -224,17 +234,18 @@ notice. `make ln_bin` symlinks `bin` to `~/bin`, carrying the inner symlinks
 along with it, so the scripts need no links of their own.
 
 In addition to the full status line, `bin/claude-statusline-enterprise-credit`
-(a symlink to `claude-statusline/enterprise-credit.js`) formats the Enterprise
+(a symlink to `claude/statusline/enterprise-credit.js`) formats the Enterprise
 usage-credit segment for status line tools such as `ccstatusline` via a
 `custom-command` widget. It reuses `usage.js` and `format.js` to output the
 credit allowance (e.g. `credit 42% ($4/$10)`) for Enterprise accounts, or
 exits cleanly with no output for standard rate-limit accounts.
 
 The Node dependencies are not committed, so after cloning (or after pulling a
-change to `claude-statusline/package.json`), install them once:
+change to `claude/statusline/package.json`), install them once via the module setup:
 
 ```sh
-cd claude-statusline && npm install
+make claude
+# or: make modules_setup
 ```
 
 Registering the status line takes one manual step. `~/.claude/settings.json`
@@ -258,8 +269,9 @@ Each render pays for a Node startup and an SDK round trip -- around a second in
 practice -- since the rate-limit numbers come from that live call rather than
 the stdin JSON Claude Code hands the command.
 
-See the comment at the top of `claude-statusline/index.js` for what each
+See the comment at the top of `claude/statusline/index.js` for what each
 number means -- in particular, the trailing `run $N` tracks the running
 Claude Code process, not the conversation: confirmed by observation, it
 resets to `$0.00` on `/exit` + `/resume`, even when resuming the very same
 conversation (same `session_id` and all).
+
