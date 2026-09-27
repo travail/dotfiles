@@ -1,7 +1,7 @@
 PWD=$(shell pwd)
 UNAME := $(shell uname)
 
-MODULES := claude
+MODULES := claude antigravity
 
 .PHONY: all brew_bundle agent_skills bin ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_zim zim ln_aqua ln_mise ln_herdr clean_aqua clean_emacs clean cleanall $(MODULES) modules_setup modules_link modules_clean
 
