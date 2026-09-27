@@ -238,10 +238,12 @@ In addition to the full status line, `bin/claude-statusline-enterprise-credit`
 usage-credit segment for status line tools such as `ccstatusline` via a
 `custom-command` widget. It reuses `usage.js` and `format.js` to output the
 credit allowance (e.g. `credit 42% ($4/$10)`) for Enterprise accounts, or
-exits cleanly with no output for standard rate-limit accounts.
+exits cleanly with no output for standard rate-limit accounts. The `ccstatusline`
+configuration is managed under `claude/statusline/settings.json` and symlinked to
+`~/.config/ccstatusline/settings.json`.
 
-The Node dependencies are not committed, so after cloning (or after pulling a
-change to `claude/statusline/package.json`), install them once via the module setup:
+To install dependencies and link the configuration (or after pulling a change to
+`claude/statusline/package.json`):
 
 ```sh
 make claude
