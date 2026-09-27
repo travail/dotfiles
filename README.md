@@ -270,7 +270,10 @@ make antigravity
 # or: make modules_setup
 ```
 
-The module `setup` target automatically updates `~/.gemini/antigravity-cli/settings.json` via `jq` to enable `agystatusline`:
+Registering the status line takes one manual step. `~/.gemini/antigravity-cli/settings.json`
+holds machine-specific entries such as the permission allowlist, so it is
+deliberately kept outside this repository and `make` cannot write to it. Add
+the `statusLine` field by hand:
 
 ```json
 "statusLine": {
@@ -279,6 +282,4 @@ The module `setup` target automatically updates `~/.gemini/antigravity-cli/setti
   "enabled": true
 }
 ```
-
-Note: on a fresh machine where Antigravity CLI has never been launched, launch `agy` once first to generate `~/.gemini/antigravity-cli/settings.json` before running `make antigravity`.
 
