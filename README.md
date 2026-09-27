@@ -244,8 +244,9 @@ make claude
 
 Registering the status line takes one manual step. `~/.claude/settings.json`
 holds machine-specific entries such as the permission allowlist, so it is
-deliberately kept outside this repository and `make` cannot write to it. Add
-the `statusLine` field by hand:
+deliberately kept outside this repository and `make` cannot write to it.
+`make setup` will prompt you with the required snippet if `statusLine` is
+missing or improperly configured. Add the `statusLine` field by hand:
 
 ```json
 "statusLine": {
@@ -272,8 +273,9 @@ make antigravity
 
 Registering the status line takes one manual step. `~/.gemini/antigravity-cli/settings.json`
 holds machine-specific entries such as the permission allowlist, so it is
-deliberately kept outside this repository and `make` cannot write to it. Add
-the `statusLine` field by hand:
+deliberately kept outside this repository and `make` cannot write to it.
+`make setup` will prompt you with the required snippet if `statusLine` is
+missing or improperly configured. Add the `statusLine` field by hand:
 
 ```json
 "statusLine": {
