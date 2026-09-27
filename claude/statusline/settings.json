@@ -22,6 +22,10 @@
       {
         "id": "changes",
         "type": "git-changes"
+      },
+      {
+        "id": "cost",
+        "type": "session-cost"
       }
     ],
     [
@@ -102,10 +106,6 @@
         "commandPath": "claude-statusline-enterprise-credit",
         "timeout": 5000,
         "preserveColors": true
-      },
-      {
-        "id": "cost",
-        "type": "session-cost"
       }
     ]
   ],
