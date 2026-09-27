@@ -6,10 +6,22 @@ all: setup
 
 setup: link
 	go install github.com/yuys13/agystatusline@latest
-	@if [ -f "$(SETTINGS_JSON)" ]; then \
-		tmp=$$(mktemp "$${SETTINGS_JSON}.tmp.XXXXXX") && \
-		jq '.statusLine = {"type": "command", "command": "agystatusline", "enabled": true}' "$(SETTINGS_JSON)" > "$$tmp" && \
-		mv "$$tmp" "$(SETTINGS_JSON)"; \
+	@if command -v jq >/dev/null 2>&1; then \
+		if [ ! -f "$(SETTINGS_JSON)" ] || ! jq -e '.statusLine.type == "command" and .statusLine.command == "agystatusline" and .statusLine.enabled == true' "$(SETTINGS_JSON)" >/dev/null 2>&1; then \
+			echo ""; \
+			echo "----------------------------------------------------------------------"; \
+			echo "[Action Required] Please configure statusLine in $(SETTINGS_JSON):"; \
+			echo ""; \
+			echo '"statusLine": {'; \
+			echo '  "type": "command",'; \
+			echo '  "command": "agystatusline",'; \
+			echo '  "enabled": true'; \
+			echo '}'; \
+			echo "----------------------------------------------------------------------"; \
+			echo ""; \
+		fi; \
+	else \
+		echo "[Notice] jq is not installed. Please install jq to verify statusLine in $(SETTINGS_JSON)."; \
 	fi
 
 link:
