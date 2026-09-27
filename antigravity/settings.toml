@@ -1,0 +1,29 @@
+lines = [
+  [
+    {type = 'model'},
+    {type = 'git-branch'},
+    {type = 'git-changes'},
+    {type = 'agent-state'}
+  ],
+  [
+    {type = 'context-bar'},
+    {type = 'quota-5h'},
+    {type = 'quota-7d'},
+    {type = 'tasks'},
+    {type = 'subagents'},
+    {type = 'artifacts'}
+  ]
+]
+
+[powerline]
+enabled = true
+theme = 'solarized'
+separator = ''
+start_caps = ''
+end_caps = ''
+
+[general]
+color_level = 3
+git_cache_ttl = 5
+padding = ' '
+minimalist = false
