@@ -296,3 +296,5 @@ The module `setup` target automatically updates `~/.gemini/antigravity-cli/setti
 }
 ```
 
+Note: on a fresh machine where Antigravity CLI has never been launched, launch `agy` once first to generate `~/.gemini/antigravity-cli/settings.json` before running `make antigravity`.
+
