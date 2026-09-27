@@ -209,13 +209,13 @@ op item get GPG-Public-Key-Git-Signing --fields public_key | gpg --import
 
 ## Modules and Directory Structure
 
-To keep tool-specific configurations modular and cohesive, ecosystem-specific files are organized under top-level module directories (e.g. `claude/`). Each module provides a standalone `Makefile` conforming to a common interface:
+To keep tool-specific configurations modular and cohesive, ecosystem-specific files are organized under top-level module directories (e.g. `claude/`, `antigravity/`). Each module provides a standalone `Makefile` conforming to a common interface:
 
 - `setup`: complete module environment setup (includes `link` and any tool-specific dependency installation; the default target `all` depends on it).
 - `link`: create symlinks for module-managed files and scripts.
 - `clean`: remove the symlinks the module created, and only when they still point into this repository; real files and installed dependencies (e.g. `node_modules`) are left in place.
 
-The root `Makefile` orchestrates these modules via `modules_setup`, `modules_link`, and `modules_clean`, and provides individual module shortcuts such as `make claude`.
+The root `Makefile` orchestrates these modules via `modules_setup`, `modules_link`, and `modules_clean`, and provides individual module shortcuts such as `make claude` and `make antigravity`.
 
 ## Claude Code Status Line
 
@@ -274,3 +274,25 @@ number means -- in particular, the trailing `run $N` tracks the running
 Claude Code process, not the conversation: confirmed by observation, it
 resets to `$0.00` on `/exit` + `/resume`, even when resuming the very same
 conversation (same `session_id` and all).
+
+## Antigravity CLI Status Line
+
+The Antigravity CLI (agy) status line is powered by `yuys13/agystatusline`, a Go-based status line generator supporting Powerline and Solarized styling. Its configuration is managed under `antigravity/settings.toml` and symlinked to `~/.config/agystatusline/settings.toml`.
+
+To install the binary and link the configuration:
+
+```sh
+make antigravity
+# or: make modules_setup
+```
+
+The module `setup` target automatically updates `~/.gemini/antigravity-cli/settings.json` via `jq` to enable `agystatusline`:
+
+```json
+"statusLine": {
+  "type": "command",
+  "command": "agystatusline",
+  "enabled": true
+}
+```
+

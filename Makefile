@@ -10,6 +10,9 @@ all: .make/install_packages .make/aqua_install .make/mise_install ln_bin ln_emac
 claude: .make/mise_install
 	$(MAKE) -C $@ setup
 
+antigravity: .make/mise_install
+	$(MAKE) -C $@ setup
+
 modules_setup: .make/mise_install
 	@for m in $(MODULES); do $(MAKE) -C $$m setup || exit 1; done
 
