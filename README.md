@@ -219,28 +219,20 @@ The root `Makefile` orchestrates these modules via `modules_setup`, `modules_lin
 
 ## Claude Code Status Line
 
-`bin/claude-statusline` prints the Claude Code status line: model and branch on
-the first line, context window usage, rate limit windows and this run's cost on
-the second. It is a symlink into `claude/statusline/index.js`, a Node script split
-across three files: `index.js` (entry point: reads stdin and git, renders the
-two lines), `usage.js` (calls the Claude Agent SDK's
-`usage_EXPERIMENTAL_MAY_CHANGE_DO_NOT_RELY_ON_THIS_API_YET()` for the plan
-rate-limit numbers and decides which window to show), and `format.js` (colors,
-percentages, the countdown format). The SDK call takes the same path `/usage`
-itself takes, so the numbers are always current instead of depending on some
-other action having refreshed a cache first. That method name is Anthropic's
-own warning that the API is unstable and may change or disappear without
-notice. `make ln_bin` symlinks `bin` to `~/bin`, carrying the inner symlinks
-along with it, so the scripts need no links of their own.
+The Claude Code status line is powered by [`ccstatusline`](https://github.com/sammcj/ccstatusline).
+Its configuration is managed under `claude/statusline/settings.json` and symlinked to
+`~/.config/ccstatusline/settings.json`. `bin/ccstatusline` is a symlink into
+`claude/statusline/node_modules/.bin/ccstatusline`, allowing `ccstatusline` to be
+called from `~/bin`.
 
-In addition to the full status line, `bin/claude-statusline-enterprise-credit`
-(a symlink to `claude/statusline/enterprise-credit.js`) formats the Enterprise
-usage-credit segment for status line tools such as `ccstatusline` via a
-`custom-command` widget. It reuses `usage.js` and `format.js` to output the
-credit allowance (e.g. `credit 42% ($4/$10)`) for Enterprise accounts, or
-exits cleanly with no output for standard rate-limit accounts. The `ccstatusline`
-configuration is managed under `claude/statusline/settings.json` and symlinked to
-`~/.config/ccstatusline/settings.json`.
+In addition, `bin/claude-statusline-enterprise-credit` (a symlink to
+`claude/statusline/enterprise-credit.js`) formats the Enterprise usage-credit
+segment for `ccstatusline` via a `custom-command` widget. It reuses `usage.js`
+and `format.js` to output the credit allowance (e.g. `credit 42% ($4/$10)`) for
+Enterprise accounts, or exits cleanly with no output for standard rate-limit accounts.
+
+(Legacy status line: `bin/claude-statusline` is also provided as the previous
+custom script implementation.)
 
 To install dependencies and link the configuration (or after pulling a change to
 `claude/statusline/package.json`):
@@ -258,7 +250,7 @@ the `statusLine` field by hand:
 ```json
 "statusLine": {
   "type": "command",
-  "command": "~/bin/claude-statusline",
+  "command": "ccstatusline",
   "refreshInterval": 60
 }
 ```
@@ -266,16 +258,6 @@ the `statusLine` field by hand:
 Without `refreshInterval` the command runs only on Claude Code's own events, and
 the time remaining on each rate limit window goes stale while the session sits
 idle. The value is in seconds.
-
-Each render pays for a Node startup and an SDK round trip -- around a second in
-practice -- since the rate-limit numbers come from that live call rather than
-the stdin JSON Claude Code hands the command.
-
-See the comment at the top of `claude/statusline/index.js` for what each
-number means -- in particular, the trailing `run $N` tracks the running
-Claude Code process, not the conversation: confirmed by observation, it
-resets to `$0.00` on `/exit` + `/resume`, even when resuming the very same
-conversation (same `session_id` and all).
 
 ## Antigravity CLI Status Line
 
