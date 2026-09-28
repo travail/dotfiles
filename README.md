@@ -209,13 +209,13 @@ op item get GPG-Public-Key-Git-Signing --fields public_key | gpg --import
 
 ## Modules and Directory Structure
 
-To keep tool-specific configurations modular and cohesive, ecosystem-specific files are organized under top-level module directories (e.g. `claude/`, `antigravity/`). Each module provides a standalone `Makefile` conforming to a common interface:
+To keep tool-specific and cross-tool configurations modular and cohesive, configurations are organized under top-level module directories (e.g. `claude/`, `antigravity/`, and `agent/`). Each module provides a standalone `Makefile` conforming to a common interface:
 
 - `setup`: complete module environment setup (includes `link` and any tool-specific dependency installation; the default target `all` depends on it).
 - `link`: create symlinks for module-managed files and scripts.
 - `clean`: remove the symlinks the module created, and only when they still point into this repository; real files and installed dependencies (e.g. `node_modules`) are left in place.
 
-The root `Makefile` orchestrates these modules via `modules_setup`, `modules_link`, and `modules_clean`, and provides individual module shortcuts such as `make claude` and `make antigravity`.
+The root `Makefile` orchestrates these modules via `modules_setup`, `modules_link`, and `modules_clean`, and provides individual module shortcuts such as `make claude`, `make antigravity`, and `make agent`.
 
 ## Claude Code Status Line
 
@@ -291,4 +291,26 @@ missing or improperly configured. Add the `statusLine` field by hand:
   "enabled": true
 }
 ```
+
+## Agent Instructions (AGENTS.md)
+
+Global instructions shared across coding agents (Claude Code and Antigravity CLI) are managed under `agent/AGENTS.md`. `make agent` symlinks this file directly to `~/.claude/AGENTS.md`, `~/.claude/CLAUDE.md`, and (when Antigravity is installed) `~/.gemini/config/AGENTS.md`.
+
+To link the configuration:
+
+```sh
+make agent
+# or: make modules_setup
+```
+
+Machine-specific rules and personal settings (e.g. persona, custom tone) are isolated in a local file (`~/.claude/CLAUDE.local.md`) and imported via `@~/.claude/CLAUDE.local.md` at the end of `agent/AGENTS.md` (active in Claude Code).
+
+### Operational Rules
+
+Because `~/.claude/AGENTS.md` and `~/.claude/CLAUDE.md` directly point to `agent/AGENTS.md` in the working tree of this repository:
+
+1. **Keep the main checkout on `master`**: Always keep the primary checkout (`~/git/dotfiles`) on the `master` branch so symlinks remain valid during everyday use.
+2. **Edit instructions via PR**: Do not edit `agent/AGENTS.md` directly on `master`. Create a feature branch or worktree, make the changes, and merge via pull request.
+3. **Use worktrees for legacy branch inspection**: Switching the main checkout to an older branch that predates the `agent/` module will temporarily break the symlinks to your agent instructions. Use `git worktree` when checking out past branches.
+
 
