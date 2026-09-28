@@ -226,13 +226,20 @@ Its configuration is managed under `claude/statusline/settings.json` and symlink
 called from `~/bin`.
 
 In addition, `bin/claude-statusline-enterprise-credit` (a symlink to
-`claude/statusline/enterprise-credit.js`) formats the Enterprise usage-credit
-segment for `ccstatusline` via a `custom-command` widget. It reuses `usage.js`
-and `format.js` to output the credit allowance (e.g. `credit 42% ($4/$10)`) for
-Enterprise accounts, or exits cleanly with no output for standard rate-limit accounts.
+`claude/statusline/enterprise-credit.js`) formats the 5h/7d or usage-credit
+segment for `ccstatusline` via a `custom-command` widget, replacing
+ccstatusline's own built-in `session-usage`/`weekly-usage`/reset-timer
+widgets. Those built-in widgets call `/api/oauth/usage` directly, which
+returns 429 for an Enterprise seat, so this command fetches usage through
+the Claude Agent SDK instead (reusing `usage.js` and `plan-usage-line.js`)
+and renders whichever shape the account's response reports: `5h: N% (...)
+· 7d: N% (...)` (either window may be absent on its own), or `credit: 42%
+($4/$10)` for a monthly usage-credit allowance. It exits cleanly with no
+output on fetch failure.
 
-(Legacy status line: `bin/claude-statusline` is also provided as the previous
-custom script implementation.)
+(Legacy status line: `bin/claude-statusline`, a symlink to
+`claude/statusline/index.js`, is also provided as the previous custom
+script implementation. It shares the same `plan-usage-line.js` formatting.)
 
 To install dependencies and link the configuration (or after pulling a change to
 `claude/statusline/package.json`):

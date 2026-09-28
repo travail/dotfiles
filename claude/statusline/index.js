@@ -17,7 +17,7 @@
 //               /compact and /clear push it back down. Nearing 100% means
 //               auto-compaction is close.
 //
-//   5h N% (2h13m) / 7d N% (3d11h20m)
+//   5h: N% (2h13m) · 7d: N% (3d11h20m)
 //               How much of the subscription's rolling 5-hour and 7-day usage
 //               allowances is already spent. Both windows count every session
 //               inside the period, not just this one, so panes running side by
@@ -37,7 +37,7 @@
 //               -- but a remainder is a fixed instant minus the clock, so
 //               recomputing it locally is enough.
 //
-//   credit N% ($N/$M)
+//   credit: N% ($N/$M)
 //               Only shown in place of 5h/7d -- see usage.js's
 //               selectPlanUsage() for exactly when. No resets_at ships
 //               alongside it, so unlike 5h/7d there is no remaining-time
@@ -82,8 +82,9 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { basename } from "node:path";
-import { CYAN, DIM, RESET, pctColor, remainingTime, round } from "./format.js";
+import { CYAN, DIM, RESET, pctColor, round } from "./format.js";
 import { fetchUsage, selectPlanUsage } from "./usage.js";
+import { formatPlanUsage } from "./plan-usage-line.js";
 
 function readStdin() {
   try {
@@ -134,33 +135,7 @@ function renderSessionSummary({ model, effort, branch, repo }) {
 }
 
 function renderPlanSegment(planUsage) {
-  if (!planUsage) return "";
-
-  if (planUsage.kind === "credit") {
-    const { pct, used, limit } = planUsage;
-    const usedDisplay = used !== null ? Math.round(used) : used;
-    const limitDisplay = limit !== null ? Math.round(limit) : limit;
-    return `credit ${pctColor(pct)}${pct}%${RESET} ${DIM}($${usedDisplay}/$${limitDisplay})${RESET}`;
-  }
-
-  const now = Date.now();
-  let plan = "";
-  if (planUsage.fiveHour) {
-    const { pct, resetsAtMs } = planUsage.fiveHour;
-    plan = `5h ${pctColor(pct)}${pct}%${RESET}`;
-    if (resetsAtMs !== null) {
-      plan += ` ${DIM}(${remainingTime(resetsAtMs, now)})${RESET}`;
-    }
-  }
-  if (planUsage.sevenDay) {
-    const { pct, resetsAtMs } = planUsage.sevenDay;
-    if (plan) plan += ` ${DIM}·${RESET} `;
-    plan += `7d ${pctColor(pct)}${pct}%${RESET}`;
-    if (resetsAtMs !== null) {
-      plan += ` ${DIM}(${remainingTime(resetsAtMs, now)})${RESET}`;
-    }
-  }
-  return plan;
+  return formatPlanUsage(planUsage);
 }
 
 // What this session has spent: context window usage, plan rate limits and cost.

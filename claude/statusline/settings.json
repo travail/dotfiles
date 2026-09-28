@@ -37,71 +37,11 @@
         "rawValue": true
       },
       {
-        "id": "txt-5h",
-        "type": "custom-text",
-        "customText": "5h: ",
-        "merge": "no-padding"
-      },
-      {
-        "id": "session-usage",
-        "type": "session-usage",
-        "rawValue": true,
-        "merge": "no-padding"
-      },
-      {
-        "id": "txt-5h-open",
-        "type": "custom-text",
-        "customText": " (",
-        "merge": "no-padding"
-      },
-      {
-        "id": "reset-timer",
-        "type": "reset-timer",
-        "rawValue": true,
-        "compact": true,
-        "merge": "no-padding"
-      },
-      {
-        "id": "txt-5h-close",
-        "type": "custom-text",
-        "customText": ")"
-      },
-      {
-        "id": "txt-7d",
-        "type": "custom-text",
-        "customText": "7d: ",
-        "merge": "no-padding"
-      },
-      {
-        "id": "weekly-usage",
-        "type": "weekly-usage",
-        "rawValue": true,
-        "merge": "no-padding"
-      },
-      {
-        "id": "txt-7d-open",
-        "type": "custom-text",
-        "customText": " (",
-        "merge": "no-padding"
-      },
-      {
-        "id": "weekly-reset-timer",
-        "type": "weekly-reset-timer",
-        "rawValue": true,
-        "compact": true,
-        "merge": "no-padding"
-      },
-      {
-        "id": "txt-7d-close",
-        "type": "custom-text",
-        "customText": ")"
-      },
-      {
         "id": "enterprise-credit",
         "type": "custom-command",
         "commandPath": "claude-statusline-enterprise-credit",
         "timeout": 5000,
-        "preserveColors": true
+        "dim": "parens"
       },
       {
         "id": "cost",
