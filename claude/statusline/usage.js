@@ -64,11 +64,14 @@ export async function fetchUsage() {
 //
 // A Claude.ai Pro/Max seat reports rate_limits.five_hour / .seven_day. An
 // Enterprise seat billed through a Claude apps gateway (e.g. AWS
-// Marketplace) gets those back as null -- it runs on a monthly usage-credit
-// allowance instead, reported in the same response under
-// rate_limits.extra_usage. Both shapes come back in the same call; this is
-// a display choice between them, not two separate fetches, so it is only
-// ever one or the other, never both.
+// Marketplace) may instead run on a monthly usage-credit allowance,
+// reported in the same response under rate_limits.extra_usage -- but an
+// Enterprise seat isn't guaranteed to have five_hour/seven_day both null;
+// observed in practice with five_hour set and seven_day null, extra_usage
+// disabled. Which shape a given account reports is a fact of its plan
+// entitlements, not something this file predicts from the seat type. Both
+// shapes come back in the same call; this is a display choice between
+// them, not two separate fetches.
 //
 // Returns { kind: "plan", fiveHour, sevenDay } or { kind: "credit", pct,
 // used, limit } or null when neither is available. fiveHour/sevenDay are
