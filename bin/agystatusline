@@ -1,0 +1,121 @@
+#!/usr/bin/env python3
+import sys
+import json
+import subprocess
+import os
+import shutil
+
+def find_real_bin():
+    if "AGYSTATUSLINE_BIN" in os.environ and os.path.exists(os.environ["AGYSTATUSLINE_BIN"]):
+        return os.environ["AGYSTATUSLINE_BIN"]
+
+    self_path = os.path.realpath(__file__)
+
+    # 1. Search for agystatusline-bin in PATH
+    bin_path = shutil.which("agystatusline-bin")
+    if bin_path and os.path.realpath(bin_path) != self_path:
+        return bin_path
+
+    # 2. Search for agystatusline_real in PATH
+    bin_path = shutil.which("agystatusline_real")
+    if bin_path and os.path.realpath(bin_path) != self_path:
+        return bin_path
+
+    # 3. Known fallback paths
+    home = os.path.expanduser("~")
+    candidates = [
+        os.path.join(home, ".local/share/mise/installs/go/1.26.5/bin/agystatusline-bin"),
+        os.path.join(home, "go/bin/agystatusline-bin"),
+        os.path.join(home, ".local/bin/agystatusline-bin"),
+    ]
+    for c in candidates:
+        if os.path.exists(c) and os.path.realpath(c) != self_path:
+            return c
+
+    # 4. Search all 'agystatusline' executables in PATH that are not this wrapper
+    path_dirs = os.environ.get("PATH", "").split(os.pathsep)
+    for d in path_dirs:
+        candidate = os.path.join(d, "agystatusline")
+        if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+            if os.path.realpath(candidate) != self_path:
+                return candidate
+
+    return None
+
+def main():
+    raw_input = sys.stdin.buffer.read()
+
+    # 1. Parse telemetry JSON
+    modified_input = raw_input
+    mode = "default"
+    if raw_input:
+        try:
+            data = json.loads(raw_input.decode('utf-8', errors='ignore'))
+
+            # Determine cycle mode strictly from telemetry
+            cm = data.get('cycle_mode')
+            if cm and cm.strip() and cm != 'default':
+                mode = cm.strip()
+            else:
+                mode = "default"
+
+            # Invert quota remaining_fraction to display consumption (% used) instead of remaining
+            quota = data.get('quota')
+            if isinstance(quota, dict):
+                for bucket in quota.values():
+                    if isinstance(bucket, dict) and 'remaining_fraction' in bucket:
+                        rf = bucket.get('remaining_fraction')
+                        if isinstance(rf, (int, float)):
+                            bucket['remaining_fraction'] = max(0.0, min(1.0, 1.0 - float(rf)))
+                modified_input = json.dumps(data).encode('utf-8')
+        except Exception:
+            mode = "default"
+            modified_input = raw_input
+
+    # 2. Run real agystatusline binary
+    real_bin = find_real_bin()
+    raw_output = ""
+    if real_bin:
+        try:
+            p = subprocess.run([real_bin] + sys.argv[1:], input=modified_input, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            raw_output = p.stdout.decode('utf-8', errors='replace')
+        except Exception:
+            pass
+
+    if not raw_output:
+        sys.stdout.write(f"⏵⏵ {mode} mode on (shift+tab to cycle)\n")
+        return
+
+    # 3. Solarized Colors for mode segment (TrueColor palette)
+    # - accept-edits: Cyan (42, 161, 152) / base03 text (7, 54, 66)
+    # - plan: Violet (108, 113, 196) / base3 bold text (253, 246, 227)
+    # - default: Blue (38, 139, 210) / base3 bold text (253, 246, 227)
+    mode_styles = {
+        'accept-edits': ('⚡', '\x1b[48;2;42;161;152m', '\x1b[38;2;42;161;152m', '\x1b[38;2;7;54;66;1m'),
+        'plan': ('📋', '\x1b[48;2;108;113;196m', '\x1b[38;2;108;113;196m', '\x1b[38;2;253;246;227;1m'),
+        'default': ('🛡', '\x1b[48;2;38;139;210m', '\x1b[38;2;38;139;210m', '\x1b[38;2;253;246;227;1m')
+    }
+
+    icon, bg_code, fg_code, text_fg = mode_styles.get(mode, mode_styles['default'])
+
+    lines = raw_output.splitlines(keepends=True)
+    first_line = lines[0].rstrip('\r\n')
+
+    # Seamlessly join into the first line Powerline pill
+    pos = first_line.rfind('\ue0b4')
+    if pos != -1:
+        # Replace \ue0b4 with arrow separator and append mode segment with cap
+        # The bytes before \ue0b4 have the previous segment's color set as foreground.
+        replacement = f"{bg_code}\ue0b0\x1b[49m\x1b[39m{text_fg}{bg_code} {icon} {mode} \x1b[49m\x1b[39m{fg_code}\ue0b4\x1b[0m"
+        new_first_line = first_line[:pos] + replacement
+        sys.stdout.write(f"{new_first_line}\n")
+    else:
+        # Fallback if no cap found
+        pill = f" {fg_code}{bg_code}{text_fg} {icon} {mode} \x1b[0m{fg_code}\x1b[0m"
+        sys.stdout.write(f"{first_line}{pill}\n")
+
+    for line in lines[1:]:
+        sys.stdout.write(line)
+
+if __name__ == '__main__':
+    main()

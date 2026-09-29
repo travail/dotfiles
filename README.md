@@ -269,7 +269,7 @@ idle. The value is in seconds.
 
 ## Antigravity CLI Status Line
 
-The Antigravity CLI (agy) status line is powered by `yuys13/agystatusline`, a Go-based status line generator supporting Powerline and Solarized styling. Its configuration is managed under `antigravity/settings.toml` and symlinked to `~/.config/agystatusline/settings.toml`.
+The Antigravity CLI (agy) status line is powered by `yuys13/agystatusline`, a Go-based status line generator supporting Powerline and Solarized styling. Its configuration is managed under `antigravity/settings.toml` and symlinked to `~/.config/agystatusline/settings.toml`. A wrapper script in `bin/agystatusline` synchronizes current edit modes (`default`, `accept-edits`, `plan`) into the status line pill and inverts quota percentages to display usage consumption matching `ccstatusline`.
 
 To install the binary and link the configuration:
 
