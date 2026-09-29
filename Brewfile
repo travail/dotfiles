@@ -1,3 +1,4 @@
+tap "lambdalisue/cclens"
 tap "metalbear-co/mirrord"
 
 brew "git"
@@ -12,6 +13,7 @@ brew "tree"
 brew "aqua"
 brew "kubernetes-cli"
 brew "k9s"
+brew "lambdalisue/cclens/cclens"
 brew "metalbear-co/mirrord/mirrord"
 brew "mise"
 brew "uv"
