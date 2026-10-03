@@ -89,7 +89,8 @@ ln_tmux: tmux.conf
 	rm -f $(HOME)/.tmux.conf
 	ln -sfn $(PWD)/tmux.conf $(HOME)/.config/tmux/tmux.conf
 
-ln_zshrc: zshrc
+ln_zshrc: zshrc zshenv
+	ln -sfn $(PWD)/zshenv ~/.zshenv
 	ln -sfn $(PWD)/zshrc ~/.zshrc && ln -sfn $(PWD)/zsh ~/.zsh
 	mkdir -p $(HOME)/.cache/shell
 
@@ -139,6 +140,7 @@ clean:
 	rm -f ~/.perltidyrc
 	rm -f ~/.tmux.conf
 	rm -f ~/bin
+	rm -f ~/.zshenv
 	rm -f ~/.zshrc
 	rm -rf ~/.zsh
 	rm -f ~/.gemrc
