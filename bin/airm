@@ -13,6 +13,11 @@ clean_trash() {
         return 0
     fi
 
+    if ! [[ "$days" =~ ^[0-9]+$ ]]; then
+        echo "airm: --clean: invalid days: $days" >&2
+        exit 1
+    fi
+
     if [[ "$days" -eq 0 ]]; then
         # Remove all session directories
         find "$TRASH_ROOT" -mindepth 1 -maxdepth 1 -type d -exec /bin/rm -rf {} + 2>/dev/null || true
@@ -195,10 +200,14 @@ session_name="$(date +%Y%m%d-%H%M%S)-$$"
 session_dir="$TRASH_ROOT/$session_name"
 mkdir -p "$session_dir"
 
+idx=0
 for target in "${valid_targets[@]}"; do
-    mv "$target" "$session_dir/"
+    idx=$((idx + 1))
+    target_dest_dir="$session_dir/$idx"
+    mkdir -p "$target_dest_dir"
+    mv "$target" "$target_dest_dir/"
     if [[ "$verbose" == true ]]; then
-        echo "$target -> $session_dir/$(basename "$target")"
+        echo "$target -> $target_dest_dir/$(basename "$target")"
     fi
 done
 
