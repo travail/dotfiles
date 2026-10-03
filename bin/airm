@@ -9,21 +9,22 @@ TRASH_ROOT="${AIRM_TRASH_DIR:-$HOME/.cache/airm/trash}"
 
 clean_trash() {
     local days="${1:-0}"
-    if [[ ! -d "$TRASH_ROOT" ]]; then
-        return 0
-    fi
-
     if ! [[ "$days" =~ ^[0-9]+$ ]]; then
         echo "airm: --clean: invalid days: $days" >&2
         exit 1
     fi
 
-    if [[ "$days" -eq 0 ]]; then
+    if [[ ! -d "$TRASH_ROOT" ]]; then
+        return 0
+    fi
+
+    local days_num=$((10#$days))
+    if [[ "$days_num" -eq 0 ]]; then
         # Remove all session directories
         find "$TRASH_ROOT" -mindepth 1 -maxdepth 1 -type d -exec /bin/rm -rf {} + 2>/dev/null || true
     else
         # Remove session directories older than N days (N * 1440 minutes)
-        local minutes=$((days * 1440))
+        local minutes=$((days_num * 1440))
         find "$TRASH_ROOT" -mindepth 1 -maxdepth 1 -type d -mmin +"$minutes" -exec /bin/rm -rf {} + 2>/dev/null || true
     fi
 }
