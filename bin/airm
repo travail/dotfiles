@@ -1,0 +1,208 @@
+#!/usr/bin/env bash
+#
+# airm - Safe replacement for rm that moves files to a trash directory
+#
+
+set -euo pipefail
+
+TRASH_ROOT="${AIRM_TRASH_DIR:-$HOME/.cache/airm/trash}"
+
+clean_trash() {
+    local days="${1:-0}"
+    if [[ ! -d "$TRASH_ROOT" ]]; then
+        return 0
+    fi
+
+    if [[ "$days" -eq 0 ]]; then
+        # Remove all session directories
+        find "$TRASH_ROOT" -mindepth 1 -maxdepth 1 -type d -exec /bin/rm -rf {} + 2>/dev/null || true
+    else
+        # Remove session directories older than N days (N * 1440 minutes)
+        local minutes=$((days * 1440))
+        find "$TRASH_ROOT" -mindepth 1 -maxdepth 1 -type d -mmin +"$minutes" -exec /bin/rm -rf {} + 2>/dev/null || true
+    fi
+}
+
+prune_trash_auto() {
+    if [[ -d "$TRASH_ROOT" ]]; then
+        # 30 days = 43200 minutes
+        find "$TRASH_ROOT" -mindepth 1 -maxdepth 1 -type d -mmin +43200 -exec /bin/rm -rf {} + 2>/dev/null || true
+    fi
+}
+
+# Check for --clean subcommand
+if [[ "${1:-}" == "--clean" ]]; then
+    shift
+    days=0
+    if [[ $# -ge 1 ]]; then
+        days="$1"
+    fi
+    clean_trash "$days"
+    exit 0
+fi
+
+recursive=false
+dir_only=false
+force=false
+verbose=false
+targets=()
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --)
+            shift
+            while [[ $# -gt 0 ]]; do
+                targets+=("$1")
+                shift
+            done
+            break
+            ;;
+        -r|-R|--recursive)
+            recursive=true
+            shift
+            ;;
+        -d|--dir)
+            dir_only=true
+            shift
+            ;;
+        -f|--force)
+            force=true
+            shift
+            ;;
+        -v|--verbose)
+            verbose=true
+            shift
+            ;;
+        -i)
+            # Dummy option, ignored
+            shift
+            ;;
+        -[!-]*)
+            # Handle combined short options like -rf, -rv, etc.
+            opts="${1#-}"
+            shift
+            for (( i=0; i<${#opts}; i++ )); do
+                opt="${opts:$i:1}"
+                case "$opt" in
+                    r|R) recursive=true ;;
+                    d) dir_only=true ;;
+                    f) force=true ;;
+                    v) verbose=true ;;
+                    i) ;; # dummy
+                    *)
+                        echo "airm: illegal option -- $opt" >&2
+                        exit 1
+                        ;;
+                esac
+            done
+            ;;
+        *)
+            targets+=("$1")
+            shift
+            ;;
+    esac
+done
+
+if [[ ${#targets[@]} -eq 0 ]]; then
+    if [[ "$force" == true ]]; then
+        exit 0
+    fi
+    echo "usage: airm [-f | -i] [-dPRrvW] file ..." >&2
+    exit 1
+fi
+
+real_trash_root=""
+if [[ -d "$TRASH_ROOT" ]]; then
+    real_trash_root="$(cd "$TRASH_ROOT" && pwd -P)"
+fi
+
+# Pre-validate all targets transactionally before moving anything
+valid_targets=()
+has_error=false
+
+for target in "${targets[@]}"; do
+    # Check if target is trash root or parent of trash root
+    if [[ -n "$real_trash_root" ]] && [[ -e "$target" ]]; then
+        target_abs=""
+        if [[ -d "$target" ]]; then
+            target_abs="$(cd "$target" && pwd -P)"
+        else
+            target_dir="$(dirname "$target")"
+            if [[ -d "$target_dir" ]]; then
+                target_abs="$(cd "$target_dir" && pwd -P)/$(basename "$target")"
+            fi
+        fi
+        if [[ -n "$target_abs" && ("$target_abs" == "$real_trash_root" || "$real_trash_root" == "$target_abs"/*) ]]; then
+            echo "airm: refusing to remove trash directory: $target" >&2
+            has_error=true
+            continue
+        fi
+    fi
+
+    # Check existence
+    if [[ ! -e "$target" && ! -L "$target" ]]; then
+        if [[ "$force" == false ]]; then
+            echo "airm: $target: No such file or directory" >&2
+            has_error=true
+        fi
+        continue
+    fi
+
+    # Check directory vs symlink
+    if [[ -d "$target" && ! -L "$target" ]]; then
+        # Real directory
+        if [[ "$recursive" == true ]]; then
+            valid_targets+=("$target")
+        elif [[ "$dir_only" == true ]]; then
+            # Empty directory check
+            if [[ -z "$(ls -A "$target" 2>/dev/null)" ]]; then
+                valid_targets+=("$target")
+            else
+                echo "airm: $target: Directory not empty" >&2
+                has_error=true
+            fi
+        else
+            echo "airm: $target: is a directory" >&2
+            has_error=true
+        fi
+    elif [[ -L "$target" && "$target" == */ ]]; then
+        # Trailing slash on symlink targets directory
+        if [[ "$recursive" == true ]]; then
+            valid_targets+=("$target")
+        elif [[ "$dir_only" == true && -z "$(ls -A "$target" 2>/dev/null)" ]]; then
+            valid_targets+=("$target")
+        else
+            echo "airm: $target: is a directory" >&2
+            has_error=true
+        fi
+    else
+        # Regular file or symlink
+        valid_targets+=("$target")
+    fi
+done
+
+if [[ "$has_error" == true ]]; then
+    exit 1
+fi
+
+if [[ ${#valid_targets[@]} -eq 0 ]]; then
+    exit 0
+fi
+
+# Create unique session directory
+session_name="$(date +%Y%m%d-%H%M%S)-$$"
+session_dir="$TRASH_ROOT/$session_name"
+mkdir -p "$session_dir"
+
+for target in "${valid_targets[@]}"; do
+    mv "$target" "$session_dir/"
+    if [[ "$verbose" == true ]]; then
+        echo "$target -> $session_dir/$(basename "$target")"
+    fi
+done
+
+# Perform auto prune after successful removal
+prune_trash_auto
+
+exit 0
