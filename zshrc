@@ -29,6 +29,8 @@ is_human || return 0
 # Human interactive shell settings
 export EDITOR=vim
 export PAGER=less
+# Ensure emacs keybindings even when EDITOR is vi/vim
+bindkey -e
 # Required for GPG to find the TTY for passphrase input.
 # Redundant since pinentry-mac handles it via GUI dialog, but kept as a fallback.
 export GPG_TTY=$(tty)
