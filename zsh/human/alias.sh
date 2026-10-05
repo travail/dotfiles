@@ -6,6 +6,7 @@ case ${OSTYPE} in
         alias ls='ls -F --color=auto'
         ;;
 esac
+alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
 alias eng='LANG=C LANGUAGE=C LC_ALL=C'

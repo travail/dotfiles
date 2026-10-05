@@ -62,8 +62,8 @@ Upgrades all uv-managed tools (e.g. `claude-monitor`).
 The shell environment is configured as AI agent-first with human opt-in:
 
 - **`~/.zshenv` (`zshenv`)**: Evaluates `is_human` (checking for TTY and agent environment variables such as `CLAUDECODE`, `AI_AGENT`, and `ANTIGRAVITY_APP_DATA_DIR`). Non-human / AI agent shells export fail-fast settings (`EDITOR=true`, `PAGER=cat`, `GIT_TERMINAL_PROMPT=0`) to avoid hanging on interactive prompts.
-- **`~/.zshrc` (`zshrc`)**: Structured into `zsh/common` (tools, PATH, 1Password wrappers for `gh` and `aws`) before an early return guard (`is_human || return 0`), and `zsh/human` (interactive prompt, completion, Zim, aliases) after the guard. This prevents heavy plugins and interactive confirmation aliases (`cp -i`, `mv -i`) from leaking into agent snapshots and slowing down shell execution.
-- **`airm` (`bin/airm`)**: Safe replacement for `rm` mapped via `alias rm=airm` across both human and agent environments. Instead of permanent deletion, files are moved into timestamped session directories under `~/.cache/airm/trash/`. It includes automatic pruning (run synchronously after each successful removal) of session directories older than 30 days and a manual `airm --clean [days]` command.
+- **`~/.zshrc` (`zshrc`)**: Structured into `zsh/common` (tools, PATH, 1Password wrappers for `gh` and `aws`) before an early return guard (`is_human || return 0`), and `zsh/human` (interactive prompt, completion, Zim, aliases) after the guard. This prevents heavy plugins and interactive confirmation aliases (`rm -i`, `cp -i`, `mv -i`) from leaking into agent snapshots and slowing down shell execution.
+- **`airm` (`bin/airm`)**: Safe replacement for `rm` mapped via `alias rm=airm` in AI agent environments. In human interactive shells, the traditional `rm -i` is preserved. Instead of permanent deletion, files are moved into timestamped session directories under `~/.cache/airm/trash/`. It includes automatic pruning (run synchronously after each successful removal) of session directories older than 30 days and a manual `airm --clean [days]` command.
 
 ## Zsh Setup
 

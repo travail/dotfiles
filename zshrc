@@ -20,8 +20,8 @@ if [ -d ~/.zsh.local ]; then
     done
 fi
 
-# rm safety wrapper
-alias rm=airm
+# rm safety wrapper (AI agent only)
+! is_human && alias rm=airm
 
 # Early return for AI / non-human shell
 is_human || return 0
