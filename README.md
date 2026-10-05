@@ -57,6 +57,14 @@ uv tool upgrade --all
 
 Upgrades all uv-managed tools (e.g. `claude-monitor`).
 
+## AI Agent Optimization
+
+The shell environment is configured as AI agent-first with human opt-in:
+
+- **`~/.zshenv` (`zshenv`)**: Evaluates `is_human` (checking for TTY and agent environment variables such as `CLAUDECODE`, `AI_AGENT`, and `ANTIGRAVITY_APP_DATA_DIR`). Non-human / AI agent shells export fail-fast settings (`EDITOR=true`, `PAGER=cat`, `GIT_TERMINAL_PROMPT=0`) to avoid hanging on interactive prompts.
+- **`~/.zshrc` (`zshrc`)**: Structured into `zsh/common` (tools, PATH, 1Password wrappers for `gh` and `aws`) before an early return guard (`is_human || return 0`), and `zsh/human` (interactive prompt, completion, Zim, aliases) after the guard. This prevents heavy plugins and interactive confirmation aliases (`rm -i`, `cp -i`, `mv -i`) from leaking into agent snapshots and slowing down shell execution.
+- **`airm` (`bin/airm`)**: Safe replacement for `rm` mapped via `alias rm=airm` in AI agent environments. In human interactive shells, the traditional `rm -i` is preserved. Instead of permanent deletion, files are moved into timestamped session directories under `~/.cache/airm/trash/`. It includes automatic pruning (run synchronously after each successful removal) of session directories older than 30 days and a manual `airm --clean [days]` command.
+
 ## Zsh Setup
 
 ### Zim
@@ -102,6 +110,11 @@ The following tools are managed by aqua (see `aqua.yaml`):
 | [fzf](https://github.com/junegunn/fzf) | Fuzzy finder |
 | [jq](https://github.com/jqlang/jq) | JSON processor |
 | [ripgrep](https://github.com/BurntSushi/ripgrep) | Fast grep |
+| [fd](https://github.com/sharkdp/fd) | Simple, fast user-friendly alternative to find |
+| [yq](https://github.com/mikefarah/yq) | Portable command-line YAML processor |
+| [shellcheck](https://github.com/koalaman/shellcheck) | Shell script static analysis tool |
+| [shfmt](https://github.com/mvdan/sh) | Shell script formatter |
+| [ast-grep](https://github.com/ast-grep/ast-grep) | Fast and polyglot tool for code searching and rewriting |
 | [uv](https://github.com/astral-sh/uv) | Python package manager |
 | [delta](https://github.com/dandavison/delta) | Git diff pager |
 | [lazygit](https://github.com/jesseduffield/lazygit) | TUI git client (`lg`) |

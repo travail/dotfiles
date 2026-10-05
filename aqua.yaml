@@ -19,3 +19,13 @@ packages:
     version: v0.61.1
   - name: golang.org/x/tools/gopls
     version: v0.22.0
+  - name: sharkdp/fd
+    version: v10.5.0
+  - name: mikefarah/yq
+    version: v4.54.1
+  - name: koalaman/shellcheck
+    version: v0.11.0
+  - name: mvdan/sh
+    version: v3.14.1
+  - name: ast-grep/ast-grep
+    version: 0.45.3
