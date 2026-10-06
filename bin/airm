@@ -2,6 +2,47 @@
 #
 # airm - Safe replacement for rm that moves files to a trash directory
 #
+# Origin:
+#   Introduced in PR #132 (https://github.com/travail/dotfiles/pull/132)
+#
+# Design & Architecture:
+#   1. AI Agent Safety Guard:
+#      AI agents frequently execute shell commands autonomously where an unintended
+#      `rm` command could permanently destroy uncommitted work or important files.
+#      `airm` serves as an rm-compatible replacement that moves targets into a trash
+#      directory (~/.cache/airm/trash by default, configurable via AIRM_TRASH_DIR)
+#      rather than unlinking them immediately.
+#
+#   2. Collision Prevention via Session & Index Subdirectories:
+#      Each invocation of `airm` generates a dedicated session directory:
+#        $AIRM_TRASH_DIR/<YYYYMMDD-HHMMSS>-<PID>/
+#      Within each session, targets are moved into sequential index subdirectories:
+#        $AIRM_TRASH_DIR/<session>/1/<target_basename>
+#        $AIRM_TRASH_DIR/<session>/2/<target_basename>
+#      This ensures that removing multiple files with identical basenames across
+#      different directories (or consecutive removals in the same session) will never
+#      overwrite each other in the trash.
+#
+#   3. Transactional Pre-Validation:
+#      Before moving any target, `airm` inspects all supplied arguments:
+#      - Verifies file/directory existence (unless -f is provided).
+#      - Enforces recursive (-r/-R) or directory (-d) flags when targets are directories.
+#      - Guards against deleting the trash directory itself or its ancestors.
+#      If any validation fails, execution aborts immediately without moving any targets,
+#      preserving atomicity and preventing partial deletions.
+#
+#   4. Automatic Pruning:
+#      After every successful removal operation, `airm` synchronously prunes session
+#      directories older than 30 days (43,200 minutes) to prevent unbounded disk growth.
+#
+# Trash Maintenance & Usage:
+#   - Normal removal:
+#       airm [-f | -i] [-dPRrvW] file ...
+#   - Display help:
+#       airm -h | --help
+#   - Clean trash older than N days (removes all session directories if days is 0 or omitted):
+#       airm --clean [days]
+#
 
 set -euo pipefail
 
@@ -36,7 +77,35 @@ prune_trash_auto() {
     fi
 }
 
-# Check for --clean subcommand
+show_help() {
+    cat << 'EOF'
+usage: airm [-f | -i] [-dPRrvW] file ...
+       airm -h | --help
+       airm --clean [days]
+
+Safe replacement for rm that moves files to a trash directory.
+
+Options:
+  -f, --force      Ignore nonexistent files and arguments, never prompt
+  -i               Prompt before any removal (ignored for agent fail-fast)
+  -d, --dir        Remove empty directories
+  -r, -R,          Remove directories and their contents recursively
+  --recursive
+  -v, --verbose    Explain what is being done
+  -h, --help       Display this help and exit
+
+Maintenance:
+  --clean [days]   Clean trash session directories older than [days] days
+                   (removes all session directories if days is 0 or omitted)
+EOF
+}
+
+# Check for subcommands and help
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    show_help
+    exit 0
+fi
+
 if [[ "${1:-}" == "--clean" ]]; then
     shift
     days=0
@@ -63,6 +132,10 @@ while [[ $# -gt 0 ]]; do
                 shift
             done
             break
+            ;;
+        -h|--help)
+            show_help
+            exit 0
             ;;
         -r|-R|--recursive)
             recursive=true
@@ -91,6 +164,10 @@ while [[ $# -gt 0 ]]; do
             for (( i=0; i<${#opts}; i++ )); do
                 opt="${opts:$i:1}"
                 case "$opt" in
+                    h)
+                        show_help
+                        exit 0
+                        ;;
                     r|R) recursive=true ;;
                     d) dir_only=true ;;
                     f) force=true ;;
