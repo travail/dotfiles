@@ -28,6 +28,12 @@ jobs:
 
       - name: ask Gemini whether README.md needs updating
         id: check
+        # Safety net for a hang the script's own fallback logic can't catch:
+        # that logic only reacts to a 429/503 the API actually returns, but
+        # a request that just never responds raises no exception for it to
+        # see (see travail/etiage#81). This is the only thing that can end
+        # that case.
+        timeout-minutes: 1
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           BASE_REF: ${{ github.base_ref }}
