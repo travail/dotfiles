@@ -81,7 +81,10 @@ spawn_and_prime_agent() {
     return 1
   fi
 
-  herdr pane run "$pane" "claude" >&2
+  # Start in auto mode explicitly: a freshly started claude does not always
+  # come up in the mode configured as `defaultMode`, and outside auto mode
+  # the agent stops at every permission prompt.
+  herdr pane run "$pane" "claude --permission-mode auto" >&2
 
   # herdr needs a moment to detect the freshly spawned agent -- `herdr agent
   # wait` errors immediately (no retry) if the target isn't registered yet,
