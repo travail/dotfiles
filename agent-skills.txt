@@ -1,6 +1,0 @@
-ogulcancelik/herdr:herdr
-kepano/obsidian-skills:obsidian-markdown
-kepano/obsidian-skills:obsidian-cli
-kepano/obsidian-skills:obsidian-bases
-kepano/obsidian-skills:json-canvas
-kepano/obsidian-skills:defuddle
