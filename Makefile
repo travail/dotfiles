@@ -1,4 +1,4 @@
-PWD=$(shell pwd)
+PWD := $(CURDIR)
 UNAME := $(shell uname)
 
 MODULES := claude antigravity
