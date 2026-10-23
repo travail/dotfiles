@@ -97,22 +97,31 @@ It aligns `dotfiles` with all other active projects (`anv`, `etiage`, `manglane`
 
 ## Migration Execution Runbook
 
-When executing the actual migration, run the following commands sequentially:
+To prevent shell incompatibility (since default interactive shells such as zsh do not support `shopt`) and to minimize the dangling symlink window to milliseconds, do not paste commands directly into an interactive shell.
+Instead, save the following as a script (e.g. `/tmp/migrate-dotfiles.sh`) and execute it with `bash`:
 
 ```bash
+#!/bin/bash
+set -euo pipefail
+
 # 1. Create the master clone directory
-mkdir -p ~/git/dotfiles/master
+mkdir -p "$HOME/git/dotfiles/master"
 
 # 2. Move all repository contents into master (excluding .claude)
 shopt -s dotglob
-for item in ~/git/dotfiles/*; do
+for item in "$HOME/git/dotfiles"/*; do
   base=$(basename "$item")
   if [ "$base" != "master" ] && [ "$base" != ".claude" ]; then
-    mv "$item" ~/git/dotfiles/master/
+    mv "$item" "$HOME/git/dotfiles/master/"
   fi
 done
 shopt -u dotglob
 
 # 3. Immediately regenerate symlinks to point to master
-make -C ~/git/dotfiles/master
+make -C "$HOME/git/dotfiles/master"
+```
+
+Execution:
+```sh
+bash /tmp/migrate-dotfiles.sh
 ```
