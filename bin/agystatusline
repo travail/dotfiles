@@ -92,10 +92,9 @@ def main():
             pass
 
     if not raw_output:
+        sys.stdout.write(f"⏵⏵ {mode} mode on (shift+tab to cycle)\n")
         if conversation_title:
-            sys.stdout.write(f"⏵⏵ {mode} mode on [{conversation_title}] (shift+tab to cycle)\n")
-        else:
-            sys.stdout.write(f"⏵⏵ {mode} mode on (shift+tab to cycle)\n")
+            sys.stdout.write(f"⏵⏵ session: {conversation_title}\n")
         return
 
     # 3. Solarized Colors for mode segment (TrueColor palette)
@@ -117,30 +116,30 @@ def main():
     session_text_fg = '\x1b[38;2;253;246;227;1m'
     session_icon = '✳'
 
-    if conversation_title:
-        tail = (
-            f"\x1b[49m\x1b[39m{fg_code}{session_bg}\ue0b0"
-            f"\x1b[49m\x1b[39m{session_text_fg}{session_bg} {session_icon} {conversation_title} "
-            f"\x1b[49m\x1b[39m{session_fg}\ue0b4\x1b[0m"
-        )
-    else:
-        tail = f"\x1b[49m\x1b[39m{fg_code}\ue0b4\x1b[0m"
-
     lines = raw_output.splitlines(keepends=True)
     first_line = lines[0].rstrip('\r\n')
 
-    # Seamlessly join into the first line Powerline pill
+    # Seamlessly join mode segment into the first line Powerline pill
+    mode_tail = f"\x1b[49m\x1b[39m{fg_code}\ue0b4\x1b[0m"
     pos = first_line.rfind('\ue0b4')
     if pos != -1:
-        # Replace \ue0b4 with arrow separator and append mode segment (and session segment if present)
+        # Replace \ue0b4 with arrow separator and append mode segment with cap
         # The bytes before \ue0b4 have the previous segment's color set as foreground.
-        replacement = f"{bg_code}\ue0b0\x1b[49m\x1b[39m{text_fg}{bg_code} {icon} {mode} {tail}"
+        replacement = f"{bg_code}\ue0b0\x1b[49m\x1b[39m{text_fg}{bg_code} {icon} {mode} {mode_tail}"
         new_first_line = first_line[:pos] + replacement
         sys.stdout.write(f"{new_first_line}\n")
     else:
         # Fallback if no cap found
-        pill = f" {fg_code}{bg_code}{text_fg} {icon} {mode} {tail}"
+        pill = f" {fg_code}{bg_code}{text_fg} {icon} {mode} {mode_tail}"
         sys.stdout.write(f"{first_line}{pill}\n")
+
+    # 5. Output session segment as a dedicated line if present (3-line layout)
+    if conversation_title:
+        session_line = (
+            f"\x1b[0m{session_fg}\ue0b6\x1b[39m{session_text_fg}{session_bg} "
+            f"{session_icon} {conversation_title} \x1b[49m\x1b[39m{session_fg}\ue0b4\x1b[0m\n"
+        )
+        sys.stdout.write(session_line)
 
     for line in lines[1:]:
         sys.stdout.write(line)
