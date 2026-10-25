@@ -4,6 +4,7 @@ import json
 import subprocess
 import os
 import shutil
+import glob
 
 def find_real_bin():
     if "AGYSTATUSLINE_BIN" in os.environ and os.path.exists(os.environ["AGYSTATUSLINE_BIN"]):
@@ -23,11 +24,14 @@ def find_real_bin():
 
     # 3. Known fallback paths
     home = os.path.expanduser("~")
-    candidates = [
-        os.path.join(home, ".local/share/mise/installs/go/1.26.5/bin/agystatusline-bin"),
+    candidates = sorted(
+        glob.glob(os.path.join(home, ".local/share/mise/installs/go/*/bin/agystatusline-bin")),
+        reverse=True,
+    )
+    candidates.extend([
         os.path.join(home, "go/bin/agystatusline-bin"),
         os.path.join(home, ".local/bin/agystatusline-bin"),
-    ]
+    ])
     for c in candidates:
         if os.path.exists(c) and os.path.realpath(c) != self_path:
             return c

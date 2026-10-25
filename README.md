@@ -115,16 +115,14 @@ The following tools are managed by aqua (see `aqua.yaml`):
 | [shellcheck](https://github.com/koalaman/shellcheck) | Shell script static analysis tool |
 | [shfmt](https://github.com/mvdan/sh) | Shell script formatter |
 | [ast-grep](https://github.com/ast-grep/ast-grep) | Fast and polyglot tool for code searching and rewriting |
-| [uv](https://github.com/astral-sh/uv) | Python package manager |
 | [delta](https://github.com/dandavison/delta) | Git diff pager |
 | [lazygit](https://github.com/jesseduffield/lazygit) | TUI git client (`lg`) |
-| [Node.js](https://nodejs.org) | JavaScript runtime |
-| [Go](https://go.dev) | Go toolchain |
+| [gopls](https://pkg.go.dev/golang.org/x/tools/gopls) | Go language server |
 | [1Password CLI](https://developer.1password.com/docs/cli/) | Secret management |
 
 ## mise (Dev environment manager)
 
-[mise](https://mise.jdx.dev) manages language versions, environment variables, and tasks per project.
+[mise](https://mise.jdx.dev) manages language runtimes (Go, Node.js, Ruby) and environment variables defined in `mise-config.toml`.
 
 ### mise Setup
 

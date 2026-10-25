@@ -119,7 +119,6 @@ ln_herdr: herdr-config.toml
 
 clean_aqua:
 	rm -f ~/.config/aquaproj-aqua/aqua.yaml
-	rm -f $(PWD)/aqua-checksums.json
 
 clean_emacs:
 	rm -rf $(PWD)/emacs.d/elpa
@@ -141,7 +140,6 @@ clean:
 	rm -f ~/.perl
 	rm -f ~/.php
 	rm -f ~/.config/aquaproj-aqua/aqua.yaml
-	rm -f $(PWD)/aqua-checksums.json
 	rm -f ~/.config/mise/config.toml
 	rm -f ~/.config/herdr/config.toml
 	rm -f ~/.config/git/config
