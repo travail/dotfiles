@@ -5,7 +5,6 @@ brew "git"
 brew "emacs"
 brew "gnupg"
 brew "jq"
-brew "php@8.4", link: true
 brew "mycli"
 brew "pgcli"
 brew "tmux"

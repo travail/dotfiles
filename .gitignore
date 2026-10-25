@@ -11,9 +11,6 @@ emacs.d/.tramp-history
 *.elc
 
 # Languages / Runtimes
-perl/cpanfile.snapshot
-perl/local
-php/vendor
 node_modules/
 
 # Python
