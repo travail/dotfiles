@@ -63,12 +63,15 @@ ensure_dir_trusted() {
   return 1
 }
 
-# spawn_and_prime_agent PANE_ID
-#   Spawns `claude` in PANE_ID and waits for the agent to go idle, having
-#   first made sure the pane's directory is trusted so no trust prompt can
-#   intercept the session.
+# spawn_and_prime_agent PANE_ID [AGENT] [MODEL] [EFFORT]
+#   Spawns `claude` or `agy` in PANE_ID and waits for the agent to go idle, having
+#   first made sure the pane's directory is trusted if spawning claude.
 spawn_and_prime_agent() {
-  local pane="$1" dir
+  local pane="$1"
+  local agent="${2:-claude}"
+  local model="${3:-}"
+  local effort="${4:-}"
+  local dir
 
   # cwd is looked up per-pane (not passed in by the caller) so this works
   # whether it's called against herdr-init's root pane or a pane
@@ -76,15 +79,46 @@ spawn_and_prime_agent() {
   # *before* claude starts -- it reads the flag once at startup, so a pane
   # already sitting on the prompt can't be rescued by writing it afterwards.
   dir=$(herdr pane get "$pane" | jq -r '.result.pane.cwd')
-  if ! ensure_dir_trusted "$dir"; then
-    echo "spawn_and_prime_agent: refusing to spawn in $pane -- run \`claude\` in $dir once, accept the trust prompt, then retry" >&2
-    return 1
-  fi
 
-  # Start in auto mode explicitly: a freshly started claude does not always
-  # come up in the mode configured as `defaultMode`, and outside auto mode
-  # the agent stops at every permission prompt.
-  herdr pane run "$pane" "claude --permission-mode auto" >&2
+  local start_cmd=""
+  case "$agent" in
+    claude)
+      if ! ensure_dir_trusted "$dir"; then
+        echo "spawn_and_prime_agent: refusing to spawn in $pane -- run \`claude\` in $dir once, accept the trust prompt, then retry" >&2
+        return 1
+      fi
+      start_cmd="claude --permission-mode auto"
+      if [ -n "$model" ]; then
+        local quoted_model
+        quoted_model=$(printf '%q' "$model")
+        start_cmd="$start_cmd --model $quoted_model"
+      fi
+      if [ -n "$effort" ]; then
+        local quoted_effort
+        quoted_effort=$(printf '%q' "$effort")
+        start_cmd="$start_cmd --effort $quoted_effort"
+      fi
+      ;;
+    agy)
+      start_cmd="agy --mode auto"
+      if [ -n "$model" ]; then
+        local quoted_model
+        quoted_model=$(printf '%q' "$model")
+        start_cmd="$start_cmd --model $quoted_model"
+      fi
+      if [ -n "$effort" ]; then
+        local quoted_effort
+        quoted_effort=$(printf '%q' "$effort")
+        start_cmd="$start_cmd --effort $quoted_effort"
+      fi
+      ;;
+    *)
+      echo "spawn_and_prime_agent: unsupported agent '$agent' (must be 'claude' or 'agy')" >&2
+      return 1
+      ;;
+  esac
+
+  herdr pane run "$pane" "$start_cmd" >&2
 
   # herdr needs a moment to detect the freshly spawned agent -- `herdr agent
   # wait` errors immediately (no retry) if the target isn't registered yet,
@@ -93,23 +127,33 @@ spawn_and_prime_agent() {
     herdr agent get "$pane" >/dev/null 2>&1 && break
     sleep 0.1
   done
-  herdr agent wait "$pane" --until idle --timeout 15000 >&2
+  herdr agent wait "$pane" --until idle --timeout 20000 >&2
 }
 
 # spawn_agent SCRIPT_NAME [ARGS...]
 #   Shared CLI implementation for herdr-spawn-hub-agent and
-#   herdr-spawn-cowork-agent. Splits an existing pane and spawns a claude
-#   agent in the new pane.
+#   herdr-spawn-cowork-agent. Splits an existing pane and spawns an
+#   agent in the new pane (claude or agy).
 spawn_agent() {
   local opt_name="$1"
   shift 1
 
   local OPTIND=1
   local RATIO="" LABEL="" FOCUS_FLAG="--no-focus" AUTO=0
+  local AGENT="" MODEL="" EFFORT=""
   local opt
 
-  while getopts "r:l:nfah" opt; do
+  while getopts "r:l:nfahA:m:e:" opt; do
     case "$opt" in
+      A)
+        AGENT="$OPTARG"
+        ;;
+      m)
+        MODEL="$OPTARG"
+        ;;
+      e)
+        EFFORT="$OPTARG"
+        ;;
       r)
         RATIO="$OPTARG"
         ;;
@@ -127,7 +171,7 @@ spawn_agent() {
         ;;
       h)
         cat <<EOF
-Usage: $opt_name [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [<target> <right|down>]
+Usage: $opt_name [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [-A AGENT] [-m MODEL] [-e EFFORT] [<target> <right|down>]
 
 Arguments:
   target      Pane id or label to split (e.g. dotfiles-p1). (required
@@ -136,6 +180,11 @@ Arguments:
               unless -a)
 
 Options:
+  -A AGENT  Agent type to spawn: claude or agy. (default: auto-detected from
+            target pane, falling back to claude)
+  -m MODEL  Model name for the spawned agent (e.g. "claude-sonnet-5" or
+            "Gemini 3.8 Flash (Medium)").
+  -e EFFORT Effort level for the spawned agent (e.g. "high" or "xhigh").
   -a        Auto-detect target/direction from the current layout instead of
              taking them as arguments (grows a 1/2/3-pane upper area toward
              a 2x2; errors out if the layout is already a complete 2x2 or
@@ -155,18 +204,29 @@ EOF
         return 0
         ;;
       *)
-        echo "Usage: $opt_name [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [<target> <right|down>]" >&2
+        echo "Usage: $opt_name [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [-A AGENT] [-m MODEL] [-e EFFORT] [<target> <right|down>]" >&2
         return 1
         ;;
     esac
   done
   shift $((OPTIND - 1))
 
+  if [ -n "$AGENT" ]; then
+    case "$AGENT" in
+      claude|agy)
+        ;;
+      *)
+        echo "$opt_name: unsupported agent '$AGENT' (must be 'claude' or 'agy')" >&2
+        return 1
+        ;;
+    esac
+  fi
+
   local target_ref="" direction="" target_pane=""
   if [ "$AUTO" -eq 1 ]; then
     if [ $# -ne 0 ]; then
       echo "$opt_name: -a is mutually exclusive with <target> <right|down>" >&2
-      echo "Usage: $opt_name [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [<target> <right|down>]" >&2
+      echo "Usage: $opt_name [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [-A AGENT] [-m MODEL] [-e EFFORT] [<target> <right|down>]" >&2
       return 1
     fi
     auto_detect_split_target
@@ -174,7 +234,7 @@ EOF
     direction="$DIRECTION"
   else
     if [ $# -ne 2 ]; then
-      echo "Usage: $opt_name [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [<target> <right|down>]" >&2
+      echo "Usage: $opt_name [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [-A AGENT] [-m MODEL] [-e EFFORT] [<target> <right|down>]" >&2
       return 1
     fi
 
@@ -201,6 +261,19 @@ EOF
     esac
   fi
 
+  if [ -z "$AGENT" ]; then
+    local detected_agent
+    detected_agent=$(herdr agent get "$target_pane" 2>/dev/null | jq -r '.result.agent.agent // empty')
+    case "$detected_agent" in
+      claude|agy)
+        AGENT="$detected_agent"
+        ;;
+      *)
+        AGENT="claude"
+        ;;
+    esac
+  fi
+
   local workspace_id
   workspace_id=$(herdr pane get "$target_pane" | jq -r '.result.pane.workspace_id')
 
@@ -221,8 +294,8 @@ EOF
   fi
   herdr pane rename "$new_pane" "$LABEL" >&2
 
-  echo "$opt_name: spawning claude in $new_pane ($LABEL)..." >&2
-  spawn_and_prime_agent "$new_pane"
+  echo "$opt_name: spawning $AGENT in $new_pane ($LABEL)..." >&2
+  spawn_and_prime_agent "$new_pane" "$AGENT" "$MODEL" "$EFFORT"
 
   echo "$new_pane"
 }

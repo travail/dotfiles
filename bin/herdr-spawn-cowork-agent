@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-# Spawn a claude agent pane for peer-to-peer cowork multi-agent coordination.
+# Spawn an agent pane (claude or agy) for peer-to-peer cowork multi-agent coordination.
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=bin/herdr-common.sh
