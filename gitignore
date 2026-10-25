@@ -1,2 +1,23 @@
 
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+# Editor / IDE
+*~
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# AI agent local settings
 **/.claude/settings.local.json
+
+# Scratch files / backups
+*.bak
+*.orig
