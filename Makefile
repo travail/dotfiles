@@ -3,9 +3,9 @@ UNAME := $(shell uname)
 
 MODULES := claude antigravity
 
-.PHONY: all brew_bundle bin ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_zim zim ln_aqua ln_mise ln_herdr clean_aqua clean_emacs clean cleanall $(MODULES) modules_setup modules_link modules_clean
+.PHONY: all brew_bundle bin ln_bin ln_emacs ln_git ln_tmux ln_zshrc ln_gemrc ln_zim zim ln_aqua ln_mise ln_herdr clean_aqua clean_emacs clean cleanall $(MODULES) modules_setup modules_link modules_clean
 
-all: .make/install_packages .make/aqua_install .make/mise_install ln_bin ln_emacs ln_git ln_mysql ln_perltidyrc ln_tmux ln_zshrc ln_gemrc ln_perl ln_php ln_aqua ln_mise ln_zim ln_herdr modules_setup
+all: .make/install_packages .make/aqua_install .make/mise_install ln_bin ln_emacs ln_git ln_tmux ln_zshrc ln_gemrc ln_aqua ln_mise ln_zim ln_herdr modules_setup
 
 claude: .make/mise_install
 	$(MAKE) -C $@ setup
@@ -72,12 +72,6 @@ ln_git: gitconfig gitignore
 	ln -sfn $(PWD)/gitignore $(HOME)/.config/git/ignore
 	ln -sfn $(PWD)/git-hooks $(HOME)/.config/git/hooks
 
-ln_mysql: my.cnf
-	ln -sfn $(PWD)/my.cnf ~/.my.cnf
-
-ln_perltidyrc: perltidyrc
-	ln -sfn $(PWD)/perltidyrc ~/.perltidyrc
-
 ln_tmux: tmux.conf
 	mkdir -p $(HOME)/.config/tmux
 	rm -f $(HOME)/.tmux.conf
@@ -90,12 +84,6 @@ ln_zshrc: zshrc zshenv
 
 ln_gemrc: gemrc
 	ln -sfn $(PWD)/gemrc ~/.gemrc
-
-ln_perl:
-	ln -sfn $(PWD)/perl ~/.perl
-
-ln_php:
-	ln -sfn $(PWD)/php ~/.php
 
 ln_zim: zimrc
 	ln -sfn $(PWD)/zimrc ~/.zimrc
@@ -129,16 +117,12 @@ clean:
 	rm -f ~/.git
 	rm -f ~/.gitconfig
 	rm -f ~/.gitignore
-	rm -f ~/.my.cnf
-	rm -f ~/.perltidyrc
 	rm -f ~/.tmux.conf
 	rm -f ~/bin
 	rm -f ~/.zshenv
 	rm -f ~/.zshrc
 	rm -rf ~/.zsh
 	rm -f ~/.gemrc
-	rm -f ~/.perl
-	rm -f ~/.php
 	rm -f ~/.config/aquaproj-aqua/aqua.yaml
 	rm -f ~/.config/mise/config.toml
 	rm -f ~/.config/herdr/config.toml
