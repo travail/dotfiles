@@ -29,3 +29,13 @@ packages:
     version: v3.14.1
   - name: ast-grep/ast-grep
     version: 0.45.3
+  - name: cli/cli
+    version: v2.103.3
+  - name: aws/aws-cli
+    version: 2.39.0
+  - name: derailed/k9s
+    version: v0.51.0
+  - name: kubernetes/kubernetes/kubectl
+    version: v1.37.2
+  - name: github/github-mcp-server
+    version: v2.0.3

@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# Launcher that injects the gh auth token into the Homebrew-installed
+# Launcher that injects the gh auth token into the aqua-installed
 # github-mcp-server binary. It shares the binary's name, so ~/bin must stay
-# after Homebrew's bin in PATH (see zshrc); otherwise the exec below would
-# call this script again.
+# after aqua's bin in PATH (see zshrc); otherwise the exec below would call
+# this script again.
+if [ "$(command -v github-mcp-server)" -ef "$0" ]; then
+  echo "github-mcp-server: binary not found in PATH (only this launcher is)" >&2
+  exit 127
+fi
 export GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"
 exec github-mcp-server stdio

@@ -103,14 +103,22 @@ source ~/.zshrc
 
 ## Homebrew vs aqua
 
-- **Homebrew** (`Brewfile`): bootstrap tools (`git`, `mise`, `aqua` itself), tools that integrate with the OS or ship daemons, casks and taps, and formulae with library dependencies.
-- **aqua** (`aqua.yaml`): standalone single-binary CLIs that are shared with Linux and benefit from version pinning (e.g. `jq`, `fzf`, `ripgrep`).
+Each tool is managed by exactly one of them. A tool goes to Homebrew if any of these applies:
 
-Each tool should be managed by exactly one of them. Existing standalone CLIs in the `Brewfile` (`gh`, `tree`, `k9s`, `awscli`) are not migrated: `gh` and `aws` are wrapped by 1Password wrappers in `zsh/common`.
+- **B1**: it is needed while bootstrapping (during `brew bundle` or `make`, before aqua's `PATH` exists): `aqua`, `mise`, `uv`.
+- **B2**: aqua has no definition for it, or only an unrelated one: `tree` (aqua only has a Rust reimplementation), `cclens`, `herdr`, `mcp-toolbox`.
+- **B3**: it has library dependencies, is built from source, integrates with the OS, or is a Python application that is not a single binary: `git`, `emacs`, `gnupg`, `tmux`, `mycli`, `pgcli`.
+- **B4**: the vendor distributes it through its own tap and it has macOS-specific behavior: `mirrord`.
 
-`bin/github-mcp-server` is not a duplicate of the Homebrew `github-mcp-server` formula. The formula provides the binary; the script is a launcher that passes `gh auth token` to it as `GITHUB_PERSONAL_ACCESS_TOKEN`.
+Otherwise it goes to aqua: aqua has a definition, it is a standalone binary shared with Linux, it is only run from shells that load `zsh/common/aqua/init.sh`, and version pinning is useful (`jq`, `gh`, `aws`, `k9s`, `kubectl`, `github-mcp-server`, and the tools listed under [CLI Tools (aqua)](#cli-tools-aqua)).
 
-aqua's `bin` directory is added to `PATH` only by the shell initialization (`zsh/common/aqua/init.sh`). Processes started without it, such as `make` during a fresh bootstrap, cannot find aqua-managed tools like `jq`; the `jq` checks in `claude/Makefile` and `antigravity/Makefile` then print a notice and skip verification.
+Notes:
+
+- aqua's `bin` directory is added to `PATH` only by the shell initialization (`zsh/common/aqua/init.sh`). Processes started without it, such as `make` during a fresh bootstrap, cannot find aqua-managed tools like `jq`; the `jq` checks in `claude/Makefile` and `antigravity/Makefile` then print a notice and skip verification.
+- `zshrc` sources `zsh/common/*/init.sh` in order (aqua, then Homebrew) and each prepends to `PATH`, so a Homebrew copy of an aqua-managed tool shadows the aqua one. `brew bundle` does not remove formulae dropped from the `Brewfile`; run `brew uninstall` for them.
+- The 1Password wrappers `gh()` and `aws()` in `zsh/common/op/init.sh` are shell functions that call whichever binary is on `PATH`, so they work with either manager.
+- `bin/github-mcp-server` is a launcher that passes `gh auth token` to the aqua-managed `github-mcp-server` binary as `GITHUB_PERSONAL_ACCESS_TOKEN`.
+- aqua does not install shell completions. `zsh/human/completion/init.sh` generates and caches them for `gh`, `kubectl`, `k9s`, `github-mcp-server` and `aws`; delete the cached file under `~/.cache/completions` after upgrading a tool.
 
 ## CLI Tools (aqua)
 
@@ -130,6 +138,11 @@ The following tools are managed by aqua (see `aqua.yaml`):
 | [lazygit](https://github.com/jesseduffield/lazygit) | TUI git client (`lg`) |
 | [gopls](https://pkg.go.dev/golang.org/x/tools/gopls) | Go language server |
 | [1Password CLI](https://developer.1password.com/docs/cli/) | Secret management |
+| [gh](https://github.com/cli/cli) | GitHub CLI |
+| [AWS CLI](https://github.com/aws/aws-cli) | AWS command line interface |
+| [k9s](https://github.com/derailed/k9s) | Kubernetes TUI |
+| [kubectl](https://kubernetes.io/docs/reference/kubectl/) | Kubernetes command-line tool |
+| [github-mcp-server](https://github.com/github/github-mcp-server) | GitHub MCP server (launched via `bin/github-mcp-server`) |
 
 ## mise (Dev environment manager)
 
