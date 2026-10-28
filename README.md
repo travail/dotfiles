@@ -101,6 +101,17 @@ source ~/.zshrc
 | `Ctrl+X l` | Search git log and insert commit hash |
 | `Ctrl+X p` | Select process ID |
 
+## Homebrew vs aqua
+
+- **Homebrew** (`Brewfile`): bootstrap tools (`git`, `mise`, `aqua` itself), tools that integrate with the OS or ship daemons, casks and taps, and formulae with library dependencies.
+- **aqua** (`aqua.yaml`): standalone single-binary CLIs that are shared with Linux and benefit from version pinning (e.g. `jq`, `fzf`, `ripgrep`).
+
+Each tool should be managed by exactly one of them. Existing standalone CLIs in the `Brewfile` (`gh`, `tree`, `k9s`, `awscli`) are not migrated: `gh` and `aws` are wrapped by 1Password wrappers in `zsh/common`.
+
+`bin/github-mcp-server` is not a duplicate of the Homebrew `github-mcp-server` formula. The formula provides the binary; the script is a launcher that passes `gh auth token` to it as `GITHUB_PERSONAL_ACCESS_TOKEN`.
+
+aqua's `bin` directory is added to `PATH` only by the shell initialization (`zsh/common/aqua/init.sh`). Processes started without it, such as `make` during a fresh bootstrap, cannot find aqua-managed tools like `jq`; the `jq` checks in `claude/Makefile` and `antigravity/Makefile` then print a notice and skip verification.
+
 ## CLI Tools (aqua)
 
 The following tools are managed by aqua (see `aqua.yaml`):
