@@ -62,7 +62,9 @@ ln_bin:
 	ln -sfn $(PWD)/bin ~/bin
 
 ln_emacs:
-	ln -sfn $(PWD)/emacs.d ~/.emacs.d
+	mkdir -p $(HOME)/.config
+	rm -f $(HOME)/.emacs.d
+	ln -sfn $(PWD)/emacs.d $(HOME)/.config/emacs
 	mkdir -p $(PWD)/emacs.d/site-lisp
 
 ln_git: gitconfig gitignore
@@ -128,6 +130,7 @@ clean:
 	rm -f ~/.config/herdr/config.toml
 	rm -f ~/.config/git/config
 	rm -f ~/.config/git/ignore
+	rm -f ~/.config/emacs
 	rm -rf ~/.config/git/hooks
 	rm -f ~/.config/tmux/tmux.conf
 	$(MAKE) modules_clean
