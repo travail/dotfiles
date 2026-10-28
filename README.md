@@ -8,7 +8,19 @@ Personal dotfiles for macOS.
 
 ## Installation
 
-### 1. Install Homebrew packages
+### 1. Clone the repository
+
+The repository uses a sibling worktree layout: the main clone is `~/git/dotfiles/master`, and each issue branch lives in a linked worktree next to it (`~/git/dotfiles/issue-N-<slug>`). `~/git/dotfiles/.claude` holds the Claude Code settings shared by all of them.
+
+```sh
+mkdir -p ~/git/dotfiles
+git clone https://github.com/travail/dotfiles.git ~/git/dotfiles/master
+cd ~/git/dotfiles/master
+```
+
+Run the following steps from `~/git/dotfiles/master`.
+
+### 2. Install Homebrew packages
 
 ```sh
 brew bundle install --file=Brewfile
@@ -16,17 +28,19 @@ brew bundle install --file=Brewfile
 
 This installs all required tools including aqua and Docker Desktop.
 
-### 2. Install CLI tools via aqua
+### 3. Install CLI tools via aqua
 
 ```sh
 aqua install
 ```
 
-### 3. Symlink dotfiles
+### 4. Symlink dotfiles
 
 ```sh
 make
 ```
+
+The symlinks point to the directory `make` was run in. To try a change from a worktree, run `make` there; run `make -C ~/git/dotfiles/master` to point them back to `master`.
 
 ## Updates
 
