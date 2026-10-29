@@ -89,8 +89,7 @@ source ${ZIM_HOME}/init.zsh
 zstyle ':completion:*' menu no
 zstyle ':completion:*:descriptions' format '[%d]'
 
-# Match ls sort order (preserve file system traversal order and flat layout)
-zstyle ':completion:*' sort false
+# Keep flat layout and preserve completion candidate order in fzf-tab
 zstyle ':completion:*' group-name ''
 zstyle ':fzf-tab:*' fzf-flags --tiebreak=index
 
