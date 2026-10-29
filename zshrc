@@ -48,7 +48,6 @@ setopt print_eight_bit
 # Completion
 setopt COMPLETE_IN_WORD
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-zstyle ':completion:*' menu select=1
 
 # make: suggest targets and variables, not local files
 # Both tags in one string so they are offered together; separate arguments would
@@ -85,9 +84,15 @@ if [[ ! ${ZIM_HOME}/init.zsh -nt ~/.zimrc ]]; then
 fi
 source ${ZIM_HOME}/init.zsh
 
-autoload -Uz compinit
-# Always use cached dump (-C). Run `compinit && exec zsh` to rebuild after installing new tools.
-compinit -C -u
+# Disable zsh default menu selection to let fzf-tab handle it cleanly.
+# Must run after Zim completion module, which sets 'menu select'.
+zstyle ':completion:*' menu no
+zstyle ':completion:*:descriptions' format '[%d]'
+
+# Match ls sort order (preserve file system traversal order and flat layout)
+zstyle ':completion:*' sort false
+zstyle ':completion:*' group-name ''
+zstyle ':fzf-tab:*' fzf-flags --tiebreak=index
 
 # Load human-specific interactive configs (aliases, prompts, fzf, git completion)
 for file (~/.zsh/human/**/*.sh(N)) do

@@ -2,6 +2,8 @@
 
 # Completion
 zmodule zsh-users/zsh-completions --fpath src
+zmodule completion
+zmodule Aloxaf/fzf-tab
 
 # Syntax highlighting
 zmodule zsh-users/zsh-syntax-highlighting
