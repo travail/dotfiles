@@ -7,3 +7,8 @@ unset _fzf_cache
 
 bindkey -r '^T'     # use CTRL-T for other purposes
 bindkey -r '\ec'    # use ALT-C for other purposes
+
+# Restore fzf-tab-complete for Tab if fzf-tab is loaded, as fzf --zsh overwrites ^I with fzf-completion
+if (( ${+widgets[fzf-tab-complete]} )); then
+    bindkey '^I' fzf-tab-complete
+fi

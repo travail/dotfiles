@@ -2,6 +2,7 @@ tap "lambdalisue/cclens"
 tap "metalbear-co/mirrord"
 
 brew "git"
+brew "zsh"
 brew "emacs"
 brew "gnupg"
 brew "mycli"
