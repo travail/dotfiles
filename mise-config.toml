@@ -1,4 +1,5 @@
 [tools]
 go = "1.26.5"
 node = "26"
+pnpm = "latest"
 ruby = "4.0.2"
