@@ -2,7 +2,10 @@
 set -euo pipefail
 branch=$(git symbolic-ref --short HEAD)
 case "$branch" in
-  master|main) ;;
-  *) echo "error: git sync must be run on master or main (current: $branch)" >&2; exit 1 ;;
+  master | main) ;;
+  *)
+    echo "error: git sync must be run on master or main (current: $branch)" >&2
+    exit 1
+    ;;
 esac
 git pull origin "$branch" && git fetch --all --prune

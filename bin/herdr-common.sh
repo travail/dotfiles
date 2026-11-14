@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Shared helpers for herdr-init / herdr-spawn-*. Source only, not
 # executable. Callers must have `set -euo pipefail` in effect.
 
@@ -28,7 +29,7 @@ ensure_dir_trusted() {
   local dir="$1" config="$HOME/.claude.json" trusted tmp
 
   trusted=$(jq -r --arg d "$dir" '.projects[$d].hasTrustDialogAccepted // false' \
-            "$config" 2>/dev/null || echo false)
+    "$config" 2>/dev/null || echo false)
   if [ "$trusted" = "true" ]; then
     return 0
   fi
@@ -43,8 +44,8 @@ ensure_dir_trusted() {
   # file 0600, which is what claude itself keeps this file at.
   tmp=$(mktemp "${config}.herdr.XXXXXX") || return 1
   if ! jq --arg d "$dir" \
-       '.projects[$d] = ((.projects[$d] // {}) + {hasTrustDialogAccepted: true})' \
-       "$config" >"$tmp" || ! mv -f "$tmp" "$config"; then
+    '.projects[$d] = ((.projects[$d] // {}) + {hasTrustDialogAccepted: true})' \
+    "$config" >"$tmp" || ! mv -f "$tmp" "$config"; then
     rm -f "$tmp"
     echo "ensure_dir_trusted: failed to mark $dir as trusted in $config" >&2
     return 1
@@ -54,7 +55,7 @@ ensure_dir_trusted() {
   # every running claude, and one of them rewriting the whole file can land
   # between our read and our rename, dropping the key again.
   trusted=$(jq -r --arg d "$dir" '.projects[$d].hasTrustDialogAccepted // false' \
-            "$config" 2>/dev/null || echo false)
+    "$config" 2>/dev/null || echo false)
   if [ "$trusted" = "true" ]; then
     return 0
   fi
@@ -213,7 +214,7 @@ EOF
 
   if [ -n "$AGENT" ]; then
     case "$AGENT" in
-      claude|agy)
+      claude | agy)
         ;;
       *)
         echo "$opt_name: unsupported agent '$AGENT' (must be 'claude' or 'agy')" >&2
@@ -265,7 +266,7 @@ EOF
     local detected_agent
     detected_agent=$(herdr agent get "$target_pane" 2>/dev/null | jq -r '.result.agent.agent // empty')
     case "$detected_agent" in
-      claude|agy)
+      claude | agy)
         AGENT="$detected_agent"
         ;;
       *)

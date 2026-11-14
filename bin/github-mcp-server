@@ -8,5 +8,6 @@ if [ "$(command -v github-mcp-server)" -ef "$0" ]; then
   echo "github-mcp-server: binary not found in PATH (only this launcher is)" >&2
   exit 127
 fi
-export GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"
+GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"
+export GITHUB_PERSONAL_ACCESS_TOKEN
 exec github-mcp-server stdio

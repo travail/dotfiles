@@ -8,7 +8,7 @@ AGENTS_JSON=$(herdr agent list)
 CURRENT=$(echo "$AGENTS_JSON" | jq -r '.result.agents[] | select(.focused == true) | .pane_id')
 
 PANE_IDS=()
-for status in blocked done; do
+for status in blocked "done"; do
   while IFS= read -r line; do
     [ -n "$line" ] && [ "$line" != "$CURRENT" ] && PANE_IDS+=("$line")
   done < <(echo "$AGENTS_JSON" | jq -r --arg status "$status" '.result.agents[] | select(.agent_status == $status) | .pane_id')
