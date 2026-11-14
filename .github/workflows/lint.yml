@@ -1,0 +1,55 @@
+name: Lint
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install zsh
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zsh
+
+      - name: Setup aqua
+        uses: aquaproj/aqua-installer@v4.1.1
+        with:
+          aqua_version: v2.66.1
+
+      - name: Install tools via aqua
+        run: |
+          aqua i koalaman/shellcheck mvdan/sh
+
+      - name: Discover shell scripts
+        run: |
+          scripts=$(grep -lE '^#!.*(sh|bash)' bin/* git-hooks/* 2>/dev/null | tr '\n' ' ')
+          if [ -f bin/herdr-common.sh ]; then
+            scripts="$scripts bin/herdr-common.sh"
+          fi
+          echo "SCRIPTS=$scripts" >> "$GITHUB_ENV"
+
+      - name: Run shellcheck
+        run: |
+          shellcheck -x $SCRIPTS
+
+      - name: Run shfmt
+        run: |
+          shfmt -i 2 -ci -d $SCRIPTS
+
+      - name: Check zsh syntax
+        run: |
+          find zsh -type f -name "*.sh" -print0 | xargs -0 -n 1 zsh -n
+          zsh -n zshrc zshenv
+
+      - name: Dry-run Makefile
+        run: |
+          make -n all

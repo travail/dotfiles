@@ -62,6 +62,7 @@ DIR=$(cd "$1" && pwd)
 PREFIX="${2:-$(basename "$DIR")}"
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck source=bin/herdr-common.sh
 source "$SCRIPT_DIR/herdr-common.sh"
 
 WS_JSON=$(herdr workspace create --cwd "$DIR" --label "$PREFIX")
@@ -78,8 +79,8 @@ ROOT_PANE=$(echo "$WS_JSON" | jq -r '.result.root_pane.pane_id')
 # whichever pane_id was passed as --source-pane (verified empirically) --
 # HUB_PANE goes there (not ROOT_PANE) so focus ends up on the hub agent,
 # not the plain terminal, once the swap is done.
-HUB_PANE=$(herdr pane split "$ROOT_PANE" --direction down --ratio 0.7 --no-focus \
-           | jq -r '.result.pane.pane_id')
+HUB_PANE=$(herdr pane split "$ROOT_PANE" --direction down --ratio 0.7 --no-focus |
+  jq -r '.result.pane.pane_id')
 herdr pane swap --source-pane "$HUB_PANE" --target-pane "$ROOT_PANE" >&2
 
 # Mirror herdr's own pane_id suffix (everything after the colon in wN:pM)
