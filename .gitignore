@@ -28,6 +28,7 @@ __pycache__/
 *.secret
 *.local
 .env.local
+/.config/
 
 # Editor
 .vscode/
