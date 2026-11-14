@@ -29,24 +29,19 @@ jobs:
         run: |
           aqua i koalaman/shellcheck mvdan/sh
 
-      - name: Find shell scripts
-        id: find-scripts
+      - name: Discover shell scripts
         run: |
-          scripts=$(grep -lE '^#!.*(sh|bash)' bin/* git-hooks/* 2>/dev/null || true)
+          scripts=$(grep -lE '^#!.*(sh|bash)' bin/* git-hooks/* 2>/dev/null | tr '\n' ' ')
           if [ -f bin/herdr-common.sh ]; then
             scripts="$scripts bin/herdr-common.sh"
           fi
-          echo "scripts=$scripts" >> "$GITHUB_OUTPUT"
+          echo "SCRIPTS=$scripts" >> "$GITHUB_ENV"
 
       - name: Run shellcheck
-        env:
-          SCRIPTS: ${{ steps.find-scripts.outputs.scripts }}
         run: |
           shellcheck -x $SCRIPTS
 
       - name: Run shfmt
-        env:
-          SCRIPTS: ${{ steps.find-scripts.outputs.scripts }}
         run: |
           shfmt -i 2 -ci -d $SCRIPTS
 
