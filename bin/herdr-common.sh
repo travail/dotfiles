@@ -64,9 +64,54 @@ ensure_dir_trusted() {
   return 1
 }
 
+# ensure_agy_dir_trusted DIR
+#   Marks DIR as trusted in ~/.gemini/antigravity-cli/settings.json, so `agy`
+#   never raises its workspace trust prompt for it. Returns non-zero (with a
+#   diagnostic) when that can't be arranged, so callers can refuse to spawn
+#   instead of leaving an unattended pane parked on the prompt.
+ensure_agy_dir_trusted() {
+  local dir="$1" config="$HOME/.gemini/antigravity-cli/settings.json" trusted tmp
+
+  trusted=$(jq -r --arg d "$dir" \
+    '(.trustedWorkspaces // []) | any(. == $d)' \
+    "$config" 2>/dev/null || echo false)
+  if [ "$trusted" = "true" ]; then
+    return 0
+  fi
+
+  if [ ! -f "$config" ]; then
+    echo "ensure_agy_dir_trusted: $config does not exist" >&2
+    return 1
+  fi
+
+  # Written through a sibling temp file and a rename, so a concurrently
+  # running agy never reads a half-written config. mktemp creates the
+  # file 0600.
+  tmp=$(mktemp "${config}.herdr.XXXXXX") || return 1
+  if ! jq --arg d "$dir" \
+    '.trustedWorkspaces = ((.trustedWorkspaces // []) + [$d] | unique)' \
+    "$config" >"$tmp" || ! mv -f "$tmp" "$config"; then
+    rm -f "$tmp"
+    echo "ensure_agy_dir_trusted: failed to mark $dir as trusted in $config" >&2
+    return 1
+  fi
+
+  # Read back rather than trusting the write: ~/.gemini/antigravity-cli/settings.json
+  # is shared across agy instances.
+  trusted=$(jq -r --arg d "$dir" \
+    '(.trustedWorkspaces // []) | any(. == $d)' \
+    "$config" 2>/dev/null || echo false)
+  if [ "$trusted" = "true" ]; then
+    return 0
+  fi
+
+  echo "ensure_agy_dir_trusted: $dir still untrusted after writing $config" >&2
+  return 1
+}
+
 # spawn_and_prime_agent PANE_ID [AGENT] [MODEL] [EFFORT]
 #   Spawns `claude` or `agy` in PANE_ID and waits for the agent to go idle, having
-#   first made sure the pane's directory is trusted if spawning claude.
+#   first made sure the pane's directory is trusted.
 spawn_and_prime_agent() {
   local pane="$1"
   local agent="${2:-claude}"
@@ -101,6 +146,10 @@ spawn_and_prime_agent() {
       fi
       ;;
     agy)
+      if ! ensure_agy_dir_trusted "$dir"; then
+        echo "spawn_and_prime_agent: refusing to spawn in $pane -- run \`agy\` in $dir once, accept the trust prompt, then retry" >&2
+        return 1
+      fi
       start_cmd="agy --mode auto"
       if [ -n "$model" ]; then
         local quoted_model
