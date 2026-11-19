@@ -1,0 +1,77 @@
+#!/bin/bash
+set -euo pipefail
+# Add a new IC (Individual Contributor) task tab to an existing Project
+# Workspace with a 1+1 layout (top ~70% agent, bottom ~30% plain terminal).
+# By default, the agent starts clean (minimal environment); pass -s <skill> to
+# inject a specific skill at startup.
+
+usage() {
+  cat <<'EOF'
+Usage: herdr-init-ic [-h] [-f] [-A AGENT] [-m MODEL] [-e EFFORT] [-s SKILL] <workspace> <dir> [tab_label]
+
+Arguments:
+  workspace  Target workspace id (e.g. w1) or label (e.g. anv). (required)
+  dir        Working directory for the new tab. (required)
+  tab_label  Label for the new tab. (default: basename of dir)
+
+Options:
+  -A AGENT  Agent type: agy or claude. (default: agy)
+  -m MODEL  Model name override.
+  -e EFFORT Effort level override.
+  -s SKILL  Optional skill command to inject after startup (e.g. "/herdr-pair-development author").
+  -f        Focus the newly created tab.
+  -h        Show this help and exit.
+EOF
+}
+
+AGENT="agy"
+MODEL=""
+EFFORT=""
+SKILL=""
+FOCUS_FLAG="--no-focus"
+
+while getopts "hfA:m:e:s:" OPT; do
+  case "$OPT" in
+    A) AGENT="$OPTARG" ;;
+    m) MODEL="$OPTARG" ;;
+    e) EFFORT="$OPTARG" ;;
+    s) SKILL="$OPTARG" ;;
+    f) FOCUS_FLAG="--focus" ;;
+    h)
+      usage
+      exit 0
+      ;;
+    *)
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ $# -lt 2 ]; then
+  usage >&2
+  exit 1
+fi
+
+WS_REF="$1"
+DIR=$(cd "$2" && pwd)
+TAB_LABEL="${3:-$(basename "$DIR")}"
+
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck source=bin/herdr-common.sh
+source "$SCRIPT_DIR/herdr-common.sh"
+
+# Resolve workspace label to workspace_id if not already an id (w...)
+if printf '%s' "$WS_REF" | grep -qE '^w[0-9A-Za-z]+$'; then
+  WORKSPACE_ID="$WS_REF"
+else
+  WORKSPACE_ID=$("$SCRIPT_DIR/herdr-id" -w "$WS_REF")
+fi
+
+TAB_JSON=$(herdr tab create --workspace "$WORKSPACE_ID" --cwd "$DIR" --label "$TAB_LABEL" "$FOCUS_FLAG")
+ROOT_PANE=$(echo "$TAB_JSON" | jq -r '.result.root_pane.pane_id')
+
+TOP_PANE=$(setup_1_plus_1_tab "$ROOT_PANE" "$TAB_LABEL" "$AGENT" "$MODEL" "$EFFORT" "$SKILL")
+
+echo "$TOP_PANE"
