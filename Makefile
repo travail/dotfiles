@@ -146,7 +146,8 @@ clean:
 	rm -f ~/.zshrc
 	rm -rf ~/.zsh
 	rm -f ~/.gemrc
-	rm -f ~/.config/aquaproj-aqua/aqua.yaml
+	rm -f ~/.zimrc
+	$(MAKE) clean_aqua
 	rm -f ~/.config/mise/config.toml
 	rm -f ~/.config/herdr/config.toml
 	rm -f ~/.config/git/config
@@ -154,6 +155,7 @@ clean:
 	rm -f ~/.config/emacs
 	rm -rf ~/.config/git/hooks
 	rm -f ~/.config/tmux/tmux.conf
+	rm -rf $(PWD)/.make
 	$(MAKE) modules_clean
 
 cleanall: clean clean_emacs
