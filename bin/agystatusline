@@ -3,9 +3,17 @@ import sys
 import json
 import subprocess
 import os
+import re
 import shutil
 import glob
 import time
+
+_CTX_BAR_RE = re.compile(r'( ctx [█▓▒░·]+)(\s+\d+(?:\.\d+)?% )')
+
+
+def normalize_ctx_bar(line: str) -> str:
+    """Replace ambiguous middle-dot padding in the ctx progress bar with spaces."""
+    return _CTX_BAR_RE.sub(lambda m: m.group(1).replace('·', ' ') + m.group(2), line)
 
 
 def get_settings_drift_count() -> int:
@@ -165,11 +173,11 @@ def main():
     drift_bg = '\x1b[48;2;181;137;0m'
     drift_fg = '\x1b[38;2;181;137;0m'
     drift_text_fg = '\x1b[38;2;7;54;66;1m'
-    drift_icon = '⚙️'
+    drift_icon = 'Δ'
 
     if drift_count > 0:
         drift_tail = f"\x1b[49m\x1b[39m{drift_fg}\ue0b4\x1b[0m"
-        mode_tail = f"\x1b[49m\x1b[39m{fg_code}{drift_bg}\ue0b0\x1b[49m\x1b[39m{drift_text_fg}{drift_bg} {drift_icon}  +{drift_count} {drift_tail}"
+        mode_tail = f"\x1b[49m\x1b[39m{fg_code}{drift_bg}\ue0b0\x1b[49m\x1b[39m{drift_text_fg}{drift_bg} {drift_icon} +{drift_count} {drift_tail}"
     else:
         mode_tail = f"\x1b[49m\x1b[39m{fg_code}\ue0b4\x1b[0m"
 
@@ -194,7 +202,7 @@ def main():
         sys.stdout.write(session_line)
 
     for line in lines[1:]:
-        sys.stdout.write(line)
+        sys.stdout.write(normalize_ctx_bar(line))
 
 if __name__ == '__main__':
     main()
