@@ -5,6 +5,43 @@ import subprocess
 import os
 import shutil
 import glob
+import time
+
+
+def get_settings_drift_count() -> int:
+    """Read manual settings drift count from 5s cache or compute via anv-drift-check."""
+    cache_path = "/tmp/anv-settings-drift-cache.json"
+    now = time.time()
+    try:
+        if os.path.exists(cache_path):
+            with open(cache_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, dict):
+                cache_time = float(data.get("timestamp", 0))
+                if now - cache_time < 5.0:
+                    return int(data.get("count", 0))
+    except Exception:
+        pass
+
+    candidates = [
+        os.path.expanduser("~/.gemini/config/hooks/anv-drift-check.py"),
+        os.path.expanduser("~/.claude/hooks/anv-drift-check.py"),
+    ]
+    for script in candidates:
+        if os.path.isfile(script):
+            try:
+                res = subprocess.run(
+                    ["python3", script, "--count"],
+                    capture_output=True,
+                    text=True,
+                    timeout=2,
+                    check=False,
+                )
+                if res.returncode == 0:
+                    return int(res.stdout.strip())
+            except Exception:
+                pass
+    return 0
 
 def find_real_bin():
     if "AGYSTATUSLINE_BIN" in os.environ and os.path.exists(os.environ["AGYSTATUSLINE_BIN"]):
@@ -124,7 +161,18 @@ def main():
     first_line = lines[0].rstrip('\r\n')
 
     # Seamlessly join mode segment into the first line Powerline pill
-    mode_tail = f"\x1b[49m\x1b[39m{fg_code}\ue0b4\x1b[0m"
+    drift_count = get_settings_drift_count()
+    drift_bg = '\x1b[48;2;181;137;0m'
+    drift_fg = '\x1b[38;2;181;137;0m'
+    drift_text_fg = '\x1b[38;2;7;54;66;1m'
+    drift_icon = '⚙️'
+
+    if drift_count > 0:
+        drift_tail = f"\x1b[49m\x1b[39m{drift_fg}\ue0b4\x1b[0m"
+        mode_tail = f"\x1b[49m\x1b[39m{fg_code}{drift_bg}\ue0b0\x1b[49m\x1b[39m{drift_text_fg}{drift_bg} {drift_icon}  +{drift_count} {drift_tail}"
+    else:
+        mode_tail = f"\x1b[49m\x1b[39m{fg_code}\ue0b4\x1b[0m"
+
     pos = first_line.rfind('\ue0b4')
     if pos != -1:
         # Replace \ue0b4 with arrow separator and append mode segment with cap
