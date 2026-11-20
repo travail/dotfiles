@@ -97,6 +97,16 @@ zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':completion:*' group-name ''
 zstyle ':fzf-tab:*' fzf-flags --tiebreak=index
 
+# fzf-tab sorts candidates with the system `sort` (locale collation, same as `ls`)
+# only when list-colors is non-empty; otherwise it falls back to zsh's byte-order sort.
+# LS_COLORS is unset on macOS, so fall back to a no-op color ("no=0" resets only)
+# to keep the colors visually unchanged while enabling the locale-aware sort.
+zstyle ':completion:*' list-colors ${(s.:.)${LS_COLORS:-no=0}}
+
+# Keep the tool-provided order (e.g. recently used branches) for git branch completion
+zstyle ':completion:*:git-checkout:*' sort false
+zstyle ':completion:*:git-switch:*' sort false
+
 # Load human-specific interactive configs (aliases, prompts, fzf, git completion)
 for file (~/.zsh/human/**/*.sh(N)) do
     source $file
