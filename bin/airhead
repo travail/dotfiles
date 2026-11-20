@@ -191,11 +191,14 @@ else
   "$@" >"$tmpfile" 2>&1 || rc=$?
 fi
 
+if [[ ! -s "$tmpfile" ]]; then
+  exit "$rc"
+fi
+
 total_lines=$(wc -l <"$tmpfile")
 total_lines="${total_lines//[[:space:]]/}"
-
-if [[ "$total_lines" -eq 0 ]]; then
-  exit "$rc"
+if [[ "$(tail -c 1 "$tmpfile" | wc -l)" -eq 0 ]]; then
+  total_lines=$((total_lines + 1))
 fi
 
 if [[ "$total_lines" -le $((head_lines + tail_lines)) ]]; then
