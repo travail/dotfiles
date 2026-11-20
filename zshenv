@@ -14,7 +14,8 @@ if ! is_human; then
     export GH_PROMPT_DISABLED=1 GH_PAGER=
     # brew: skip auto-update (blocks for tens of seconds), analytics and hints
     export HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_ANALYTICS=1 HOMEBREW_NO_ENV_HINTS=1
-    # ssh: never prompt (host key, passphrase); ssh-agent auth still works
+    # ssh: never prompt (host key, passphrase); ssh-agent auth still works.
+    # Note: GIT_SSH_COMMAND takes precedence over git config core.sshCommand.
     export GIT_SSH_COMMAND="ssh -o BatchMode=yes"
     # Suppress update notices, version checks and color codes that waste output tokens
     export NPM_CONFIG_UPDATE_NOTIFIER=false PIP_DISABLE_PIP_VERSION_CHECK=1 NO_COLOR=1
