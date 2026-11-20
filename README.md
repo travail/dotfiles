@@ -75,8 +75,8 @@ Upgrades all uv-managed tools (e.g. `claude-monitor`).
 
 The shell environment is configured as AI agent-first with human opt-in:
 
-- **`~/.zshenv` (`zshenv`)**: Evaluates `is_human` (checking for TTY and agent environment variables such as `CLAUDECODE`, `AI_AGENT`, and `ANTIGRAVITY_APP_DATA_DIR`). Non-human / AI agent shells export fail-fast settings (`EDITOR=true`, `PAGER=cat`, `GIT_TERMINAL_PROMPT=0`) to avoid hanging on interactive prompts.
-- **`~/.zshrc` (`zshrc`)**: Structured into `zsh/common` (tools, PATH, 1Password wrappers for `gh` and `aws`) before an early return guard (`is_human || return 0`), and `zsh/human` (interactive prompt, completion, Zim, aliases) after the guard. This prevents heavy plugins and interactive confirmation aliases (`rm -i`, `cp -i`, `mv -i`) from leaking into agent snapshots and slowing down shell execution.
+- **`~/.zshenv` (`zshenv`)**: Evaluates `is_human` (checking for TTY and agent environment variables such as `CLAUDECODE`, `AI_AGENT`, and `ANTIGRAVITY_APP_DATA_DIR`). Non-human / AI agent shells export fail-fast settings (`EDITOR=true`, `PAGER=cat`, `GIT_TERMINAL_PROMPT=0`) to avoid hanging on interactive prompts, strip any inherited `mise/installs/*` entries from `PATH`, prepend `mise/shims`, and clear inherited `mise activate` state (`__MISE_DIFF`, `MISE_SHELL`, etc.) so non-interactive `zsh -c` invocations resolve per-project tool versions.
+- **`~/.zshrc` (`zshrc`)**: Structured into `zsh/common` (tools, PATH, 1Password wrappers for `gh` and `aws`, `mise` activation via `--shims` for agents and hooks for humans) before an early return guard (`is_human || return 0`), and `zsh/human` (interactive prompt, completion, Zim, aliases) after the guard. This prevents heavy plugins and interactive confirmation aliases (`rm -i`, `cp -i`, `mv -i`) from leaking into agent snapshots and slowing down shell execution.
 - **`airm` (`bin/airm`)**: Safe replacement for `rm` mapped via `alias rm=airm` in AI agent environments. In human interactive shells, the traditional `rm -i` is preserved. Instead of permanent deletion, files are moved into timestamped session directories under `~/.cache/airm/trash/`. It includes automatic pruning (run synchronously after each successful removal) of session directories older than 30 days and a manual `airm --clean [days]` command.
 
 ## Zsh Setup
@@ -164,10 +164,11 @@ The following tools are managed by aqua (see `aqua.yaml`):
 
 ### mise Setup
 
-After running `brew bundle install`, activate mise in zsh (already included in `zshrc`):
+After running `brew bundle install`, activate mise in zsh (already included in `zshrc` via `zsh/common/mise/init.sh`):
 
 ```sh
-eval "$(mise activate zsh)"
+eval "$(mise activate zsh)"           # human interactive shells
+eval "$(mise activate zsh --shims)"   # non-human / AI agent shells
 ```
 
 ### Install Ruby
@@ -183,6 +184,8 @@ mise use -g ruby@latest   # set globally
 cd ~/git/your-project
 mise use ruby@3.4         # creates .mise.toml
 ```
+
+`mise-config.toml` also enables `idiomatic_version_file_enable_tools` for `node`, `ruby`, and `go` so legacy version files (`.node-version`, `.ruby-version`, `.go-version`) are resolved alongside `.mise.toml` and `.tool-versions`.
 
 ### mise Updates
 
