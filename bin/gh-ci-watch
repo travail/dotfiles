@@ -112,7 +112,7 @@ start=$SECONDS
 fetch_pr() {
   local args=(pr checks)
   [ -n "$target" ] && args+=("$target")
-  args+=("${repo_args[@]}" --json name,bucket,link)
+  args+=(${repo_args[@]+"${repo_args[@]}"} --json "name,bucket,link")
   local out
   out=$(gh "${args[@]}" 2>/dev/null) || true
   if printf '%s' "$out" | jq -e 'type == "array"' >/dev/null 2>&1; then
@@ -124,7 +124,7 @@ fetch_pr() {
 
 fetch_run() {
   local out
-  out=$(gh run view "$run_id" "${repo_args[@]}" --json status,conclusion,jobs 2>/dev/null) || true
+  out=$(gh run view "$run_id" ${repo_args[@]+"${repo_args[@]}"} --json status,conclusion,jobs 2>/dev/null) || true
   if ! printf '%s' "$out" | jq -e 'type == "object"' >/dev/null 2>&1; then
     echo '[]'
     return
