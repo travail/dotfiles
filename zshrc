@@ -99,11 +99,16 @@ zstyle ':fzf-tab:*' fzf-flags --tiebreak=index
 
 # fzf-tab sorts candidates with the system `sort` (locale collation, same as `ls`)
 # only when list-colors is non-empty; otherwise it falls back to zsh's byte-order sort.
-# LS_COLORS is unset on macOS, so fall back to a no-op color ("no=0" resets only)
-# to keep the colors visually unchanged while enabling the locale-aware sort.
+# LS_COLORS is unset on macOS, so fall back to a no-op color ("no=0" resets only).
+# Side effect: fzf-tab shows symlink candidates as "name/ -> target" instead of "name@".
 zstyle ':completion:*' list-colors ${(s.:.)${LS_COLORS:-no=0}}
 
-# Keep the tool-provided order (e.g. recently used branches) for git branch completion
+# Keep the order the completer provides instead of sorting alphabetically.
+# cdr: most recently visited first (numeric keys would otherwise sort as 1, 10, 11, 2).
+zstyle ':completion:*:cdr:*' sort false
+# git-checkout / git-switch: only matches when the completer sets the context to
+# git-<subcommand>, i.e. zsh's bundled _git. Homebrew's _git wrapper keeps the
+# context as "git", so these two lines have no effect with it.
 zstyle ':completion:*:git-checkout:*' sort false
 zstyle ':completion:*:git-switch:*' sort false
 
