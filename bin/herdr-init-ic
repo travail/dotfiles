@@ -7,7 +7,7 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: herdr-init-ic [-h] [-f] [-A AGENT] [-m MODEL] [-e EFFORT] [-s SKILL] <workspace> <dir> [tab_label]
+Usage: herdr-init-ic [-h|--help] [-f] [-A AGENT] [-m MODEL] [-e EFFORT] [-s SKILL] <workspace> <dir> [tab_label]
 
 Arguments:
   workspace  Target workspace id (e.g. w1) or label (e.g. anv). (required)
@@ -20,9 +20,21 @@ Options:
   -e EFFORT Effort level override.
   -s SKILL  Optional skill command to inject after startup (e.g. "/herdr-pair-development author").
   -f        Focus the newly created tab.
-  -h        Show this help and exit.
+  -h, --help Show this help and exit.
 EOF
 }
+
+if [ $# -gt 0 ]; then
+  ARGS=()
+  for arg in "$@"; do
+    if [ "$arg" = "--help" ]; then
+      ARGS+=("-h")
+    else
+      ARGS+=("$arg")
+    fi
+  done
+  set -- "${ARGS[@]}"
+fi
 
 AGENT="agy"
 MODEL=""

@@ -207,6 +207,19 @@ spawn_agent() {
   local opt_name="$1"
   shift 1
 
+  if [ $# -gt 0 ]; then
+    local args=()
+    local arg
+    for arg in "$@"; do
+      if [ "$arg" = "--help" ]; then
+        args+=("-h")
+      else
+        args+=("$arg")
+      fi
+    done
+    set -- "${args[@]}"
+  fi
+
   local OPTIND=1
   local RATIO="" LABEL="" FOCUS_FLAG="--no-focus" AUTO=0
   local AGENT="" MODEL="" EFFORT=""
@@ -240,7 +253,7 @@ spawn_agent() {
         ;;
       h)
         cat <<EOF
-Usage: $opt_name [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [-A AGENT] [-m MODEL] [-e EFFORT] [<target> <right|down>]
+Usage: $opt_name [-h|--help] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [-A AGENT] [-m MODEL] [-e EFFORT] [<target> <right|down>]
 
 Arguments:
   target      Pane id or label to split (e.g. dotfiles-p1). (required
@@ -268,12 +281,12 @@ Options:
             never guessed/computed, so it always matches the real id)
   -n        Deprecated: no-op for backward compatibility.
   -f        Focus the new pane after creating it. (default: unfocused)
-  -h        Show this help and exit.
+  -h, --help Show this help and exit.
 EOF
         return 0
         ;;
       *)
-        echo "Usage: $opt_name [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [-A AGENT] [-m MODEL] [-e EFFORT] [<target> <right|down>]" >&2
+        echo "Usage: $opt_name [-h|--help] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [-A AGENT] [-m MODEL] [-e EFFORT] [<target> <right|down>]" >&2
         return 1
         ;;
     esac
@@ -295,7 +308,7 @@ EOF
   if [ "$AUTO" -eq 1 ]; then
     if [ $# -ne 0 ]; then
       echo "$opt_name: -a is mutually exclusive with <target> <right|down>" >&2
-      echo "Usage: $opt_name [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [-A AGENT] [-m MODEL] [-e EFFORT] [<target> <right|down>]" >&2
+      echo "Usage: $opt_name [-h|--help] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [-A AGENT] [-m MODEL] [-e EFFORT] [<target> <right|down>]" >&2
       return 1
     fi
     auto_detect_split_target
@@ -303,7 +316,7 @@ EOF
     direction="$DIRECTION"
   else
     if [ $# -ne 2 ]; then
-      echo "Usage: $opt_name [-h] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [-A AGENT] [-m MODEL] [-e EFFORT] [<target> <right|down>]" >&2
+      echo "Usage: $opt_name [-h|--help] [-r RATIO] [-l LABEL] [-n] [-f] [-a] [-A AGENT] [-m MODEL] [-e EFFORT] [<target> <right|down>]" >&2
       return 1
     fi
 

@@ -6,7 +6,7 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: herdr-init-pjm [-h] [-f] [-A AGENT] [-m MODEL] [-e EFFORT] <project_dir> [workspace_label]
+Usage: herdr-init-pjm [-h|--help] [-f] [-A AGENT] [-m MODEL] [-e EFFORT] <project_dir> [workspace_label]
 
 Arguments:
   project_dir      Target project directory for the workspace. (required)
@@ -17,9 +17,21 @@ Options:
   -m MODEL  Model name override.
   -e EFFORT Effort level override.
   -f        Focus the newly created workspace.
-  -h        Show this help and exit.
+  -h, --help Show this help and exit.
 EOF
 }
+
+if [ $# -gt 0 ]; then
+  ARGS=()
+  for arg in "$@"; do
+    if [ "$arg" = "--help" ]; then
+      ARGS+=("-h")
+    else
+      ARGS+=("$arg")
+    fi
+  done
+  set -- "${ARGS[@]}"
+fi
 
 AGENT="agy"
 MODEL=""
