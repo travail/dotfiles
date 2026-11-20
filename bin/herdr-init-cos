@@ -5,7 +5,7 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: herdr-init-cos [-h] [-A AGENT] [-m MODEL] [-e EFFORT] [dir]
+Usage: herdr-init-cos [-h|--help] [-A AGENT] [-m MODEL] [-e EFFORT] [dir]
 
 Arguments:
   dir       Working directory for the CoS workspace. (default: $HOME)
@@ -14,9 +14,21 @@ Options:
   -A AGENT  Agent type: agy or claude. (default: agy)
   -m MODEL  Model name override.
   -e EFFORT Effort level override.
-  -h        Show this help and exit.
+  -h, --help Show this help and exit.
 EOF
 }
+
+if [ $# -gt 0 ]; then
+  ARGS=()
+  for arg in "$@"; do
+    if [ "$arg" = "--help" ]; then
+      ARGS+=("-h")
+    else
+      ARGS+=("$arg")
+    fi
+  done
+  set -- "${ARGS[@]}"
+fi
 
 AGENT="agy"
 MODEL=""

@@ -28,16 +28,28 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: herdr-init [-h] <dir> [prefix]
+Usage: herdr-init [-h|--help] <dir> [prefix]
 
 Arguments:
   dir     Target project directory for the new workspace. (required)
   prefix  Label prefix for the pane and agent names. (default: basename of dir)
 
 Options:
-  -h  Show this help and exit.
+  -h, --help  Show this help and exit.
 EOF
 }
+
+if [ $# -gt 0 ]; then
+  ARGS=()
+  for arg in "$@"; do
+    if [ "$arg" = "--help" ]; then
+      ARGS+=("-h")
+    else
+      ARGS+=("$arg")
+    fi
+  done
+  set -- "${ARGS[@]}"
+fi
 
 while getopts "h" OPT; do
   case "$OPT" in
