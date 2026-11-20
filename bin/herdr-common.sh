@@ -150,16 +150,35 @@ spawn_and_prime_agent() {
         echo "spawn_and_prime_agent: refusing to spawn in $pane -- run \`agy\` in $dir once, accept the trust prompt, then retry" >&2
         return 1
       fi
+      # agy embeds effort inside the model name itself (e.g. "Gemini 4 Argon (High)")
+      # and rejects --effort as an unsupported flag (falling back to the default model).
+      # Map -e <effort> onto the model suffix instead of passing --effort.
+      if [ -n "$effort" ]; then
+        local agy_cap_effort="" agy_lower_effort=""
+        agy_lower_effort=$(printf '%s' "$effort" | tr '[:upper:]' '[:lower:]')
+        case "$agy_lower_effort" in
+          low) agy_cap_effort="Low" ;;
+          medium) agy_cap_effort="Medium" ;;
+          high) agy_cap_effort="High" ;;
+        esac
+        if [ -n "$agy_cap_effort" ]; then
+          if [ -z "$model" ] && [ -f "$HOME/.gemini/antigravity-cli/settings.json" ]; then
+            model=$(jq -r '.model // empty' "$HOME/.gemini/antigravity-cli/settings.json" 2>/dev/null || true)
+          fi
+          if [ -n "$model" ]; then
+            if printf '%s' "$model" | grep -qE '\((Low|Medium|High)\)$'; then
+              model=$(printf '%s' "$model" | sed -E "s/\((Low|Medium|High)\)$/(${agy_cap_effort})/")
+            elif printf '%s' "$model" | grep -qE -- '-(low|medium|high)$'; then
+              model=$(printf '%s' "$model" | sed -E "s/-(low|medium|high)$/-${agy_lower_effort}/")
+            fi
+          fi
+        fi
+      fi
       start_cmd="agy --mode auto"
       if [ -n "$model" ]; then
         local quoted_model
         quoted_model=$(printf '%q' "$model")
         start_cmd="$start_cmd --model $quoted_model"
-      fi
-      if [ -n "$effort" ]; then
-        local quoted_effort
-        quoted_effort=$(printf '%q' "$effort")
-        start_cmd="$start_cmd --effort $quoted_effort"
       fi
       ;;
     *)
@@ -437,4 +456,35 @@ auto_detect_split_target() {
 
   echo "auto_detect_split_target: unrecognized pane layout ($count pane(s) in the upper area) -- pass <target> <right|down> explicitly (manually rearranged?)" >&2
   return 1
+}
+
+# setup_1_plus_1_tab ROOT_PANE LABEL_PREFIX [AGENT] [MODEL] [EFFORT] [SKILL_CMD]
+#   Splits ROOT_PANE into an editor-style 1+1 layout (top ~70% agent, bottom
+#   ~30% plain shell terminal), renames both panes with LABEL_PREFIX, spawns
+#   the agent (default: agy) in the top pane, optionally injects SKILL_CMD,
+#   and echoes the top pane_id.
+setup_1_plus_1_tab() {
+  local root_pane="$1"
+  local label_prefix="$2"
+  local agent="${3:-agy}"
+  local model="${4:-}"
+  local effort="${5:-}"
+  local skill_cmd="${6:-}"
+
+  local top_pane
+  top_pane=$(herdr pane split "$root_pane" --direction down --ratio 0.7 --no-focus |
+    jq -r '.result.pane.pane_id')
+  herdr pane swap --source-pane "$top_pane" --target-pane "$root_pane" >&2
+
+  herdr pane rename "$root_pane" "${label_prefix}-${root_pane#*:}" >&2
+  herdr pane rename "$top_pane" "${label_prefix}-${top_pane#*:}" >&2
+
+  spawn_and_prime_agent "$top_pane" "$agent" "$model" "$effort"
+
+  if [ -n "$skill_cmd" ]; then
+    herdr pane run "$top_pane" "$skill_cmd" >&2
+    herdr agent wait "$top_pane" --until idle --timeout 30000 >&2
+  fi
+
+  echo "$top_pane"
 }

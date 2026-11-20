@@ -1,0 +1,60 @@
+#!/bin/bash
+set -euo pipefail
+# Set up the dedicated Chief of Staff (CoS) workspace with a 1+1 layout
+# (top ~70% CoS agent, bottom ~30% plain shell terminal) and inject /herdr-cos.
+
+usage() {
+  cat <<'EOF'
+Usage: herdr-init-cos [-h] [-A AGENT] [-m MODEL] [-e EFFORT] [dir]
+
+Arguments:
+  dir       Working directory for the CoS workspace. (default: $HOME)
+
+Options:
+  -A AGENT  Agent type: agy or claude. (default: agy)
+  -m MODEL  Model name override.
+  -e EFFORT Effort level override.
+  -h        Show this help and exit.
+EOF
+}
+
+AGENT="agy"
+MODEL=""
+EFFORT=""
+
+while getopts "hA:m:e:" OPT; do
+  case "$OPT" in
+    A) AGENT="$OPTARG" ;;
+    m) MODEL="$OPTARG" ;;
+    e) EFFORT="$OPTARG" ;;
+    h)
+      usage
+      exit 0
+      ;;
+    *)
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+RAW_DIR="${1:-$HOME}"
+DIR=$(cd "$RAW_DIR" && pwd)
+
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck source=bin/herdr-common.sh
+source "$SCRIPT_DIR/herdr-common.sh"
+
+WS_JSON=$(herdr workspace create --cwd "$DIR" --label "cos")
+WORKSPACE_ID=$(echo "$WS_JSON" | jq -r '.result.workspace.workspace_id')
+TAB_ID=$(echo "$WS_JSON" | jq -r '.result.tab.tab_id')
+ROOT_PANE=$(echo "$WS_JSON" | jq -r '.result.root_pane.pane_id')
+
+herdr tab rename "$TAB_ID" "cos" >&2
+
+TOP_PANE=$(setup_1_plus_1_tab "$ROOT_PANE" "cos" "$AGENT" "$MODEL" "$EFFORT" "/herdr-cos")
+
+herdr workspace focus "$WORKSPACE_ID" >&2
+
+echo "$TOP_PANE"
