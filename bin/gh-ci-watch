@@ -9,7 +9,11 @@
 #   1  at least one check failed or was cancelled
 #   2  usage error
 #   3  timed out while checks were still pending
-#   4  no checks were registered within the grace period
+#   4  no checks were registered within the grace period (the last gh error,
+#      if any, is printed, e.g. for a nonexistent PR or an auth failure)
+#
+# Limitation: --timeout is checked between polls, so it cannot interrupt a
+# single gh call that hangs on the network.
 set -uo pipefail
 
 usage() {
@@ -103,31 +107,45 @@ if [ -n "$repo" ]; then
   repo_args=(-R "$repo")
 fi
 
+for cmd in gh jq; do
+  command -v "$cmd" >/dev/null 2>&1 || die_usage "required command not found: $cmd"
+done
+
+# stderr of the most recent gh call is kept here (fetch runs in a command
+# substitution, so a plain variable would not propagate to the caller).
+err_file=$(mktemp)
+trap 'rm -f "$err_file"' EXIT
+
 start=$SECONDS
 
 # Each fetcher prints a normalized JSON array of {name, bucket, link} where
-# bucket is one of: pass | fail | pending | skipping | cancel.
-# A failed gh call (network blip, no checks yet) yields "[]" so the loop keeps
-# polling until the grace period / timeout decides the outcome.
+# bucket is one of: pass | fail | pending | skipping | cancel, and returns 0.
+# It returns 1 (printing nothing) when the gh call failed, with the reason in
+# $err_file. "No checks yet" is not a failure: it yields "[]" and returns 0.
 fetch_pr() {
   local args=(pr checks)
   [ -n "$target" ] && args+=("$target")
   args+=(${repo_args[@]+"${repo_args[@]}"} --json "name,bucket,link")
   local out
-  out=$(gh "${args[@]}" 2>/dev/null) || true
+  out=$(gh "${args[@]}" 2>"$err_file") || true
   if printf '%s' "$out" | jq -e 'type == "array"' >/dev/null 2>&1; then
     printf '%s' "$out"
-  else
-    echo '[]'
+    return 0
   fi
+  # `gh pr checks --json` reports "no checks reported on the '<branch>' branch"
+  # on stderr (exit 1, empty stdout) before any check is registered.
+  if grep -q '^no checks reported' "$err_file"; then
+    echo '[]'
+    return 0
+  fi
+  return 1
 }
 
 fetch_run() {
   local out
-  out=$(gh run view "$run_id" ${repo_args[@]+"${repo_args[@]}"} --json status,conclusion,jobs 2>/dev/null) || true
+  out=$(gh run view "$run_id" ${repo_args[@]+"${repo_args[@]}"} --json status,conclusion,jobs 2>"$err_file") || true
   if ! printf '%s' "$out" | jq -e 'type == "object"' >/dev/null 2>&1; then
-    echo '[]'
-    return
+    return 1
   fi
   printf '%s' "$out" | jq -c '
     (.status // "") as $status
@@ -165,10 +183,28 @@ what="PR checks${target:+ ($target)}"
 [ -n "$run_id" ] && what="run $run_id"
 echo "gh-ci-watch: watching $what (timeout ${timeout}s, interval ${interval}s, grace ${grace}s)" >&2
 
+print_last_error() {
+  if [ -s "$err_file" ]; then
+    echo "gh-ci-watch: last gh error: $(cat "$err_file")" >&2
+  fi
+}
+
+# seen: whether any check has been observed yet. The grace period only applies
+# before the first observation; afterwards a failed gh call reuses the previous
+# snapshot and polling continues until the timeout.
+seen=0
+last_checks='[]'
+
 while true; do
-  checks=$(fetch)
+  if fetched=$(fetch); then
+    checks=$fetched
+  else
+    checks=$last_checks
+  fi
+  last_checks=$checks
   total=$(printf '%s' "$checks" | jq 'length')
   pending=$(printf '%s' "$checks" | jq '[.[] | select(.bucket == "pending")] | length')
+  [ "$total" -gt 0 ] && seen=1
   elapsed=$((SECONDS - start))
 
   if [ "$total" -gt 0 ] && [ "$pending" -eq 0 ]; then
@@ -182,17 +218,23 @@ while true; do
     exit 0
   fi
 
-  if [ "$total" -eq 0 ] && [ "$elapsed" -ge "$grace" ]; then
+  if [ "$seen" -eq 0 ] && [ "$elapsed" -ge "$grace" ]; then
     echo "gh-ci-watch: no checks registered within ${grace}s" >&2
+    print_last_error
     exit 4
   fi
 
   if [ "$elapsed" -ge "$timeout" ]; then
     print_summary "$checks"
     echo "gh-ci-watch: timed out after ${timeout}s ($pending of $total checks still pending)" >&2
+    print_last_error
     exit 3
   fi
 
   echo "gh-ci-watch: ${elapsed}s: $pending pending / $total total" >&2
-  sleep "$interval"
+  # Do not sleep past the absolute timeout.
+  nap=$interval
+  remaining=$((timeout - elapsed))
+  [ "$remaining" -lt "$nap" ] && nap=$remaining
+  sleep "$nap"
 done
