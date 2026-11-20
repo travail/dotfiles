@@ -9,6 +9,6 @@ if [[ -f ~/.config/op/service-account-token ]]; then
     gh() { op run --env-file="$HOME/.zsh/common/op/gh.env" -- gh "$@" }
     aws() { op run --env-file="$HOME/.zsh/common/op/aws.env" -- aws "$@" }
 elif command -v op &>/dev/null; then
-    echo "1Password service account token not found. Save it to:"
-    echo "  ~/.config/op/service-account-token (chmod 600)"
+    echo "1Password service account token not found. Save it to:" >&2
+    echo "  ~/.config/op/service-account-token (chmod 600)" >&2
 fi
