@@ -1,7 +1,6 @@
 brew "pinentry-mac"
 brew "terminal-notifier"
 
-cask "antigravity-cli"
 cask "clipory/tap/clipory"
 cask "docker-desktop"
 cask "font-hack-nerd-font"

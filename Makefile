@@ -5,7 +5,7 @@ MODULES := claude antigravity
 
 .PHONY: all brew_bundle bin ln_bin ln_emacs ln_git ln_tmux ln_zshrc ln_gemrc ln_zim zim ln_aqua ln_mise ln_herdr clean_aqua clean_emacs clean cleanall $(MODULES) modules_setup modules_link modules_clean
 
-all: .make/install_packages .make/aqua_install .make/mise_install ln_bin ln_emacs ln_git ln_tmux ln_zshrc ln_gemrc ln_aqua ln_mise ln_zim ln_herdr modules_setup
+all: .make/install_packages .make/aqua_install .make/mise_install .make/claude_bootstrap .make/agy_bootstrap ln_bin ln_emacs ln_git ln_tmux ln_zshrc ln_gemrc ln_aqua ln_mise ln_zim ln_herdr modules_setup
 
 claude: .make/mise_install
 	$(MAKE) -C $@ setup
@@ -44,6 +44,21 @@ endif
 .make/mise_install: mise-config.toml ln_mise
 	@mkdir -p .make
 	mise install
+	@touch $@
+
+# Self-updating tools: install only; updates are left to the tool itself.
+# The installer runs only when the command is missing (idempotent).
+.make/claude_bootstrap:
+	@mkdir -p .make
+	@command -v claude >/dev/null 2>&1 || [ -x $(HOME)/.local/bin/claude ] || \
+		curl -fsSL https://claude.ai/install.sh | bash
+	@touch $@
+
+# --skip-path / --skip-aliases: shell profiles are managed by this repository.
+.make/agy_bootstrap:
+	@mkdir -p .make
+	@command -v agy >/dev/null 2>&1 || [ -x $(HOME)/.local/bin/agy ] || \
+		curl -fsSL https://antigravity.google/cli/install.sh | bash -s -- --skip-path --skip-aliases
 	@touch $@
 
 ifeq ($(UNAME), Darwin)
