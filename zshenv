@@ -10,6 +10,8 @@ if ! is_human; then
     export EDITOR=true VISUAL=true GIT_EDITOR=true GIT_SEQUENCE_EDITOR=true
     export PAGER=cat GIT_PAGER=cat MANPAGER=cat
     export GIT_TERMINAL_PROMPT=0
+    # gh: fail immediately instead of opening interactive selection prompts or a pager
+    export GH_PROMPT_DISABLED=1 GH_PAGER=
 
     # Strip inherited mise/installs/* entries and prefer shims so non-interactive
     # zsh -c shells resolve per-project tool versions instead of inherited global bins.
