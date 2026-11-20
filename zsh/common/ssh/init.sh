@@ -4,6 +4,9 @@ if [ -S "$agent" ]; then
     export SSH_AUTH_SOCK=$agent
 fi
 
+# Agents reuse an existing agent socket but never spawn ssh-agent or run ssh-add
+is_human || return 0
+
 ssh-add -l &>/dev/null
 agent_status=$?
 

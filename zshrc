@@ -2,7 +2,6 @@
 
 # Common environment variables for both human and AI
 export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
 export PERL_BADLANG=0
 umask 002
 
@@ -19,6 +18,11 @@ if [ -d ~/.zsh.local ]; then
         source $file
     done
 fi
+
+# Keep PATH entries unique. Scalar `export PATH=...` assignments in the files above
+# bypass the -U flag, so the array must be re-assigned once after all of them ran.
+typeset -U path
+path=($path)
 
 # rm safety wrapper (AI agent only)
 ! is_human && alias rm=airm
