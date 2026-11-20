@@ -126,6 +126,8 @@ Each tool is managed by exactly one of them. A tool goes to Homebrew if any of t
 - **B3**: it has library dependencies, is built from source, integrates with the OS, or is a Python application that is not a single binary: `git`, `emacs`, `gnupg`, `tmux`, `mycli`, `pgcli`.
 - **B4**: the vendor distributes it through its own tap and it has macOS-specific behavior: `mirrord`.
 
+**Self-updating tools** (`claude`, `agy`) belong to neither. They update themselves, so a package manager would compete with them for ownership (e.g. `brew bundle` fails with "already a Command Wrapper" once `agy` replaces the wrapper). They are installed only by the idempotent `claude_bootstrap` and `agy_bootstrap` targets (`.PHONY`, run by `make`), which run the vendor installer when the command is missing and never update it. Only if `brew list --cask` still shows `antigravity-cli` from before, run `brew uninstall --cask antigravity-cli` (`--force` if the binary was already replaced by self-update). That may delete `/opt/homebrew/bin/agy`; if so, run `make agy_bootstrap` to reinstall it to `~/.local/bin/agy`.
+
 Otherwise it goes to aqua: aqua has a definition, it is a standalone binary shared with Linux, it is only run from shells that load `zsh/common/aqua/init.sh`, and version pinning is useful (`jq`, `gh`, `aws`, `k9s`, `kubectl`, `github-mcp-server`, and the tools listed under [CLI Tools (aqua)](#cli-tools-aqua)).
 
 Notes:
