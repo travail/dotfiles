@@ -97,6 +97,16 @@ zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':completion:*' group-name ''
 zstyle ':fzf-tab:*' fzf-flags --tiebreak=index
 
+# fzf-tab sorts candidates with the system `sort` (locale collation, same as `ls`)
+# only when list-colors is non-empty; otherwise it falls back to zsh's byte-order sort.
+# LS_COLORS is unset on macOS, so fall back to a no-op color ("no=0" resets only).
+# Side effect: fzf-tab shows symlink candidates as "name/ -> target" instead of "name@".
+zstyle ':completion:*' list-colors ${(s.:.)${LS_COLORS:-no=0}}
+
+# Keep the order the completer provides instead of sorting alphabetically.
+# cdr: most recently visited first (numeric keys would otherwise sort as 1, 10, 11, 2).
+zstyle ':completion:*:cdr:*' sort false
+
 # Load human-specific interactive configs (aliases, prompts, fzf, git completion)
 for file (~/.zsh/human/**/*.sh(N)) do
     source $file
