@@ -106,11 +106,6 @@ zstyle ':completion:*' list-colors ${(s.:.)${LS_COLORS:-no=0}}
 # Keep the order the completer provides instead of sorting alphabetically.
 # cdr: most recently visited first (numeric keys would otherwise sort as 1, 10, 11, 2).
 zstyle ':completion:*:cdr:*' sort false
-# git-checkout / git-switch: only matches when the completer sets the context to
-# git-<subcommand>, i.e. zsh's bundled _git. Homebrew's _git wrapper keeps the
-# context as "git", so these two lines have no effect with it.
-zstyle ':completion:*:git-checkout:*' sort false
-zstyle ':completion:*:git-switch:*' sort false
 
 # Load human-specific interactive configs (aliases, prompts, fzf, git completion)
 for file (~/.zsh/human/**/*.sh(N)) do
