@@ -1,9 +1,0 @@
-#!/bin/bash
-set -euo pipefail
-# Spawn an agent pane (claude or agy) for hub-and-spoke multi-agent coordination.
-
-SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-# shellcheck source=bin/herdr-common.sh
-source "$SCRIPT_DIR/herdr-common.sh"
-
-spawn_agent "herdr-spawn-hub-agent" "$@"

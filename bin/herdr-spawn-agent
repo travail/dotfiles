@@ -1,6 +1,0 @@
-#!/bin/bash
-set -euo pipefail
-# Backward-compatibility wrapper: delegates to herdr-spawn-hub-agent.
-
-SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-exec "$SCRIPT_DIR/herdr-spawn-hub-agent" "$@"
