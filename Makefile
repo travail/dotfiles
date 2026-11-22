@@ -80,7 +80,14 @@ endif
 bin: ln_bin
 
 ln_bin:
-	ln -sfn $(PWD)/bin ~/bin
+	@if [ -L $(HOME)/bin ]; then \
+		rm -f $(HOME)/bin; \
+	fi
+	@mkdir -p $(HOME)/bin
+	@for f in $(PWD)/bin/*; do \
+		[ -e "$$f" ] || continue; \
+		ln -sfn "$$f" $(HOME)/bin/$$(basename "$$f"); \
+	done
 
 ln_emacs:
 	mkdir -p $(HOME)/.config
@@ -141,7 +148,10 @@ clean:
 	rm -f ~/.gitconfig
 	rm -f ~/.gitignore
 	rm -f ~/.tmux.conf
-	rm -f ~/bin
+	@for f in $(PWD)/bin/*; do \
+		[ -e "$$f" ] || continue; \
+		rm -f $(HOME)/bin/$$(basename "$$f"); \
+	done
 	rm -f ~/.zshenv
 	rm -f ~/.zshrc
 	rm -rf ~/.zsh
