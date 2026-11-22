@@ -27,9 +27,6 @@ setup: link
 link:
 	mkdir -p $(HOME)/.config/agystatusline
 	ln -sfn $(CURDIR)/settings.toml $(HOME)/.config/agystatusline/settings.toml
-	mkdir -p $(HOME)/.gemini/antigravity-cli/bin
-	ln -sfn $(CURDIR)/../bin/agystatusline $(HOME)/.gemini/antigravity-cli/bin/agystatusline
 
 clean:
 	rm -f $(HOME)/.config/agystatusline/settings.toml
-	rm -f $(HOME)/.gemini/antigravity-cli/bin/agystatusline

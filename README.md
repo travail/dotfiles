@@ -77,9 +77,7 @@ The shell environment is configured as AI agent-first with human opt-in:
 
 - **`~/.zshenv` (`zshenv`)**: Evaluates `is_human` (checking for TTY and agent environment variables such as `CLAUDECODE`, `AI_AGENT`, and `ANTIGRAVITY_APP_DATA_DIR`). Non-human / AI agent shells export fail-fast settings (`EDITOR=true`, `PAGER=cat`, `GIT_TERMINAL_PROMPT=0`, `GH_PROMPT_DISABLED=1`, `GH_PAGER=`, `HOMEBREW_NO_AUTO_UPDATE=1`, `GIT_SSH_COMMAND="ssh -o BatchMode=yes"`, `NO_COLOR=1`, etc.) to avoid hanging on interactive prompts and wasting output on update notices, strip any inherited `mise/installs/*` entries from `PATH`, prepend `mise/shims`, and clear inherited `mise activate` state (`__MISE_DIFF`, `MISE_SHELL`, etc.) so non-interactive `zsh -c` invocations resolve per-project tool versions.
 - **`~/.zshrc` (`zshrc`)**: Structured into `zsh/common` (tools, PATH, 1Password wrappers for `gh` and `aws`, `mise` activation via `--shims` for agents and hooks for humans; `ssh/init.sh` returns early for agents so they never spawn `ssh-agent` or run `ssh-add`), then dedups `PATH` once after all of them ran, before an early return guard (`is_human || return 0`), and `zsh/human` (interactive prompt, completion, Zim, aliases) after the guard. This prevents heavy plugins and interactive confirmation aliases (`rm -i`, `cp -i`, `mv -i`) from leaking into agent snapshots and slowing down shell execution.
-- **`airm` (`bin/airm`)**: Safe replacement for `rm` mapped via `alias rm=airm` in AI agent environments. In human interactive shells, the traditional `rm -i` is preserved. Instead of permanent deletion, files are moved into timestamped session directories under `~/.cache/airm/trash/`. It includes automatic pruning (run synchronously after each successful removal) of session directories older than 30 days and a manual `airm --clean [days]` command.
-- **`airhead` (`bin/airhead`)**: Output-limiting command wrapper and pipe filter for AI agents. When command or stdin output exceeds the configured line budget (default: first 20 and last 50 lines), it prints only the head, an omission summary with the full log path, and the tail, saving the complete output under `~/.cache/airhead/` while preserving the wrapped command's exit code. Full logs older than 7 days are pruned automatically, and `airhead --clean [days]` supports manual cleanup.
-- **`gh-ci-watch` (`bin/gh-ci-watch`)**: CI watcher that owns its polling loop instead of relying on `gh pr checks --watch` / `gh run watch` to exit. It takes a PR number, URL, or branch (or `--run <run-id>`), polls GitHub until every check is settled, and prints one `bucket<TAB>name<TAB>link` line per check. It waits up to `--grace` seconds (default 30) for checks to be registered right after PR creation or a rerun, and always stops at the absolute `--timeout` (default 600). Exit codes: `0` all passed, `1` failures or cancellations, `2` usage error, `3` timed out while pending, `4` no checks registered.
+- **AI agent scripts (`airm`, `airhead`, `gh-ci-watch`, `herdr-*`, statuslines, etc.)**: Managed in the [`anv`](https://github.com/travail/anv) repository alongside AI agent configurations, rules, hooks, and skills.
 
 ## Zsh Setup
 
@@ -135,7 +133,7 @@ Notes:
 - aqua's `bin` directory is added to `PATH` only by the shell initialization (`zsh/common/aqua/init.sh`). Processes started without it, such as `make` during a fresh bootstrap, cannot find aqua-managed tools like `jq`; the `jq` checks in `claude/Makefile` and `antigravity/Makefile` then print a notice and skip verification.
 - `zshrc` sources `zsh/common/*/init.sh` in order (aqua, then Homebrew) and each prepends to `PATH`, so a Homebrew copy of an aqua-managed tool shadows the aqua one. `brew bundle` does not remove formulae dropped from the `Brewfile`; run `brew uninstall` for them.
 - The 1Password wrappers `gh()` and `aws()` in `zsh/common/op/init.sh` are shell functions that call whichever binary is on `PATH`, so they work with either manager.
-- `bin/github-mcp-server` is a launcher that passes `gh auth token` to the aqua-managed `github-mcp-server` binary as `GITHUB_PERSONAL_ACCESS_TOKEN`.
+- The `github-mcp-server` launcher (managed in [`anv`](https://github.com/travail/anv)) passes `gh auth token` to the aqua-managed `github-mcp-server` binary as `GITHUB_PERSONAL_ACCESS_TOKEN`.
 - aqua does not install shell completions. `zsh/human/completion/init.sh` generates and caches them for `gh`, `kubectl`, `k9s`, `github-mcp-server` and `aws`; delete the cached file under `~/.cache/completions` after upgrading a tool.
 
 ## CLI Tools (aqua)
@@ -160,7 +158,7 @@ The following tools are managed by aqua (see `aqua.yaml`):
 | [AWS CLI](https://github.com/aws/aws-cli) | AWS command line interface |
 | [k9s](https://github.com/derailed/k9s) | Kubernetes TUI |
 | [kubectl](https://kubernetes.io/docs/reference/kubectl/) | Kubernetes command-line tool |
-| [github-mcp-server](https://github.com/github/github-mcp-server) | GitHub MCP server (launched via `bin/github-mcp-server`) |
+| [github-mcp-server](https://github.com/github/github-mcp-server) | GitHub MCP server (launcher managed in [`anv`](https://github.com/travail/anv)) |
 
 ## mise (Dev environment manager)
 
@@ -277,13 +275,11 @@ The root `Makefile` orchestrates these modules via `modules_setup`, `modules_lin
 
 The Claude Code status line is powered by [`ccstatusline`](https://github.com/sammcj/ccstatusline).
 Its configuration is managed under `claude/statusline/settings.json` and symlinked to
-`~/.config/ccstatusline/settings.json`. `bin/ccstatusline` is a symlink into
-`claude/statusline/node_modules/.bin/ccstatusline`, allowing `ccstatusline` to be
-called from `~/bin`.
+`~/.config/ccstatusline/settings.json`. The `ccstatusline` launcher and helpers are managed in
+[`anv`](https://github.com/travail/anv) and deployed to `~/bin`.
 
-In addition, `bin/claude-statusline-enterprise-credit` (a symlink to
-`claude/statusline/enterprise-credit.js`) formats the 5h/7d or usage-credit
-segment for `ccstatusline` via a `custom-command` widget, replacing
+In addition, `claude-statusline-enterprise-credit` (managed in [`anv`](https://github.com/travail/anv))
+formats the 5h/7d or usage-credit segment for `ccstatusline` via a `custom-command` widget, replacing
 ccstatusline's own built-in `session-usage`/`weekly-usage`/reset-timer
 widgets. Those built-in widgets call `/api/oauth/usage` directly, which
 returns 429 for an Enterprise seat, so this command fetches usage through
@@ -293,9 +289,8 @@ and renders whichever shape the account's response reports: `5h: N% (...)
 ($4/$10)` for a monthly usage-credit allowance. It exits cleanly with no
 output on fetch failure.
 
-(Legacy status line: `bin/claude-statusline`, a symlink to
-`claude/statusline/index.js`, is also provided as the previous custom
-script implementation. It shares the same `plan-usage-line.js` formatting.)
+(Legacy status line: `claude-statusline`, managed in [`anv`](https://github.com/travail/anv),
+is also provided as the previous custom script implementation. It shares the same `plan-usage-line.js` formatting.)
 
 To install dependencies and link the configuration (or after pulling a change to
 `claude/statusline/package.json`):
@@ -325,7 +320,7 @@ idle. The value is in seconds.
 
 ## Antigravity CLI Status Line
 
-The Antigravity CLI (agy) status line is powered by `yuys13/agystatusline`, a Go-based status line generator supporting Powerline and Solarized styling. Its configuration is managed under `antigravity/settings.toml` and symlinked to `~/.config/agystatusline/settings.toml`. A wrapper script in `bin/agystatusline` synchronizes current edit modes (`default`, `accept-edits`, `plan`) into the status line pill and inverts quota percentages to display usage consumption matching `ccstatusline`.
+The Antigravity CLI (agy) status line is powered by `yuys13/agystatusline`, a Go-based status line generator supporting Powerline and Solarized styling. Its configuration is managed under `antigravity/settings.toml` and symlinked to `~/.config/agystatusline/settings.toml`. A wrapper script managed in [`anv`](https://github.com/travail/anv) synchronizes current edit modes (`default`, `accept-edits`, `plan`) into the status line pill and inverts quota percentages to display usage consumption matching `ccstatusline`.
 
 To install the binary and link the configuration:
 
