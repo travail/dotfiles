@@ -174,7 +174,7 @@ spawn_and_prime_agent() {
           fi
         fi
       fi
-      start_cmd="agy --mode auto"
+      start_cmd="agy --mode accept-edits"
       if [ -n "$model" ]; then
         local quoted_model
         quoted_model=$(printf '%q' "$model")
@@ -368,16 +368,29 @@ EOF
   new_pane=$("${split_args[@]}" | jq -r '.result.pane.pane_id')
 
   if [ -z "$LABEL" ]; then
-    # Derive the prefix from the workspace's own label (not the target pane's
-    # label) so this stays correct even if panes were manually renamed.
-    local prefix
-    prefix=$(herdr workspace get "$workspace_id" | jq -r '.result.workspace.label')
-    LABEL="${prefix}-${new_pane#*:}"
+    local tab_id tab_label prefix=""
+    tab_id=$(herdr pane get "$target_pane" | jq -r '.result.pane.tab_id // empty')
+    if [ -n "$tab_id" ]; then
+      tab_label=$(herdr tab get "$tab_id" | jq -r '.result.tab.label // empty')
+      prefix="$tab_label"
+    fi
+    if [ -z "$prefix" ]; then
+      prefix=$(herdr workspace get "$workspace_id" | jq -r '.result.workspace.label')
+    fi
+    if [ "$opt_name" = "herdr-spawn-cowork-agent" ]; then
+      LABEL="${prefix}-reviewer"
+    else
+      LABEL="${prefix}-${new_pane#*:}"
+    fi
   fi
   herdr pane rename "$new_pane" "$LABEL" >&2
 
   echo "$opt_name: spawning $AGENT in $new_pane ($LABEL)..." >&2
   spawn_and_prime_agent "$new_pane" "$AGENT" "$MODEL" "$EFFORT"
+
+  if [ "$opt_name" = "herdr-spawn-cowork-agent" ]; then
+    herdr agent rename "$new_pane" "$LABEL" >&2
+  fi
 
   echo "$new_pane"
 }
@@ -489,10 +502,25 @@ setup_1_plus_1_tab() {
     jq -r '.result.pane.pane_id')
   herdr pane swap --source-pane "$top_pane" --target-pane "$root_pane" >&2
 
+  local top_label="" agent_name=""
+  case "$label_prefix" in
+    cos | pjm)
+      top_label="${label_prefix}-${top_pane#*:}"
+      agent_name="${label_prefix}"
+      ;;
+    *)
+      top_label="${label_prefix}-author"
+      agent_name="${label_prefix}-author"
+      ;;
+  esac
+
   herdr pane rename "$root_pane" "${label_prefix}-${root_pane#*:}" >&2
-  herdr pane rename "$top_pane" "${label_prefix}-${top_pane#*:}" >&2
+  herdr pane rename "$top_pane" "$top_label" >&2
 
   spawn_and_prime_agent "$top_pane" "$agent" "$model" "$effort"
+  if [ -n "$agent_name" ]; then
+    herdr agent rename "$top_pane" "$agent_name" >&2
+  fi
 
   if [ -n "$skill_cmd" ]; then
     herdr pane run "$top_pane" "$skill_cmd" >&2

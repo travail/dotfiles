@@ -5,32 +5,64 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: herdr-init-cos [-h|--help] [-A AGENT] [-m MODEL] [-e EFFORT] [dir]
+Usage: herdr-init-cos [-h|--help] [-A AGENT|--agent AGENT] [--agy] [-m MODEL] [-e EFFORT] [dir]
 
 Arguments:
   dir       Working directory for the CoS workspace. (default: $HOME)
 
 Options:
-  -A AGENT  Agent type: agy or claude. (default: agy)
-  -m MODEL  Model name override.
-  -e EFFORT Effort level override.
-  -h, --help Show this help and exit.
+  -A, --agent AGENT  Agent type: claude or agy. (default: claude)
+  --agy              Shorthand for -A agy.
+  -m MODEL           Model name override.
+  -e EFFORT          Effort level override.
+  -h, --help         Show this help and exit.
 EOF
 }
 
 if [ $# -gt 0 ]; then
   ARGS=()
-  for arg in "$@"; do
-    if [ "$arg" = "--help" ]; then
-      ARGS+=("-h")
-    else
-      ARGS+=("$arg")
-    fi
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --help)
+        ARGS+=("-h")
+        shift
+        ;;
+      --agent)
+        if [ $# -lt 2 ]; then
+          echo "Error: --agent requires an argument" >&2
+          usage >&2
+          exit 1
+        fi
+        ARGS+=("-A" "$2")
+        shift 2
+        ;;
+      --agent=*)
+        ARGS+=("-A" "${1#*=}")
+        shift
+        ;;
+      --agy)
+        ARGS+=("-A" "agy")
+        shift
+        ;;
+      --)
+        shift
+        ARGS+=("--" "$@")
+        break
+        ;;
+      *)
+        ARGS+=("$1")
+        shift
+        ;;
+    esac
   done
-  set -- "${ARGS[@]}"
+  if [ ${#ARGS[@]} -gt 0 ]; then
+    set -- "${ARGS[@]}"
+  else
+    set --
+  fi
 fi
 
-AGENT="agy"
+AGENT="claude"
 MODEL=""
 EFFORT=""
 
