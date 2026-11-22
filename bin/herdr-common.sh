@@ -174,7 +174,7 @@ spawn_and_prime_agent() {
           fi
         fi
       fi
-      start_cmd="agy --mode auto"
+      start_cmd="agy --mode accept-edits"
       if [ -n "$model" ]; then
         local quoted_model
         quoted_model=$(printf '%q' "$model")
