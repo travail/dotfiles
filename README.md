@@ -130,7 +130,7 @@ Otherwise it goes to aqua: aqua has a definition, it is a standalone binary shar
 
 Notes:
 
-- aqua's `bin` directory is added to `PATH` only by the shell initialization (`zsh/common/aqua/init.sh`). Processes started without it, such as `make` during a fresh bootstrap, cannot find aqua-managed tools like `jq`; the `jq` checks in `claude/Makefile` and `antigravity/Makefile` then print a notice and skip verification.
+- aqua's `bin` directory is added to `PATH` only by the shell initialization (`zsh/common/aqua/init.sh`). Processes started without it, such as `make` during a fresh bootstrap, cannot find aqua-managed tools like `jq`; the `jq` check in `antigravity/Makefile` then print a notice and skip verification.
 - `zshrc` sources `zsh/common/*/init.sh` in order (aqua, then Homebrew) and each prepends to `PATH`, so a Homebrew copy of an aqua-managed tool shadows the aqua one. `brew bundle` does not remove formulae dropped from the `Brewfile`; run `brew uninstall` for them.
 - The 1Password wrappers `gh()` and `aws()` in `zsh/common/op/init.sh` are shell functions that call whichever binary is on `PATH`, so they work with either manager.
 - The `github-mcp-server` launcher (managed in [`anv`](https://github.com/travail/anv)) passes `gh auth token` to the aqua-managed `github-mcp-server` binary as `GITHUB_PERSONAL_ACCESS_TOKEN`.
@@ -263,60 +263,21 @@ op item get GPG-Public-Key-Git-Signing --fields public_key | gpg --import
 
 ## Modules and Directory Structure
 
-To keep tool-specific configurations modular and cohesive, ecosystem-specific files are organized under top-level module directories (e.g. `claude/`, `antigravity/`). Each module provides a standalone `Makefile` conforming to a common interface:
+To keep tool-specific configurations modular and cohesive, ecosystem-specific files are organized under top-level module directories (e.g. `antigravity/`). Each module provides a standalone `Makefile` conforming to a common interface:
 
 - `setup`: complete module environment setup (includes `link` and any tool-specific dependency installation; the default target `all` depends on it).
 - `link`: create symlinks for module-managed files and scripts.
-- `clean`: remove the symlinks the module created, and only when they still point into this repository; real files and installed dependencies (e.g. `node_modules`) are left in place.
+- `clean`: remove the symlinks the module created, and only when they still point into this repository; real files and installed dependencies are left in place.
 
-The root `Makefile` orchestrates these modules via `modules_setup`, `modules_link`, and `modules_clean`, and provides individual module shortcuts such as `make claude` and `make antigravity`.
+The root `Makefile` orchestrates these modules via `modules_setup`, `modules_link`, and `modules_clean`, and provides individual module shortcuts such as `make antigravity`.
 
 ## Claude Code Status Line
 
 The Claude Code status line is powered by [`ccstatusline`](https://github.com/sammcj/ccstatusline).
-Its configuration is managed under `claude/statusline/settings.json` and symlinked to
-`~/.config/ccstatusline/settings.json`. The `ccstatusline` launcher and helpers are managed in
-[`anv`](https://github.com/travail/anv) and deployed to `~/bin`.
-
-In addition, `claude-statusline-enterprise-credit` (managed in [`anv`](https://github.com/travail/anv))
-formats the 5h/7d or usage-credit segment for `ccstatusline` via a `custom-command` widget, replacing
-ccstatusline's own built-in `session-usage`/`weekly-usage`/reset-timer
-widgets. Those built-in widgets call `/api/oauth/usage` directly, which
-returns 429 for an Enterprise seat, so this command fetches usage through
-the Claude Agent SDK instead (reusing `usage.js` and `plan-usage-line.js`)
-and renders whichever shape the account's response reports: `5h: N% (...)
-· 7d: N% (...)` (either window may be absent on its own), or `credit: 42%
-($4/$10)` for a monthly usage-credit allowance. It exits cleanly with no
-output on fetch failure.
-
-(Legacy status line: `claude-statusline`, managed in [`anv`](https://github.com/travail/anv),
-is also provided as the previous custom script implementation. It shares the same `plan-usage-line.js` formatting.)
-
-To install dependencies and link the configuration (or after pulling a change to
-`claude/statusline/package.json`):
-
-```sh
-make claude
-# or: make modules_setup
-```
-
-Registering the status line takes one manual step. `~/.claude/settings.json`
-holds machine-specific entries such as the permission allowlist, so it is
-deliberately kept outside this repository and `make` cannot write to it.
-`make claude` will prompt you with the required snippet if `statusLine` is
-missing or improperly configured. Add the `statusLine` field by hand:
-
-```json
-"statusLine": {
-  "type": "command",
-  "command": "ccstatusline",
-  "refreshInterval": 60
-}
-```
-
-Without `refreshInterval` the command runs only on Claude Code's own events, and
-the time remaining on each rate limit window goes stale while the session sits
-idle. The value is in seconds.
+It is managed entirely in [`anv`](https://github.com/travail/anv), not in this repository: the
+launcher, helper scripts, and dependencies live there, and its configuration is `claude/statusline/settings.json`
+in the `anv` repository, symlinked to `~/.config/ccstatusline/settings.json` by `make link` in `anv`.
+The `statusLine` entry of `~/.claude/settings.json` is also set up by `anv` (`claude/settings.json`).
 
 ## Antigravity CLI Status Line
 

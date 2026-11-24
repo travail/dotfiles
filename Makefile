@@ -1,14 +1,11 @@
 PWD := $(CURDIR)
 UNAME := $(shell uname)
 
-MODULES := claude antigravity
+MODULES := antigravity
 
 .PHONY: all claude_bootstrap agy_bootstrap brew_bundle bin ln_bin ln_emacs ln_git ln_tmux ln_zshrc ln_gemrc ln_zim zim ln_aqua ln_mise ln_herdr clean_aqua clean_emacs clean cleanall $(MODULES) modules_setup modules_link modules_clean
 
 all: .make/install_packages .make/aqua_install .make/mise_install claude_bootstrap agy_bootstrap ln_bin ln_emacs ln_git ln_tmux ln_zshrc ln_gemrc ln_aqua ln_mise ln_zim ln_herdr modules_setup
-
-claude: .make/mise_install
-	$(MAKE) -C $@ setup
 
 antigravity: .make/mise_install
 	$(MAKE) -C $@ setup
