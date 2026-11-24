@@ -130,7 +130,7 @@ Otherwise it goes to aqua: aqua has a definition, it is a standalone binary shar
 
 Notes:
 
-- aqua's `bin` directory is added to `PATH` only by the shell initialization (`zsh/common/aqua/init.sh`). Processes started without it, such as `make` during a fresh bootstrap, cannot find aqua-managed tools like `jq`; the `jq` check in `antigravity/Makefile` then print a notice and skip verification.
+- aqua's `bin` directory is added to `PATH` only by the shell initialization (`zsh/common/aqua/init.sh`). Processes started without it, such as `make` during a fresh bootstrap, cannot find aqua-managed tools like `jq`; the `jq` check in `antigravity/Makefile` then prints a notice and skips verification.
 - `zshrc` sources `zsh/common/*/init.sh` in order (aqua, then Homebrew) and each prepends to `PATH`, so a Homebrew copy of an aqua-managed tool shadows the aqua one. `brew bundle` does not remove formulae dropped from the `Brewfile`; run `brew uninstall` for them.
 - The 1Password wrappers `gh()` and `aws()` in `zsh/common/op/init.sh` are shell functions that call whichever binary is on `PATH`, so they work with either manager.
 - The `github-mcp-server` launcher (managed in [`anv`](https://github.com/travail/anv)) passes `gh auth token` to the aqua-managed `github-mcp-server` binary as `GITHUB_PERSONAL_ACCESS_TOKEN`.
